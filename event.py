@@ -130,10 +130,10 @@ class Event(object):
 
   @property
   def completed(self):
-    return (self.rounds[-1].num_heats == 1 and self.rounds[-1].completed)
+    return (self.current_round.num_heats == 1 and self.current_round.completed)
 
   @property
   def winner(self):
     if self.completed:
-      return self.rounds[-1].heats[0].winner
+      return self.current_round.heats[0].winner
     return None
