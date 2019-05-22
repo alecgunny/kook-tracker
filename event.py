@@ -1,6 +1,7 @@
 import urllib
 from bs4 import BeautifulSoup as bs
 import itertools
+import json
 
 
 def load_soup(url):
@@ -79,24 +80,53 @@ class Round(object):
 
   @property
   def completed(self):
-    if not self.initialized:
-      return False
     return all([heat.completed for heat in self.heats])
 
   @property
   def num_heats(self):
-    if not self.initialized:
-      return None
     return len(self.heats)
 
   @property
   def winners(self):
-    if not self.initialized:
-      return None
     return [heat.winner for heat in self.heats]
 
   @property
   def losers(self):
-    if not self.initialized:
-      return None
     return [heat.loser for heat in self.heats]
+
+
+class Event(object):
+  def __init__(self, base_url):
+    self.base_url = base_url+"/results"
+    results_soup = load_soup(self.base_url)
+    first_round_link = results_soup.find(
+      'div', class_='post-event-watch-round-nav__item').find('a')
+    round_data = json.loads(first_round_link.attrs['data-gtm-event'])
+    self.initial_round_id = int(round_data['round-ids'])
+    self.rounds = [Round(self.get_round_url(0))]
+    self.update_rounds()
+
+  def update_rounds(self):
+    while True:
+      if self.rounds[-1].completed:
+        rounds_completed = len(self.rounds)
+        next_round = Round(self.get_round_url(rounds_completed))
+        self.rounds.append(next_round)
+        if next_round.num_heats == 1:
+          break
+      else:
+        break
+
+  def get_round_url(self, round_number):
+    return "{}?roundId={}".format(
+      self.base_url, str(self.initial_round_id+round_number))
+
+  @property
+  def completed(self):
+    return (self.rounds[-1].num_heats == 1 and self.rounds[-1].completed)
+
+  @property
+  def winner(self):
+    if self.completed:
+      return self.rounds[-1].heats[0].winner
+    return None
