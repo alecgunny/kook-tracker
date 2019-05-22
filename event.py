@@ -108,7 +108,7 @@ class Event(object):
 
   def update_rounds(self):
     while True:
-      if self.rounds[-1].completed:
+      if self.rounds[-1].completed and self.rounds[-1].num_heats > 1:
         rounds_completed = len(self.rounds)
         next_round = Round(self.get_round_url(rounds_completed))
         self.rounds.append(next_round)
