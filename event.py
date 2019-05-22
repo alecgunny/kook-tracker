@@ -106,20 +106,27 @@ class Event(object):
     self.rounds = [Round(self.get_round_url(0))]
     self.update_rounds()
 
-  def update_rounds(self):
-    while True:
-      if self.rounds[-1].completed and self.rounds[-1].num_heats > 1:
-        rounds_completed = len(self.rounds)
-        next_round = Round(self.get_round_url(rounds_completed))
-        self.rounds.append(next_round)
-        if next_round.num_heats == 1:
-          break
-      else:
-        break
-
   def get_round_url(self, round_number):
     return "{}?roundId={}".format(
       self.base_url, str(self.initial_round_id+round_number))
+
+  def update_rounds(self):
+    while True:
+      if self.current_round.completed and self.current_round.num_heats > 1:
+        num_rounds_completed = len(self.rounds)
+        next_round = Round(self.get_round_url(num_rounds_completed))
+        self.rounds.append(next_round)
+      else:
+        break
+
+  def monitor(self):
+    while not self.completed:
+      self.update_rounds()
+      self.current_round.update_heats()
+
+  @property
+  def current_round(self):
+    return self.rounds[-1]
 
   @property
   def completed(self):
