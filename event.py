@@ -32,7 +32,6 @@ class Client(object):
 client = Client()
 
 
-
 def get_athlete_rankings(year):
   athletes_url = "{}/athletes/tour/mct?year={}".format(
       _HOMEPAGE_URL, year)
