@@ -2,6 +2,11 @@ import urllib
 from bs4 import BeautifulSoup as bs
 import itertools
 import json
+import datetime
+import time
+
+
+_HOMEPAGE_URL = "www.worldsurfleague.com"
 
 
 def load_soup(url):
@@ -96,8 +101,12 @@ class Round(object):
 
 
 class Event(object):
-  def __init__(self, base_url):
-    self.base_url = base_url+"/results"
+  def __init__(self, name, year, event_id, draft_date):
+    self.name = name
+    self.year = year
+
+    self.base_url = "{}/events/{}/mct/{}/{}/results'.format(
+      _HOMEPAGE_URL, year, event_id, name)
     results_soup = load_soup(self.base_url)
     first_round_link = results_soup.find(
       'div', class_='post-event-watch-round-nav__item').find('a')
@@ -105,6 +114,10 @@ class Event(object):
     self.initial_round_id = int(round_data['round-ids'])
     self.rounds = [Round(self.get_round_url(0))]
     self.update_rounds()
+
+    self.competitors = []
+    self.has_drafted = False
+    self.draft_date = draft_date
 
   def get_round_url(self, round_number):
     return "{}?roundId={}".format(
@@ -121,6 +134,10 @@ class Event(object):
 
   def monitor(self):
     while not self.completed:
+      if not (self.has_drafted and 
+          datetime.datetime.fromtimestamp(time.time()) >= self.draft_date):
+        self.draft()
+
       self.update_rounds()
       self.current_round.update_heats()
 
@@ -137,3 +154,30 @@ class Event(object):
     if self.completed:
       return self.current_round.heats[0].winner
     return None
+
+  def add_competitor(self, competitor):
+    if not competitor in self.competitors:
+      self.competitors.append(competitor)
+      competitor.add_event(self)
+
+  def draft(self):
+    remaining_surfers = self.default_draft_order.copy()
+    while len(remaining_surfers) > 0:
+      for competitor in self.competitors:
+        drafted_surfer = competitor.draft(self, remaining_surfers)
+        del remaining_surfers[remaining_surfers.index(drafted_surfer)]
+    self.has_drafted = True
+  
+  @property
+  def default_draft_order(self):
+    athletes_url = "{}/athletes/tour/mct?year={}".format(
+      _HOMEPAGE_URL, self.year)
+    athlete_soup = load_soup(athletes_url)
+    names = athlete_soup.find_all('a', class_='athlete-name')
+    return [name.text for name in names][:36]
+
+
+class Competitor(object):
+  def __init__(self, name):
+    self.name = name
+    self.events = []
