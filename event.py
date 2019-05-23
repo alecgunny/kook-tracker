@@ -1,27 +1,77 @@
 import urllib
 from bs4 import BeautifulSoup as bs
-import itertools
 import json
 import datetime
 import time
+from collections import OrderedDict
 
 
-_HOMEPAGE_URL = "www.worldsurfleague.com"
+_HOMEPAGE_URL = "https://www.worldsurfleague.com"
+_SECS_BETWEEN_CALLS = 2
+_SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
 
 
-def load_soup(url):
-  with urllib.request.urlopen(url) as html:
-    return bs(html, 'lxml')
+class Client(object):
+  def __init__(self, wait_time=_SECS_BETWEEN_CALLS):
+    self.wait_time = wait_time
+    self.last_call_time = time.time()
+
+  @property
+  def sleeping(self):
+    return time.time() - self.last_call_time < self.wait_time
+
+  def __call__(self, url):
+    while self.sleeping:
+      time.sleep(0.01)
+
+    with urllib.request.urlopen(url) as html:
+      self.last_call_time = time.time()
+      return bs(html, 'lxml')
+
+
+client = Client()
 
 
 class Heat(object):
-  def __init__(self, athlete_names, scores):
-    self.athlete_names = athlete_names
-    self.scores = scores
+  def __init__(self, round_, heat_div):
+    self.round = round_
+    self.id = heat_div.attrs['data-heat-id']
+    self._update_status(heat_div)
 
-  def add_score(self, athlete_name, score):
-    assert athlete_name in self.athlete_names
-    self.scores[self.athlete_names.index(athlete_name)] = score
+  def _update_status(self, div):
+    heat_status_span = div.find('span', class_='hot-heat__status')
+    self.status = heat_status_span.attrs['class'][1].split("--")[1]
+
+    self._completed = self.status == 'over'
+    self._score_map = self._get_scores_and_athlete_names(div)
+    self._div = div
+
+  def _get_scores_and_athlete_names(self, div):
+    score_map = OrderedDict()
+    athlete_divs = div.find_all(
+      'div', class_='hot-heat-athlete__name--full')
+    for div in athlete_divs:
+      athlete_name = div.text
+      score = div.find_next_sibling(
+        'div', class_='hot-heat-athlete__score').text
+
+      try:
+        score_map[athlete_name] = float(score)
+      except ValueError:
+        score_map[athlete_name] = None
+
+    return score_map
+
+  def _check_for_update(func):
+    def check_for_update(self):
+      if not self._completed and not client.sleeping:
+        soup = client(self.round.url)
+        div = soup.find(
+          'div', class_='post-event-watch-heat-grid__heat', attrs={
+            'data-heat-id': self.id})
+        self._update_status(div)
+      return func(self)
+    return check_for_update
 
   def _reduce_name(self, reduce_fn):
     if not self.completed:
@@ -30,8 +80,27 @@ class Heat(object):
     return self.athlete_names[idx]
 
   @property
+  @_check_for_update
+  def div(self):
+    return self._div
+
+  @property
+  @_check_for_update
   def completed(self):
-    return all([score is not None for score in self.scores])
+    return self._completed
+
+  @property
+  @_check_for_update
+  def score_map(self):
+    return self._score_map
+
+  @property
+  def scores(self):
+    return [i for i in self.score_map.values()]
+
+  @property
+  def athlete_names(self):
+    return [i for i in self.score_map.keys()]
 
   @property
   def winner(self):
@@ -46,42 +115,13 @@ class Round(object):
   def __init__(self, url):
     self.url = url
     self.initialized = False
-    self.update_heats()
 
-  def update_heats(self):
-    soup = load_soup(self.url)
-    if not self.initialized:
-      self.heats = itertools.cycle([None])
-
+    soup = client(self.url)
+    self.heats = []
     heat_divs = soup.find_all(
       'div', class_='post-event-watch-heat-grid__heat')
-    initial_heats = []
-    for heat, div in zip(self.heats, heat_divs):
-      if heat is not None and heat.completed:
-        continue
-  
-      athletes, scores = [], []
-      athlete_divs = div.find_all(
-        'div', class_='hot-heat-athlete__name--full')
-      for a_div in athlete_divs:
-        athletes.append(a_div.text)
-        score = a_div.find_next_sibling(
-          'div', class_='hot-heat-athlete__score').text
-
-        try:
-          scores.append(float(score))
-        except ValueError:
-          scores.append(None)
-
-      if heat is not None:
-        for athlete, score in zip(athletes, scores):
-          heat.add_score(athlete, score)
-      else:
-        initial_heats.append(Heat(athletes, scores))
-
-    if not self.initialized:
-      self.heats = initial_heats
-      self.initialized = True
+    for div in heat_divs:
+      self.heats.append(Heat(self, div))
 
   @property
   def completed(self):
@@ -105,9 +145,9 @@ class Event(object):
     self.name = name
     self.year = year
 
-    self.base_url = "{}/events/{}/mct/{}/{}/results'.format(
+    self.base_url = '{}/events/{}/mct/{}/{}/results'.format(
       _HOMEPAGE_URL, year, event_id, name)
-    results_soup = load_soup(self.base_url)
+    results_soup = client(self.base_url)
     first_round_link = results_soup.find(
       'div', class_='post-event-watch-round-nav__item').find('a')
     round_data = json.loads(first_round_link.attrs['data-gtm-event'])
@@ -116,6 +156,7 @@ class Event(object):
     self.update_rounds()
 
     self.competitors = []
+    self.competitor_draft_order = []
     self.has_drafted = False
     self.draft_date = draft_date
 
@@ -150,7 +191,7 @@ class Event(object):
     return (self.current_round.num_heats == 1 and self.current_round.completed)
 
   @property
-  def winner(self):
+  def winning_surfer(self):
     if self.completed:
       return self.current_round.heats[0].winner
     return None
@@ -158,34 +199,63 @@ class Event(object):
   def add_competitor(self, competitor):
     if not competitor in self.competitors:
       self.competitors.append(competitor)
+      self.competitor_draft_order.append(competitor)
       competitor.add_event(self)
 
+  def update_draft_order(self, competitor, new_position):
+    current_position = self.competitor_draft_order.index(competitor)
+    del self.competitor_draft_order[current_position]
+    self.competitor_draft_order.insert(new_position, competitor)
+
   def draft(self):
-    remaining_surfers = self.default_draft_order.copy()
+    remaining_surfers = self.default_athlete_draft_order.copy()
     while len(remaining_surfers) > 0:
-      for competitor in self.competitors:
+      for competitor in self.competitor_draft_order:
         drafted_surfer = competitor.draft(self, remaining_surfers)
         del remaining_surfers[remaining_surfers.index(drafted_surfer)]
     self.has_drafted = True
   
   @property
-  def default_draft_order(self):
+  def default_athlete_draft_order(self):
     athletes_url = "{}/athletes/tour/mct?year={}".format(
       _HOMEPAGE_URL, self.year)
-    athlete_soup = load_soup(athletes_url)
+    athlete_soup = client(athletes_url)
     names = athlete_soup.find_all('a', class_='athlete-name')
     return [name.text for name in names][:36]
 
   def score(self, competitor):
-    score = 0
+    total_score = 0
     for surfer in competitor.events[self]['team']:
-      for round_ in self.rounds:
-        # TODO: replace with real scoring function
+      surfer_score = _SCORE_BREAKDOWN[0]
+      for n, round_ in enumerate(self.rounds[2:]):
+        do_break = True
         for heat in round_.heats:
           if surfer in heat.athlete_names:
-            score += 1
+            surfer_score = _SCORE_BREAKDOWN[n+1]
+            do_break = False
             break
-    return score
+        if do_break:
+          break
+      if round_.heats[0].winner == surfer:
+        surfer_score = _SCORE_BREAKDOWN[-1]
+      total_score += surfer_score
+    return total_score
+
+  @property
+  def scores(self):
+    return [self.score(competitor) for competitor in self.competitors]
+
+  @property
+  def ranked_scores(self):
+    return sorted(self.scores, reverse=True)
+
+  @property
+  def ranked_competitors(self):
+    return sorted(self.competitors, key=self.score, reverse=True)
+
+  @property
+  def winning_competitor(self):
+    return self.ranked_competitors[0]
 
 
 class Competitor(object):
@@ -196,7 +266,7 @@ class Competitor(object):
   def add_event(self, event):
     if event not in self.events:
       self.events[event] = {
-        'team': [], 'draft_order': event.default_draft_order}
+        'team': [], 'draft_order': event.default_athlete_draft_order}
 
   def update_draft_order(self, event, surfer, new_position):
     current_position = self.events[event]['draft_order'].index(surfer)
