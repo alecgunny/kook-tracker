@@ -94,7 +94,8 @@ class Heat(object):
 
   @property
   def athlete_names(self):
-    return [i for i in self.score_map.keys()]
+    # using _score_map because this should be static, right?
+    return [i for i in self._score_map.keys()]
 
   def first_or_last(self, first):
     if self.completed:
@@ -134,6 +135,11 @@ class Round(object):
     return len(self.heats)
 
   @property
+  def athlete_names(self):
+    return [
+      athlete for heat in self.heats for athlete in heat.athlete_names]
+
+  @property
   def winners(self):
     return [heat.winner for heat in self.heats]
 
@@ -150,14 +156,15 @@ class Event(object):
     self.base_url = '{}/events/{}/mct/{}/{}/results'.format(
       _HOMEPAGE_URL, year, event_id, name)
     results_soup = client(self.base_url)
+
     first_round_link = results_soup.find(
       'div', class_='post-event-watch-round-nav__item').find('a')
     round_data = json.loads(first_round_link.attrs['data-gtm-event'])
     self.initial_round_id = int(round_data['round-ids'])
-    self.rounds = [Round(self.get_round_url(0))]
-    self.all_athletes = [
-      athlete for heat in self.rounds[0].heats for athlete in heat.athlete_names]
+    initial_round = Round(self.get_round_url(0))
+    self.all_athletes = initial_round.athlete_names
 
+    self.rounds = [initial_round]
     self.update_rounds()
 
     self.competitors = []
@@ -239,12 +246,9 @@ class Event(object):
       surfer_score = _SCORE_BREAKDOWN[0]
 
       for n, round_ in enumerate(self.rounds[2:]):
-        all_heat_athletes = [
-          athlete for heat in round_.heats for athlete in heat.athlete_names]
-        if surfer in all_heat_athletes:
-          surfer_score = _SCORE_BREAKDOWN[n+1]
-        else:
+        if surfer not in round.athlete_names:
           break
+        surfer_score = _SCORE_BREAKDOWN[n+1]
 
       # check if event winner
       if self.winning_surfer == surfer:
