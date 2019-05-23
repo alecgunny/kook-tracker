@@ -178,9 +178,7 @@ class Event(object):
       if not (self.has_drafted and 
           datetime.datetime.fromtimestamp(time.time()) >= self.draft_date):
         self.draft()
-
       self.update_rounds()
-      self.current_round.update_heats()
 
   @property
   def current_round(self):
