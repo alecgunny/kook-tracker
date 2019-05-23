@@ -32,6 +32,15 @@ class Client(object):
 client = Client()
 
 
+
+def get_athlete_rankings(year):
+  athletes_url = "{}/athletes/tour/mct?year={}".format(
+      _HOMEPAGE_URL, year)
+  athlete_soup = client(athletes_url)
+  names = athlete_soup.find_all('a', class_='athlete-name')
+  return [name.text for name in names][:36]
+
+
 class Heat(object):
   def __init__(self, round_, heat_div):
     self.round = round_
@@ -231,14 +240,6 @@ class Event(object):
         drafted_surfer = competitor.draft(self, remaining_surfers)
         del remaining_surfers[remaining_surfers.index(drafted_surfer)]
     self.has_drafted = True
-  
-  @property
-  def default_athlete_draft_order(self):
-    athletes_url = "{}/athletes/tour/mct?year={}".format(
-      _HOMEPAGE_URL, self.year)
-    athlete_soup = client(athletes_url)
-    names = athlete_soup.find_all('a', class_='athlete-name')
-    return [name.text for name in names][:36]
 
   def score(self, competitor):
     total_score = 0
@@ -282,7 +283,7 @@ class Competitor(object):
   def add_event(self, event):
     if event not in self.events:
       self.events[event] = {
-        'team': [], 'draft_order': event.default_athlete_draft_order}
+        'team': [], 'draft_order': get_athlete_rankings(event.year)}
 
   def update_draft_order(self, event, surfer, new_position):
     assert event in self.events
