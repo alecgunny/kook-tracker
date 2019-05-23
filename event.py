@@ -73,12 +73,6 @@ class Heat(object):
       return func(self)
     return check_for_update
 
-  def _reduce_name(self, reduce_fn):
-    if not self.completed:
-      return None
-    idx = self.scores.index(reduce_fn(self.scores))
-    return self.athlete_names[idx]
-
   @property
   @_check_for_update
   def div(self):
@@ -161,6 +155,9 @@ class Event(object):
     round_data = json.loads(first_round_link.attrs['data-gtm-event'])
     self.initial_round_id = int(round_data['round-ids'])
     self.rounds = [Round(self.get_round_url(0))]
+    self.all_athletes = [
+      athlete for heat in self.rounds[0].heats for athlete in heat.athlete_names]
+
     self.update_rounds()
 
     self.competitors = []
@@ -209,12 +206,19 @@ class Event(object):
       competitor.add_event(self)
 
   def update_draft_order(self, competitor, new_position):
+    assert new_position in range(len(self.all_athletes))
+    assert competitor in self.competitors
+
     current_position = self.competitor_draft_order.index(competitor)
     del self.competitor_draft_order[current_position]
     self.competitor_draft_order.insert(new_position, competitor)
 
   def draft(self):
-    remaining_surfers = self.default_athlete_draft_order.copy()
+    if len(competitors) == 0:
+      print("Nothing to draft!")
+      return
+
+    remaining_surfers = self.all_athletes.copy()
     while len(remaining_surfers) > 0:
       for competitor in self.competitor_draft_order:
         drafted_surfer = competitor.draft(self, remaining_surfers)
@@ -277,6 +281,10 @@ class Competitor(object):
         'team': [], 'draft_order': event.default_athlete_draft_order}
 
   def update_draft_order(self, event, surfer, new_position):
+    assert event in self.events
+    assert new_position in range(len(self.events[event]['draft_order']))
+    assert surfer in self.events[event]['draft_order']
+
     current_position = self.events[event]['draft_order'].index(surfer)
     del self.events[event]['draft_order'][current_position]
     self.events[event]['draft_order'][new_position] = surfer
