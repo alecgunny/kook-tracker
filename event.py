@@ -176,8 +176,41 @@ class Event(object):
     names = athlete_soup.find_all('a', class_='athlete-name')
     return [name.text for name in names][:36]
 
+  def score(self, competitor):
+    score = 0
+    for surfer in competitor.events[self]['team']:
+      for round_ in self.rounds:
+        # TODO: replace with real scoring function
+        for heat in round_.heats:
+          if surfer in heat.athlete_names:
+            score += 1
+            break
+    return score
+
 
 class Competitor(object):
   def __init__(self, name):
     self.name = name
-    self.events = []
+    self.events = {}
+
+  def add_event(self, event):
+    if event not in self.events:
+      self.events[event] = {
+        'team': [], 'draft_order': event.default_draft_order}
+
+  def update_draft_order(self, event, surfer, new_position):
+    current_position = self.events[event]['draft_order'].index(surfer)
+    del self.events[event]['draft_order'][current_position]
+    self.events[event]['draft_order'][new_position] = surfer
+
+  def draft(self, event, remaining_surfers):
+    for surfer in self.events[event]['draft_order']:
+      if surfer in remaining_surfers:
+        self.events[event]['team'].append(surfer)
+        return surfer
+
+  @property
+  def event_scores(self):
+    return {
+      '{}-{}'.format(event.name, event.year): event.score(self) for
+        event in self.events.keys()}
