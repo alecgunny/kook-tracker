@@ -102,13 +102,21 @@ class Heat(object):
   def athlete_names(self):
     return [i for i in self.score_map.keys()]
 
+  def first_or_last(self, first):
+    if self.completed:
+      return sorted(
+        self.score_map.keys(),
+        key=lambda x: self.score_map[key],
+        reverse=first)[0]
+    return None
+
   @property
   def winner(self):
-    return self._reduce_name(max)
+    return first_or_last(first=True)
 
   @property
   def loser(self):
-    return self._reduce_name(min)
+    return first_or_last(first=False)
 
 
 class Round(object):
@@ -225,17 +233,19 @@ class Event(object):
     total_score = 0
     for surfer in competitor.events[self]['team']:
       surfer_score = _SCORE_BREAKDOWN[0]
+
       for n, round_ in enumerate(self.rounds[2:]):
-        do_break = True
-        for heat in round_.heats:
-          if surfer in heat.athlete_names:
-            surfer_score = _SCORE_BREAKDOWN[n+1]
-            do_break = False
-            break
-        if do_break:
+        all_heat_athletes = [
+          athlete for heat in round_.heats for athlete in heat.athlete_names]
+        if surfer in all_heat_athletes:
+          surfer_score = _SCORE_BREAKDOWN[n+1]
+        else:
           break
-      if round_.heats[0].winner == surfer:
+
+      # check if event winner
+      if self.winning_surfer == surfer:
         surfer_score = _SCORE_BREAKDOWN[-1]
+
       total_score += surfer_score
     return total_score
 
