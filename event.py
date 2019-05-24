@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 _HOMEPAGE_URL = "https://www.worldsurfleague.com"
 _SECS_BETWEEN_CALLS = 2
-_SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
+_SCORE_BREAKDOWN = [265, 265, 1330, 3320, 4745, 6085, 7800, 10000]
 
 
 class Client(object):
@@ -70,8 +70,8 @@ class Heat(object):
 
     return score_map
 
-  def _check_for_update(func):
-    def check_for_update(self):
+  def _maybe_update(func):
+    def check_then_run(self):
       if not self._completed and not client.sleeping:
         soup = client(self.round.url)
         div = soup.find(
@@ -79,20 +79,20 @@ class Heat(object):
             'data-heat-id': self.id})
         self._update_status(div)
       return func(self)
-    return check_for_update
+    return check_then_run
 
   @property
-  @_check_for_update
+  @_maybe_update
   def div(self):
     return self._div
 
   @property
-  @_check_for_update
+  @_maybe_update
   def completed(self):
     return self._completed
 
   @property
-  @_check_for_update
+  @_maybe_update
   def score_map(self):
     return self._score_map
 
@@ -173,7 +173,9 @@ class Event(object):
     self.all_athletes = initial_round.athlete_names
 
     self.rounds = [initial_round]
-    self.update_rounds()
+    self._completed = False
+    self._winning_athlete = None
+    self._update_rounds()
 
     self.competitors = []
     self.draft_order = []
@@ -184,35 +186,61 @@ class Event(object):
     return "{}?roundId={}".format(
       self.base_url, str(self.initial_round_id+round_number))
 
-  def update_rounds(self):
+  def _update_rounds(self):
     while True:
-      if self.current_round.completed and self.current_round.num_heats > 1:
+      if self._completed:
+        break
+      if self.current_round.completed:
         num_rounds_completed = len(self.rounds)
         next_round = Round(self.get_round_url(num_rounds_completed))
         self.rounds.append(next_round)
+        self._update_results()
       else:
-        break
+        self._update_results()
+        break 
 
-  def monitor(self):
-    while not self.completed:
-      if not (self.has_drafted and 
-          datetime.datetime.fromtimestamp(time.time()) >= self.draft_date):
-        self.draft()
-      self.update_rounds()
+  def _update_results(self)
+    results = OrderedDict()
+    for athlete in self.all_athletes:
+      for n, round_ in enumerate(self.rounds):
+        if athlete not in round_.athlete_names:
+          if n == 1:
+            continue
+          break
+         results[athlete] = n
+      if (round_.completed and
+          round_.num_heats == 1 and round_.winner == athlete):
+        self._completed = True
+        results[athlete] = 7
+        self.winning_athlete = athlete
+
+    self._athlete_results = results
+
+  def _maybe_update(func):
+    def check_then_run(self):
+      if not self._completed:
+        self._update_rounds()
+      return func(self)
+    return check_then_run
 
   @property
   def current_round(self):
     return self.rounds[-1]
 
   @property
+  @_maybe_update
   def completed(self):
-    return (self.current_round.num_heats == 1 and self.current_round.completed)
+    return self._completed
 
   @property
-  def winning_surfer(self):
-    if self.completed:
-      return self.current_round.heats[0].winner
-    return None
+  @_maybe_update
+  def athlete_results(self):
+    return self._athlete_results
+
+  @property
+  def athlete_scores(self):
+    return {
+      athelte: _SCORE_BREAKDOWN[n] for athlete, n in self.athlete_results.items()}
 
   def add_competitor(self, competitor):
     if not competitor in self.competitors:
@@ -239,37 +267,74 @@ class Event(object):
         remaining_surfers.remove(drafted_surfer)
     self.has_drafted = True
 
-  def score(self, competitor):
-    total_score = 0
-    for surfer in competitor.events[self]['team']:
-      if self.winning_surfer == surfer:
-        total_score += _SCORE_BREAKDOWN[-1]
-        continue
-
-      surfer_score = _SCORE_BREAKDOWN[0]
-      for n, round_ in enumerate(self.rounds[2:]):
-        if surfer not in round.athlete_names:
-          break
-        surfer_score = _SCORE_BREAKDOWN[n+1]
-
-      total_score += surfer_score
-    return total_score
-
   @property
-  def scores(self):
-    return [self.score(competitor) for competitor in self.competitors]
-
-  @property
-  def ranked_scores(self):
-    return sorted(self.scores, reverse=True)
+  def competitor_scores(self):
+    athlete_scores = self.athlete_scores
+    get_score = lambda competitor :
+      sum([athlete_scores[athlete] for athlete in competitor.events[self]['team']])
+    return OrderedDict([
+      (competitor, get_score(competitor)) for competitor in self.competitors])
 
   @property
   def ranked_competitors(self):
-    return sorted(self.competitors, key=self.score, reverse=True)
+    competitor_scores = self.competitor_scores
+    ranked_competitors = sorted(
+      competitor_scores.keys(),
+      key=lambda key: competitor_scores[key],
+      reverse=True)
+    return OrderedDict([
+      (competitor, competitor_scores[competitor]) for
+      competitor in ranked_competitors])
+
+  @property
+  def points_possible(self):
+    points_possible = self.competitor_scores
+    if self.completed:
+      return points_possible
+
+    remaining_available_points = []
+    for i in range(8-len(self.rounds)):
+      remaining_available_points.extend(
+        [_SCORE_BREAKDOWN[-(i+1)]*2**i)
+
+    for competitor in self.competitors:
+      team = competitor.events[self]['team']
+      num_athletes_used = 0
+      for n, athlete in enumerate(team):
+        # if the athlete isn't currently competiting, skip them
+        if athlete not in self.current_round.athlete_names:
+          continue
+
+        athlete_heat = [
+          heat for heat in self.current_round.heats if
+          athlete in heat.athlete_names][0]
+ 
+        # if the athelete's heat has completed and they lost,
+        # assuming this isn't the first round, skip them
+        if (athlete_heat.completed and
+            len(self.rounds) > 1 and
+            athlete_heat.loser == athlete):
+          continue
+
+        # if athlete is still competing, but is competing against
+        # another athlete on the competitor's team, skip the first
+        # of these athletes
+        on_competitors_team = (
+          (set(team) - set([athlete])) & set(athlete_heat.athlete_names))
+        if len(on_competitors_team) > 0:
+          if list(on_competitors_team)[0] in team[n+1:]:
+            continue
+
+        # TODO: still doesn't take into account the possibility that two
+        # athletes meet eachother at a later heat
+        points_possible[competitor] += \
+          remaining_available_points[num_athletes_used]
+        num_athletes_used += 1
+    return points_possible
 
   @property
   def winning_competitor(self):
-    return self.ranked_competitors[0]
+    return self.ranked_competitors.keys()[0]
 
 
 class Competitor(object):
