@@ -176,7 +176,7 @@ class Event(object):
     self.update_rounds()
 
     self.competitors = []
-    self.competitor_draft_order = []
+    self.draft_order = []
     self.has_drafted = False
     self.draft_date = draft_date
 
@@ -217,16 +217,15 @@ class Event(object):
   def add_competitor(self, competitor):
     if not competitor in self.competitors:
       self.competitors.append(competitor)
-      self.competitor_draft_order.append(competitor)
+      self.draft_order.append(competitor)
       competitor.add_event(self)
 
   def update_draft_order(self, competitor, new_position):
     assert new_position in range(len(self.all_athletes))
     assert competitor in self.competitors
 
-    current_position = self.competitor_draft_order.index(competitor)
-    del self.competitor_draft_order[current_position]
-    self.competitor_draft_order.insert(new_position, competitor)
+    self.draft_order.remove(competitor)
+    self.draft_order.insert(new_position, competitor)
 
   def draft(self):
     if len(competitors) == 0:
@@ -235,24 +234,23 @@ class Event(object):
 
     remaining_surfers = self.all_athletes.copy()
     while len(remaining_surfers) > 0:
-      for competitor in self.competitor_draft_order:
+      for competitor in self.draft_order:
         drafted_surfer = competitor.draft(self, remaining_surfers)
-        del remaining_surfers[remaining_surfers.index(drafted_surfer)]
+        remaining_surfers.remove(drafted_surfer)
     self.has_drafted = True
 
   def score(self, competitor):
     total_score = 0
     for surfer in competitor.events[self]['team']:
-      surfer_score = _SCORE_BREAKDOWN[0]
+      if self.winning_surfer == surfer:
+        total_score += _SCORE_BREAKDOWN[-1]
+        continue
 
+      surfer_score = _SCORE_BREAKDOWN[0]
       for n, round_ in enumerate(self.rounds[2:]):
         if surfer not in round.athlete_names:
           break
         surfer_score = _SCORE_BREAKDOWN[n+1]
-
-      # check if event winner
-      if self.winning_surfer == surfer:
-        surfer_score = _SCORE_BREAKDOWN[-1]
 
       total_score += surfer_score
     return total_score
@@ -289,9 +287,8 @@ class Competitor(object):
     assert new_position in range(len(self.events[event]['draft_order']))
     assert surfer in self.events[event]['draft_order']
 
-    current_position = self.events[event]['draft_order'].index(surfer)
-    del self.events[event]['draft_order'][current_position]
-    self.events[event]['draft_order'][new_position] = surfer
+    self.events[event]['draft_order'].remove(surfer)
+    self.events[event]['draft_order'].insert(new_position, surfer)
 
   def draft(self, event, remaining_surfers):
     for surfer in self.events[event]['draft_order']:
