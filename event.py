@@ -427,3 +427,5 @@ class League:
     event_id = self.event_info[event_id]
     self.events.append(Event(event_name, self.year, event_id, draft_date))
  
+  def get_event(self, event_name):
+    return {event.name: event for event in self.events}[event_name]
