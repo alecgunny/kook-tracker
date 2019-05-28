@@ -2,6 +2,7 @@ import urllib
 from bs4 import BeautifulSoup as bs
 import json
 import time
+import datetime
 from collections import OrderedDict
 
 
@@ -10,7 +11,7 @@ _SECS_BETWEEN_CALLS = 2
 _SCORE_BREAKDOWN = [265, 265, 1330, 3320, 4745, 6085, 7800, 10000]
 
 
-class Client(object):
+class Client:
   def __init__(self, wait_time=_SECS_BETWEEN_CALLS):
     self.wait_time = wait_time
     self.last_call_time = time.time()
@@ -39,7 +40,7 @@ def get_athlete_rankings(year):
   return [name.text for name in names]
 
 
-class Heat(object):
+class Heat:
   def __init__(self, round_, heat_div):
     self.round = round_
     self.id = heat_div.attrs['data-heat-id']
@@ -155,7 +156,7 @@ class Round(object):
     return [heat.loser for heat in self.heats]
 
 
-class Event(object):
+class Event:
   def __init__(self, name, year, event_id, draft_date):
     self.name = name
     self.year = year
@@ -253,6 +254,16 @@ class Event(object):
     return {
       athlete: _SCORE_BREAKDOWN[n] for athlete, n in
         self.athlete_results.items()}
+
+  @property
+  def athlete_results_csv(self):
+    csv_string = "RoundNum,HeatNum,AthleteName,Score"
+    for i, round_ in enumerate(self.rounds):
+      for j, heat in enumerate(round_.heats):
+        for athlete, score in heat.score_map.items():
+          csv_string += "\n{},{},{},{}".format(
+            i, j, athlete, score)
+    return csv_string
 
   def add_competitor(self, competitor):
     if not competitor in self.competitors:
@@ -354,7 +365,7 @@ class Event(object):
     return self.ranked_competitors.keys()[0]
 
 
-class Competitor(object):
+class Competitor:
   def __init__(self, name):
     self.name = name
     self.events = {}
@@ -390,3 +401,29 @@ class Competitor(object):
     return {
       '{}-{}'.format(event.name, event.year): event.score(self) for
         event in self.events.keys()}
+
+
+class League:
+  def __init__(self, year):
+    self.year = year
+    self.base_url = '{}/events/{}/mct'.format(_HOMEPAGE_URL, year)
+    self.event_info = self.get_event_names_and_ids()
+    self.events = []
+
+  def get_event_names_and_ids(self):
+    soup = client(self.base_url)
+    event_divs = soup.find_all('div', class_='tour-event-detail')
+    event_info = {}
+    for div in event_divs:
+      event_url = div.find('a').attrs['href']
+      event_id, event_name = event_url.split("/")[-2:]
+      event_info[event_name] = event_id
+    return event_info
+
+  def add_event(self, event_name, draft_date=None):
+    if draft_date is None:
+      draft_date = datetime.datetime.fromtimestamp(time.time())
+
+    event_id = self.event_info[event_id]
+    self.events.append(Event(event_name, self.year, event_id, draft_date))
+ 
