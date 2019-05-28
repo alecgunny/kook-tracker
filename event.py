@@ -1,7 +1,6 @@
 import urllib
 from bs4 import BeautifulSoup as bs
 import json
-import datetime
 import time
 from collections import OrderedDict
 
@@ -37,7 +36,7 @@ def get_athlete_rankings(year):
       _HOMEPAGE_URL, year)
   athlete_soup = client(athletes_url)
   names = athlete_soup.find_all('a', class_='athlete-name')
-  return [name.text for name in names][:36]
+  return [name.text for name in names]
 
 
 class Heat(object):
@@ -109,17 +108,17 @@ class Heat(object):
     if self.completed:
       return sorted(
         self.score_map.keys(),
-        key=lambda x: self.score_map[key],
+        key=lambda key: self.score_map[key],
         reverse=first)[0]
     return None
 
   @property
   def winner(self):
-    return first_or_last(first=True)
+    return self.first_or_last(first=True)
 
   @property
   def loser(self):
-    return first_or_last(first=False)
+    return self.first_or_last(first=False)
 
 
 class Round(object):
@@ -182,6 +181,10 @@ class Event(object):
     self.has_drafted = False
     self.draft_date = draft_date
 
+    self.default_athlete_draft_order = get_athlete_rankings(year)
+    self.default_athlete_draft_order = [
+      i for i in self.default_athlete_draft_order if i in self.all_athletes]
+
   def get_round_url(self, round_number):
     return "{}?roundId={}".format(
       self.base_url, str(self.initial_round_id+round_number))
@@ -199,7 +202,7 @@ class Event(object):
         self._update_results()
         break 
 
-  def _update_results(self)
+  def _update_results(self):
     results = OrderedDict()
     for athlete in self.all_athletes:
       for n, round_ in enumerate(self.rounds):
@@ -207,9 +210,17 @@ class Event(object):
           if n == 1:
             continue
           break
-         results[athlete] = n
+
+        # check if heat has completed and athlete has won
+        if athlete in round_.winners:
+          results[athlete] = max(n+1, 2)
+        else:
+          results[athlete] = n
+
+      # check if athlete is event champion
       if (round_.completed and
-          round_.num_heats == 1 and round_.winner == athlete):
+          round_.num_heats == 1 and
+          round_.heats[0].winner == athlete):
         self._completed = True
         results[athlete] = 7
         self.winning_athlete = athlete
@@ -240,13 +251,18 @@ class Event(object):
   @property
   def athlete_scores(self):
     return {
-      athelte: _SCORE_BREAKDOWN[n] for athlete, n in self.athlete_results.items()}
+      athlete: _SCORE_BREAKDOWN[n] for athlete, n in
+        self.athlete_results.items()}
 
   def add_competitor(self, competitor):
     if not competitor in self.competitors:
       self.competitors.append(competitor)
       self.draft_order.append(competitor)
       competitor.add_event(self)
+
+  def add_competitors(self, competitors):
+    for competitor in competitors:
+      self.add_competitor(competitor)
 
   def update_draft_order(self, competitor, new_position):
     assert new_position in range(len(self.all_athletes))
@@ -256,7 +272,7 @@ class Event(object):
     self.draft_order.insert(new_position, competitor)
 
   def draft(self):
-    if len(competitors) == 0:
+    if len(self.competitors) == 0:
       print("Nothing to draft!")
       return
 
@@ -270,8 +286,9 @@ class Event(object):
   @property
   def competitor_scores(self):
     athlete_scores = self.athlete_scores
-    get_score = lambda competitor :
-      sum([athlete_scores[athlete] for athlete in competitor.events[self]['team']])
+    get_score = lambda competitor : \
+      sum([athlete_scores[athlete] for athlete in
+             competitor.events[self]['team']])
     return OrderedDict([
       (competitor, get_score(competitor)) for competitor in self.competitors])
 
@@ -295,7 +312,7 @@ class Event(object):
     remaining_available_points = []
     for i in range(8-len(self.rounds)):
       remaining_available_points.extend(
-        [_SCORE_BREAKDOWN[-(i+1)]*2**i)
+        [_SCORE_BREAKDOWN[-(i+1)]]*2**i)
 
     for competitor in self.competitors:
       team = competitor.events[self]['team']
@@ -345,7 +362,10 @@ class Competitor(object):
   def add_event(self, event):
     if event not in self.events:
       self.events[event] = {
-        'team': [], 'draft_order': get_athlete_rankings(event.year)}
+        'team': [],
+        'draft_order': event.default_athlete_draft_order,
+        'year_long_pick': event.default_athlete_draft_order[0]
+      }
 
   def update_draft_order(self, event, surfer, new_position):
     assert event in self.events
@@ -354,6 +374,10 @@ class Competitor(object):
 
     self.events[event]['draft_order'].remove(surfer)
     self.events[event]['draft_order'].insert(new_position, surfer)
+
+  def update_year_long_pick(self, event, surfer):
+    assert surfer in event.all_athletes
+    self.events[event]['year_long_pick'] = surfer
 
   def draft(self, event, remaining_surfers):
     for surfer in self.events[event]['draft_order']:
