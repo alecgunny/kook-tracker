@@ -48,7 +48,7 @@ class Heat:
 
   def _update_status(self, div):
     heat_status_span = div.find('span', class_='hot-heat__status')
-    self.status = heat_status_span.attrs['class'][1].split("--")[1]
+    self.status = heat_status_span.attrs['class'][1].split('--')[1]
 
     self._completed = self.status == 'over'
     self._score_map = self._get_scores_and_athlete_names(div)
@@ -66,7 +66,7 @@ class Heat:
       try:
         score_map[athlete_name] = float(score)
       except ValueError:
-        score_map[athlete_name] = None
+        score_map[athlete_name] = None if self.status == 'upcoming' else 0
 
     return score_map
 
