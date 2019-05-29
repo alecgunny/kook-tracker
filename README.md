@@ -1,1 +1,1 @@
-App for automatically updating fantasy surf spreadsheet. An example for how this would work is available <a href=https://docs.google.com/spreadsheets/d/1hMA7UJfjuV5mGmWvb4g2351oSu6LRljFVPWEmaF22Hw/edit?usp=sharing>here</a>, assuming that the Elastic Beanstalk app is running.
+App for automatically updating fantasy surf spreadsheet. An example for how this would work is available <a href="https://docs.google.com/spreadsheets/d/1hMA7UJfjuV5mGmWvb4g2351oSu6LRljFVPWEmaF22Hw/edit?usp=sharing">here</a>, assuming that the Elastic Beanstalk app is running.
