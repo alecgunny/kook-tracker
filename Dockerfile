@@ -7,3 +7,4 @@ WORKDIR /home
 EXPOSE 5000
 ENV FLASK_APP=/home/app.py LC_ALL=C.UTF-8 LANG=C.UTF-8
 ENTRYPOINT ["flask", "run"]
+CMD ["--host=0.0.0.0"]
