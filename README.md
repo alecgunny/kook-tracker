@@ -1,4 +1,1 @@
-App for automatically updating fantasy surf spreadsheet. Plan to use
-<a href="https://developers.google.com/sheet/api/quickstart/python">this API</a>
-to push updates to sheet in real time. Very much a work in progress at the
-moment.
+App for automatically updating fantasy surf spreadsheet. An example for how this would work is available <a href=https://docs.google.com/spreadsheets/d/1hMA7UJfjuV5mGmWvb4g2351oSu6LRljFVPWEmaF22Hw/edit?usp=sharing>here</a>, assuming that the Elastic Beanstalk app is running.
