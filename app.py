@@ -1,9 +1,10 @@
 from flask import Flask, request, make_response
+from event import League
 
 app = Flask(__name__)
 
 league = League(2019)
-league.add_event('rip-curl-pro-bells-beach')
+league.create_event('rip-curl-pro-bells-beach')
 
 leagues = {2019: league}
 

@@ -407,7 +407,7 @@ class League:
   def __init__(self, year):
     self.year = year
     self.base_url = '{}/events/{}/mct'.format(_HOMEPAGE_URL, year)
-    self.event_info = self.get_event_names_and_ids()
+    self.events_info = self.get_event_names_and_ids()
     self.events = []
 
   def get_event_names_and_ids(self):
@@ -415,16 +415,20 @@ class League:
     event_divs = soup.find_all('div', class_='tour-event-detail')
     event_info = {}
     for div in event_divs:
-      event_url = div.find('a').attrs['href']
+      try:
+        event_url = div.find('a').attrs['href']
+      except AttributeError:
+        continue
+
       event_id, event_name = event_url.split("/")[-2:]
       event_info[event_name] = event_id
     return event_info
 
-  def add_event(self, event_name, draft_date=None):
+  def create_event(self, event_name, draft_date=None):
     if draft_date is None:
       draft_date = datetime.datetime.fromtimestamp(time.time())
 
-    event_id = self.event_info[event_id]
+    event_id = self.events_info[event_name]
     self.events.append(Event(event_name, self.year, event_id, draft_date))
  
   def get_event(self, event_name):
