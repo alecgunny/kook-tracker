@@ -266,6 +266,7 @@ class Event:
         self.athlete_results.items()}
 
   @property
+  @_maybe_update
   def athlete_results_csv(self):
     csv_string = "RoundNum,HeatNum,AthleteName,Score"
     for i, round_ in enumerate(self.rounds):
