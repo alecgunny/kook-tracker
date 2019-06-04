@@ -197,11 +197,11 @@ class Event:
     while True:
       if self._completed:
         break
-      if self.current_round.completed:
-        num_rounds_completed = len(self.rounds)
-        if num_rounds_completed < 7:
-          next_round = Round(self.get_round_url(num_rounds_completed))
-          self.rounds.append(next_round)
+      elif (
+          self.current_round.completed and
+          len(self.rounds) < len(self.round_ids)):
+        next_round = Round(self.get_round_url(len(self.rounds)))
+        self.rounds.append(next_round)
         self._update_results()
       else:
         self._update_results()
@@ -437,6 +437,9 @@ class League:
     self.events_info = events_info
 
   def create_event(self, event_name, draft_date=None):
+    if event_name in [event.name for event in self.events]:
+      return
+
     if draft_date is None:
       draft_date = datetime.datetime.fromtimestamp(time.time())
 
