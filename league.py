@@ -199,8 +199,9 @@ class Event:
         break
       if self.current_round.completed:
         num_rounds_completed = len(self.rounds)
-        next_round = Round(self.get_round_url(num_rounds_completed))
-        self.rounds.append(next_round)
+        if num_rounds_completed < 7:
+          next_round = Round(self.get_round_url(num_rounds_completed))
+          self.rounds.append(next_round)
         self._update_results()
       else:
         self._update_results()
