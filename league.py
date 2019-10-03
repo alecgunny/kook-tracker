@@ -376,6 +376,9 @@ class Event:
   def winning_competitor(self):
     return self.ranked_competitors.keys()[0]
 
+  def __repr__(self):
+    return '{}-{}'.format(self.name, self.year)
+
 
 class Competitor:
   def __init__(self, name):
@@ -414,13 +417,17 @@ class Competitor:
       '{}-{}'.format(event.name, event.year): event.score(self) for
         event in self.events.keys()}
 
+  def __repr__(self):
+    return self.name
+
 
 class League:
-  def __init__(self, year):
+  def __init__(self, year, name='kook-tracker'):
     self.year = year
     self.base_url = '{}/events/{}/mct'.format(_HOMEPAGE_URL, year)
     self.update_events_info()
     self.events = []
+    self.name = '{}-{}'.format(name, year)
 
   def update_events_info(self):
     soup = client(self.base_url)
@@ -446,10 +453,16 @@ class League:
     event_id = self.events_info[event_name]
     self.events.append(Event(event_name, self.year, event_id, draft_date))
 
-  def create_all_events(self):
+  def create_all_events(self, logger=None):
     for event in self.events_info.keys():
       if event != 'freshwater-pro': # lazily excluding for now
         self.create_event(event)
+        if logger is not None:
+          logger.info('Created event {} in league {}'.format(
+            self.events[-1], self))
  
   def get_event(self, event_name):
     return {event.name: event for event in self.events}[event_name]
+
+  def __repr__(self):
+    return self.name
