@@ -11,6 +11,10 @@ _SECS_BETWEEN_CALLS = 2
 _SCORE_BREAKDOWN = [265, 265, 1330, 3320, 4745, 6085, 7800, 10000]
 
 
+class EventNotReady(Exception):
+  pass
+
+
 class Client:
   def __init__(self, wait_time=_SECS_BETWEEN_CALLS):
     self.wait_time = wait_time
@@ -168,6 +172,8 @@ class Event:
     # use the links to the individual rounds to get the round ids
     round_link_divs = results_soup.find_all(
       'div', class_='post-event-watch-round-nav__item')
+    if len(round_link_divs) == 0:
+      raise EventNotReady
     self.round_ids = []
     for div in round_link_divs:
       self.round_ids.append(
@@ -451,15 +457,21 @@ class League:
       draft_date = datetime.datetime.fromtimestamp(time.time())
 
     event_id = self.events_info[event_name]
-    self.events.append(Event(event_name, self.year, event_id, draft_date))
+    event = Event(event_name, self.year, event_id, draft_date)
+    self.events.append(event)
 
   def create_all_events(self, logger=None):
     for event in self.events_info.keys():
       if event != 'freshwater-pro': # lazily excluding for now
-        self.create_event(event)
-        if logger is not None:
-          logger.info('Created event {} in league {}'.format(
-            self.events[-1], self))
+        try:
+          self.create_event(event)
+          if logger is not None:
+            logger.info('Created event {} in league {}'.format(
+              self.events[-1], self))
+        except EventNotReady:
+          continue
+      if event == 'quiksilver-pro-gold-coast':
+        break
  
   def get_event(self, event_name):
     return {event.name: event for event in self.events}[event_name]
