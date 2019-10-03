@@ -19,12 +19,6 @@ _HOMEPAGE_URL = "https://www.worldsurfleague.com"
 _SECS_BETWEEN_CALLS = 2
 _SCORE_BREAKDOWN = [265, 265, 1330, 3320, 4745, 6085, 7800, 10000]
 
-leagues = {}
-for year in range(2019, 2020):
-  league = League(year)
-  league.create_all_events()
-  leagues[year] = league
-
 
 @app.route('/update')
 def get_event_results():
@@ -261,7 +255,7 @@ class Event:
           self.current_round.completed and
           len(self.rounds) < len(self.round_ids)):
         app.logger.info('\tround-{} complete'.format(len(self.rounds)))
-        app.logger.info('\tBeginning round-{}'.format(len(self.rounds+1))
+        app.logger.info('\tBeginning round-{}'.format(len(self.rounds)+1))
         next_round = Round(self.get_round_url(len(self.rounds)))
         self.rounds.append(next_round)
         self._update_results()
@@ -511,7 +505,7 @@ class League:
         event_name, self.year))
       return
     app.logger.info('Creating new event '+
-            '{}-{} in league {}'.format(event, self.year, self))
+            '{}-{} in league {}'.format(event_name, self.year, self))
     if draft_date is None:
       draft_date = datetime.datetime.fromtimestamp(time.time())
 
@@ -534,3 +528,10 @@ class League:
 
   def __repr__(self):
     return '{}-{}'.format(self.name, self.year)
+
+
+leagues = {}
+for year in range(2019, 2020):
+  league = League(year)
+  league.create_all_events()
+  leagues[year] = league
