@@ -6,7 +6,7 @@ app = Flask(__name__)
 leagues = {}
 for year in range(2019, 2020):
   league = League(year)
-  league.create_all_events()
+  league.create_all_events(logger=app.logger)
   leagues[year] = league
 
 
