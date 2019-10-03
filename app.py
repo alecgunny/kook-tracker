@@ -1,7 +1,14 @@
 from flask import Flask, request, make_response
+import logging
+import os
 from league import League
 
+
 app = Flask(__name__)
+log_dir = os.environ.get('LOG_DIR', '.')
+logging.basicConfig(
+  filename=os.path.join(log_dir, 'app.log'),
+  level=logging.DEBUG)
 
 leagues = {}
 for year in range(2019, 2020):
