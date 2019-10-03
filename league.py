@@ -448,7 +448,8 @@ class League:
 
   def create_all_events(self):
     for event in self.events_info.keys():
-      self.create_event(event)
+      if event != 'freshwater-pro': # lazily excluding for now
+        self.create_event(event)
  
   def get_event(self, event_name):
     return {event.name: event for event in self.events}[event_name]
