@@ -32,16 +32,21 @@ def get_event_results():
     raise EventNotReady('Couldn\'t find event ' +
       '{} for year {}'.format(event_name, year))
 
-  if event_name not in league.events:
+  # get the event if it exists
+  try:
+    event = league.get_event(event_name)
+  except KeyError:
+    # otherwise try to create it
     try:
       league.create_event(event_name)
+      event = league.get_event(event_name)
     except EventNotReady as e:
       raise e('Event {} page not live yet '.format(event_name) +
         'for year {}'.format(year))
-  if event_name not in league.events:
-    raise EventNotReady('Unknown error creating event {}'.format(event_name))
+    except KeyError:
+      raise EventNotReady('Unknown error trying to create event ' +
+        '{} for year {}'.format(event_name, year))
 
-  event = league.get_event(event_name)
   results_csv = event.athlete_results_csv
   output = make_response(results_csv)
   output.headers["Content-Disposition"] = "attachment; filename=export.csv"
