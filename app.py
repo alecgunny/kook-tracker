@@ -28,7 +28,18 @@ def get_event_results():
   league = leagues[year]
   if event_name not in league.events_info:
     league.update_events_info()
-  assert event_name in league.events_info
+  if event_name not in league.events_info:
+    raise EventNotReady('Couldn\'t find event ' +
+      '{} for year {}'.format(event_name, year))
+
+  if event_name not in league.events:
+    try:
+      league.create_event(event_name)
+    except EventNotReady as e:
+      raise e('Event {} page not live yet '.format(event_name) +
+        'for year {}'.format(year))
+  if event_name not in league.events:
+    raise EventNotReady('Unknown error creating event {}'.format(event_name))
 
   event = league.get_event(event_name)
   results_csv = event.athlete_results_csv
