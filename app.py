@@ -166,8 +166,7 @@ class Heat:
 
   @property
   def athlete_names(self):
-    # using _score_map because this should be static, right?
-    return [i for i in self._score_map.keys()]
+    return [i for i in self.score_map.keys()]
 
   def first_or_last(self, first):
     if self.completed:
