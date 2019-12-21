@@ -1,4 +1,4 @@
-from app import app, client
+from app import client
 import json
 
 
