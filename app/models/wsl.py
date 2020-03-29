@@ -126,8 +126,7 @@ class Event(mixins.Updatable, db.Model):
 
   @property
   def url(self):
-    return Config.MAIN_URL + '/events/{}/mct/{}/{}'.format(
-      self.year, self.id, self.name)
+    return parsers.get_event_url(self.year, self.id, self.name)
 
   @classmethod
   def create(cls, **kwargs):
