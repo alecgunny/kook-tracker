@@ -100,14 +100,14 @@ class Round(mixins.Updatable, db.Model):
     for n, heat in enumerate(self.heats):
       # heat is not completd and we haven't triggered a break yet
       if not heat.update() and not _do_break:
-        # heat is either upcoming, which means the next heat doesn't need
-        # updating, or we're on the last heat, so break in order
-        # to avoid the loop else clause
+        # trigger a break after updating next heat, for side-by-side heats
+        _do_break = True
+        
+        # unless current heat is either upcoming, which means the next heat
+        # doesn't need updating, or we're on the last heat, which means break
+        # now instead in order to avoid the loop else clause
         if heat.status == 0 or n == (len(self.heats)-1):
           break
-        else:
-          # update the next heat in the case of side-by-side heats
-          _do_break = True
 
       elif _do_break:
         break
