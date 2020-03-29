@@ -1,11 +1,67 @@
 from app import client
 import json
+import datetime
+from config import Config
 
 
+_MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+]
+
+
+# =============================================================================
+#                         Utilities
+# =============================================================================
 class EventNotReady(Exception):
   pass
 
 
+def _get_date(year, month, day):
+  return datetime.datetime.strptime(
+      '{}-{}-{}'.format(year, month, day),
+      '%Y-%m-%d'
+    )
+
+
+# =============================================================================
+#                      Season Page Parsers
+# =============================================================================
+def get_event_data_from_season_homepage(season_url):
+  url_split = season_url.split('/')
+  year = int(url_split[url_split.index('events')+1])
+
+  soup = client(season_url)
+  event_table = soup.find('table', class_='tableType-event')
+  even_rows = event_table.find_all('tr', class_='even')
+  odd_rows = event_table.find_all('tr', class_='odd')
+  if len(even_rows) < len(odd_rows):
+    even_rows.append(None)
+  rows = [
+    row for pair in zip(odd_rows, even_rows) for row in pair if row]
+
+  data = []
+  for row in rows:
+    id = int(row.attrs['class'][0].split('-')[1])
+
+    month, start_day, _ = row.find(
+      'td', class_='event-date-range').text.split(maxsplit=2)
+    month = _MONTHS.index(month)
+    start_date = _get_date(year, month, start_day)
+
+    status = row.find('span', class_='event-status').find('span').text.lower()
+
+    link = row.find('a', class_='event-schedule-details__event-name')
+    if link is not None:
+      link = link.attrs['href']
+    data.append({
+        'id': id,
+        'start_date': start_date,
+        'status': status,
+        'link': link
+    })
+  return data
+
+ 
 def get_event_ids(season_url, event_names=None):
   '''
   Finds the WSL ids assigned to the given `event_names` for the season hosted
@@ -29,16 +85,13 @@ def get_event_ids(season_url, event_names=None):
   if isinstance(event_names, str):
     event_names = [event_names]
 
-  soup = client(season_url)
-  event_divs = soup.find_all('div', class_='event-schedule-details__wrap')
+  event_data = get_event_data_from_season_homepage(season_url)
   event_ids = {}
-  for div in event_divs:
-    event_link = div.find('a', class_='event-schedule-details__event-name')
-    if event_link is None:
+  for data in event_data:
+    if data['link'] is None:
       continue
-    event_url = event_link.attrs['href']
 
-    event_id, event_name = event_url.split("/")[-2:]
+    event_id, event_name = data['link'].split("/")[-2:]
     if event_names is None or event_name in event_names:
       event_ids[event_name] = event_id
 
@@ -48,12 +101,40 @@ def get_event_ids(season_url, event_names=None):
       any([name not in event_ids for name in event_names])):
     missing_names = [name for name in event_names if name not in event_ids]
     raise ValueError(
-      'Could not find events {}'.format(', '.join(missing_names))
+      'Could not find valid links for events {}'.format(
+        ', '.join(missing_names))
     )
 
   return event_ids
 
 
+# =============================================================================
+#                    Event Page parsers
+# =============================================================================
+def get_event_url(year, id, name):
+  return Config.MAIN_URL + '/events/{}/mct/{}/{}'.format(year, id, name)
+
+
+def get_event_data_from_event_homepage(event_url):
+  url_split = event_url.split('/')
+  year = int(url_split[url_split.index('events')+1])
+  soup = client(event_url)
+
+  event_status_div = soup.find('div', class_='current-status')
+  event_status = event_status_div.find(
+    'span', class_='event-status').text.strip(' \n').lower()
+
+  month, start_day, _ = soup.find(
+    'div', class_='event-schedule__date-range').text.split(maxsplit=2)
+  month = _MONTHS.index(month)
+  start_date = _get_date(year, month, start_day)
+
+  return event_status, start_date
+
+
+# =============================================================================
+#                       Round Page parsers
+# =============================================================================
 def get_round_url(round_):
   return round_.event.url + '/results?roundId=' + str(round_.id)
 

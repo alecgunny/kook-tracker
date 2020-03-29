@@ -3,6 +3,8 @@ from app import parsers
 from app.models import mixins
 from config import Config
 
+import datetime
+
 
 class HeatResult(db.Model):
   heat_id = db.Column(
@@ -45,6 +47,9 @@ class Heat(mixins.Updatable, db.Model):
 
     for athlete_name, score in scores.items():
       athlete = Athlete.query.filter_by(name=athlete_name).first()
+
+      # TODO: more clever logic that uses the regex form of placeholder names
+      # to do this so that new athletes can be added more dynamically
       if athlete is None and self.status > 0:
         # only add athlete to database if heat has started since sometimes
         # there can be placeholder names while heat is upcoming
@@ -127,6 +132,26 @@ class Event(mixins.Updatable, db.Model):
   @classmethod
   def create(cls, **kwargs):
     obj = cls(**kwargs)
+
+    # first verify that status is ok and that we're close enough to the
+    # event to warrant building it
+    status, start_date = parsers.get_event_data_from_event_homepage(obj.url)
+    if status in ('canceled', 'postponed'):
+      raise parsers.EventNotReady(
+        'Status for event {} is currently {}'.format(
+          obj.name, status
+      ))
+    elif ((
+        datetime.datetime.now() +
+          datetime.timedelta(days=Config.LEAD_DAYS_FOR_EVENT_CREATION)
+        ) < start_date):
+      raise parsers.EventNotReady(
+        'Start date for event {} is {} days away, stopping creation'.format(
+          obj.name, (start_date - datetime.datetime.now()).days)
+      )
+
+    # double check that event is ready to be scraped by making sure that
+    # all the rounds have valid links
     try:
       round_ids = parsers.get_round_ids(obj.url + '/results')
     except parsers.EventNotReady:
@@ -134,9 +159,12 @@ class Event(mixins.Updatable, db.Model):
         'No valid round links for event {}'.format(obj.name)
       )
 
+    # initialize all the internal rounds and heats
     with db.session.no_autoflush:
       for n, round_id in enumerate(round_ids):
         db.session.add(Round.create(id=round_id, number=n, event=obj))
+
+    # if this is an event from the past, we can set it completed up front
     obj.completed = all([round_.completed for round_ in obj.rounds])
     return obj
 
