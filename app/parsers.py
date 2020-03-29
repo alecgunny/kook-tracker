@@ -30,13 +30,13 @@ def get_event_ids(season_url, event_names=None):
     event_names = [event_names]
 
   soup = client(season_url)
-  event_divs = soup.find_all('div', class_='tour-event-detail')
+  event_divs = soup.find_all('div', class_='event-schedule-details__wrap')
   event_ids = {}
   for div in event_divs:
-    try:
-      event_url = div.find('a').attrs['href']
-    except AttributeError:
+    event_link = div.find('a', class_='event-schedule-details__event-name')
+    if event_link is None:
       continue
+    event_url = event_link.attrs['href']
 
     event_id, event_name = event_url.split("/")[-2:]
     if event_names is None or event_name in event_names:
@@ -47,21 +47,78 @@ def get_event_ids(season_url, event_names=None):
   if (event_names is not None and
       any([name not in event_ids for name in event_names])):
     missing_names = [name for name in event_names if name not in event_ids]
-    raise ValueError('Could not find events {}'.format(
-      ', '.join(missing_names)))
+    raise ValueError(
+      'Could not find events {}'.format(', '.join(missing_names))
+    )
 
   return event_ids
+
+
+def get_round_url(round_):
+  return round_.event.url + '/results?roundId=' + str(round_.id)
 
 
 def get_round_ids(event_url):
   soup = client(event_url)
   round_link_divs = soup.find_all(
-    'div', class_='post-event-watch-round-nav__item')
+    'div', class_='post-event-watch-round-nav__item'
+  )
   if len(round_link_divs) == 0:
     raise EventNotReady
 
   round_ids = []
   for div in round_link_divs:
     round_ids.append(
-      json.loads(div.find('a').attrs['data-gtm-event'])['round-ids'])
+      int(json.loads(div.find('a').attrs['data-gtm-event'])['round-ids'])
+    )
   return round_ids
+
+
+def find_heat_divs(round_url, heat_id=None):
+  attrs = {'data-heat-id': heat_id} if heat_id is not None else heat_id
+  divs = client(round_url).find_all(
+    'div', class_='post-event-watch-heat-grid__heat', attrs=attrs
+  )
+  if heat_id is None:
+    return divs
+  return divs[0]
+
+
+def get_heat_ids(round_url):
+  heat_divs = find_heat_divs(round_url)
+  return [int(div.attrs['data-heat-id']) for div in heat_divs]
+
+
+def get_heat_data(round_url, heat_id):
+  heat_div = find_heat_divs(round_url, heat_id)
+
+  # first get status
+  heat_status_span = heat_div.find('span', class_='hot-heat__status')
+  status = heat_status_span.attrs['class'][1].split('--')[1]
+
+  # TODO: figure out explicit name for ongoing then we can just use index
+  if status == 'upcoming':
+    status = 0
+  elif status == 'over':
+    status = 2
+  else:
+    status = 1
+
+  # next get athlete names and scores
+  athlete_divs = heat_div.find_all(
+    'div', class_='hot-heat-athlete__name--full')
+
+  scores = {}
+  for div in athlete_divs:
+    athlete_name = div.text
+    score = div.find_next_sibling('div', class_='hot-heat-athlete__score').text
+
+    # if score isn't a number, that's either because the heat hasn't started
+    # or it has but the athlete hasn't taken a wave yet. To differentiate
+    # these, we'll use None for the former case and 0 for the latter and use
+    # status to decide which one to use
+    try:
+      scores[athlete_name] = float(score)
+    except ValueError:
+      scores[athlete_name] = None if status == 0 else 0
+  return status, scores

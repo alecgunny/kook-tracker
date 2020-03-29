@@ -23,5 +23,6 @@ class Client:
           self.app.logger.info('Request to {} successful'.format(url))
         self.last_call_time = time.time()
         return bs(html, 'lxml')
+
     except urllib.request.HTTPError as e:
       raise Exception('Unrecognized url {}'.format(url)) from e

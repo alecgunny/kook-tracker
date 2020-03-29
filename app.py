@@ -13,7 +13,8 @@ app = Flask(__name__)
 log_dir = os.environ.get('LOG_DIR', '.')
 logging.basicConfig(
   filename=os.path.join(log_dir, 'app.log'),
-  level=logging.INFO)
+  level=logging.INFO
+)
 
 _HOMEPAGE_URL = "https://www.worldsurfleague.com"
 _SECS_BETWEEN_CALLS = 2
