@@ -48,16 +48,13 @@ class Heat(mixins.Updatable, db.Model):
     for athlete_name, score in scores.items():
       athlete = Athlete.query.filter_by(name=athlete_name).first()
 
-      # TODO: more clever logic that uses the regex form of placeholder names
-      # to do this so that new athletes can be added more dynamically
-      if athlete is None and self.status > 0:
-        # only add athlete to database if heat has started since sometimes
-        # there can be placeholder names while heat is upcoming
+      # create athlete if they don't exist
+      # note that we don't need to worry about placeholder names since
+      # the parser function takes care of checking for these first
+      if athlete is None:
         athlete = Athlete(name=athlete_name)
         db.session.add(athlete)
         db.session.commit() # need a commit for heat result query
-      elif athlete is None:
-        continue
 
       # try to update an existing heat result if it exists, otherwise
       # create a new one
