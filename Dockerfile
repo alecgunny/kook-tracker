@@ -14,5 +14,6 @@ COPY kook-tracker /app
 WORKDIR /app
 EXPOSE 5000
 
-RUN flask db init && flask db upgrade
-ENTRYPOINT flask run
+
+ENTRYPOINT flask db upgrade && flask run
+
