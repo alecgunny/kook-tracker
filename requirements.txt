@@ -2,5 +2,6 @@ flask
 flask-sqlalchemy
 flask-migrate
 python-dotenv
+psycopg2
 beautifulsoup4
 lxml

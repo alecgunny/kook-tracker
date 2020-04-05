@@ -1,11 +1,21 @@
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+
+
+def get_database_url():
+  if os.environ.get('RDS_HOSTNAME') is not None:
+    return (
+      'postgresql://{RDS_USERNAME}:{RDS_PASSWORD}'
+      '@{RDS_HOSTNAME}:{RDS_PORT}/{RDS_DB_NAME}'.format(**os.environ)
+    )
+  else:
+    return 'sqlite:///' + os.path.join(
+      os.path.abspath(os.path.dirname(__file__)), 'app.db'
+    )
 
 
 class Config:
   SECRET_KEY = os.environ.get('RDS_PASSWORD', 'ruby-tuesday')
-  SQLALCHEMY_DATABASE_URI = os.environ.get('RDS_HOSTNAME') or \
-    'sqlite:///' + os.path.join(basedir, 'app.db')
+  SQLALCHEMY_DATABASE_URI = get_database_url()
   SQLALCHEMY_TRACK_MODIFICATIONS = False
 
   LOG_DIR = os.environ.get('LOG_DIR', '.')
