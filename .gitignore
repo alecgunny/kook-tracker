@@ -1,4 +1,5 @@
 app.db
 app.log
+.ebextensions/rds.config
 __pycache__/
 *.py[cod]

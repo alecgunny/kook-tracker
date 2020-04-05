@@ -1,12 +1,13 @@
 FROM ubuntu:18.04
-RUN apt-get update && \
-      apt-get install -y --no-install-recommends python3 python3-pip && \
-      pip3 install flask beautifulsoup4 lxml
 
-COPY *.py /home/
+COPY ./ /home/
 WORKDIR /home
-EXPOSE 5000
-ENV FLASK_APP=/home/kook-tracker.py LC_ALL=C.UTF-8 LANG=C.UTF-8 LOG_DIR=/var/log/app
 
-ENTRYPOINT ["flask", "run"]
-CMD ["--host=0.0.0.0"]
+RUN apt-get update && \
+      apt-get install -y --no-install-recommends \
+        python3 \
+        python3-pip && \
+      pip3 install -f requirements.txt
+
+EXPOSE 5000
+ENTRYPOINT /home/entrypoint.sh
