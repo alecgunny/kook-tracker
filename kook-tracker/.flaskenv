@@ -1,6 +1,4 @@
-option_settings:
-  aws:elasticbeanstalk:application:environment:
-    FLASK_APP: /home/kook-tracker/kook-tracker.py
-    LC_ALL: C.UTF-8
-    LANG: C.UTF-8
-    LOG_DIR: /var/log/app
+FLASK_APP=kook-tracker.py
+LC_ALL=C.UTF-8
+LANG=C.UTF-8
+LOG_DIR=/var/log/app
