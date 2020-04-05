@@ -1,5 +1,5 @@
 app.db
 app.log
-.ebextensions/rds.config
+kook-tracker/.env
 __pycache__/
 *.py[cod]

@@ -13,4 +13,6 @@ RUN apt-get update && \
 COPY kook-tracker /app
 WORKDIR /app
 EXPOSE 5000
-ENTRYPOINT flask run --host=0.0.0.0
+
+RUN flask db init && flask db upgrade
+ENTRYPOINT flask run
