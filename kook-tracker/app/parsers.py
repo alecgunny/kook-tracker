@@ -220,7 +220,7 @@ def get_heat_data(round_url, heat_id):
     # status to decide which one to use
     try:
       # get the 
-      scores[athlete_name] = int(round(float(score)*6))
+      scores[athlete_name] = round(float(score), 2)
     except ValueError:
       scores[athlete_name] = None if status == 0 else 0
   return status, scores
