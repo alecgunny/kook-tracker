@@ -123,7 +123,7 @@ class Event(mixins.Updatable, db.Model):
 
   @property
   def url(self):
-    return parsers.get_event_url(self.year, self.id, self.name)
+    return parsers.get_event_url(self)
 
   @classmethod
   def create(cls, **kwargs):
@@ -164,6 +164,17 @@ class Event(mixins.Updatable, db.Model):
     obj.completed = all([round_.completed for round_ in obj.rounds])
     return obj
 
+  @property
+  def results(self):
+    csv_string = "RoundNum,HeatNum,AthleteName,Score"
+    for i, round_ in enumerate(self.rounds):
+      for j, heat in enumerate(round_.heats):
+        for athlete in heat.athletes:
+          csv_string += "\n{},{},{},{}".format(
+            i, j, athlete.athlete.name, athlete.score
+          )
+    return csv_string
+
   def _do_update(self):
     for round_ in self.rounds:
       # update returns completion status, so if round hasn't completed after
@@ -179,6 +190,27 @@ class Event(mixins.Updatable, db.Model):
 class Season(db.Model):
   year = db.Column(db.Integer, primary_key=True)
   events = db.relationship('Event', backref='season', lazy='dynamic')
+
+  @property
+  def url(self):
+    return parsers.get_season_url(self)
+
+  @classmethod
+  def create(cls, **kwargs):
+    assert 'year' in kwargs
+    if kwargs['year'] > datetime.datetime.now().year:
+      raise ValueError(
+        'Cannot create season for future year {}'.format(kwargs['year'])
+      )
+
+    obj = cls(**kwargs)
+    for event_name, event_id in parsers.get_event_ids(obj.url).items():
+      try:
+        db.session.add(Event.create(name=event_name, id=event_id, season=obj))
+      except parsers.EventNotReady:
+        continue
+    return obj
+
 
 
 class Athlete(db.Model):

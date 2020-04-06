@@ -2,4 +2,3 @@ FLASK_APP=kook-tracker.py
 FLASK_RUN_HOST=0.0.0.0
 LC_ALL=C.UTF-8
 LANG=C.UTF-8
-LOG_DIR=/var/log/app

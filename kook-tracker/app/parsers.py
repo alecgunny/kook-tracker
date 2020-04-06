@@ -27,6 +27,10 @@ def _get_date(year, month, day):
 # =============================================================================
 #                      Season Page Parsers
 # =============================================================================
+def get_season_url(season):
+  return 'https://www.worldsurfleague.com/events/{}/mct'.format(season.year)
+
+
 def get_event_data_from_season_homepage(season_url):
   url_split = season_url.split('/')
   year = int(url_split[url_split.index('events')+1])
@@ -112,8 +116,8 @@ def get_event_ids(season_url, event_names=None):
 # =============================================================================
 #                    Event Page parsers
 # =============================================================================
-def get_event_url(year, id, name):
-  return Config.MAIN_URL + '/events/{}/mct/{}/{}'.format(year, id, name)
+def get_event_url(event):
+  return Config.MAIN_URL + '/events/{}/mct/{}/{}'.format(event.season.year, event.id, event.name)
 
 
 def get_event_data_from_event_homepage(event_url):
