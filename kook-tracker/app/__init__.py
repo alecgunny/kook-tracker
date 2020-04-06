@@ -19,7 +19,7 @@ logging.basicConfig(
   level=logging.INFO)
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db, compare_type=True)
 
 client = Client(app)
 

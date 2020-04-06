@@ -17,7 +17,11 @@ class HeatResult(db.Model):
     db.ForeignKey('athlete.id'),
     primary_key=True
   )
-  score = db.Column(db.Numeric(2, 2), default=None)
+
+  # store scores as ints in the range [0, 60]
+  # calculate float value at read time by
+  # dividing by 6
+  score = db.Column(db.Integer, default=None)
 
   heat = db.relationship(
     'Heat', backref=db.backref('heats', lazy=True))
@@ -171,7 +175,7 @@ class Event(mixins.Updatable, db.Model):
       for j, heat in enumerate(round_.heats):
         for athlete in heat.athletes:
           csv_string += "\n{},{},{},{}".format(
-            i, j, athlete.athlete.name, athlete.score
+            i, j, athlete.athlete.name, round(athlete.score / 6, 2)
           )
     return csv_string
 
