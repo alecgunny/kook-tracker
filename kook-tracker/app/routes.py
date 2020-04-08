@@ -31,13 +31,13 @@ def get_event_results():
     if season is None:
       season = wsl.Season.create(year=event_year)
       db.session.add(season)
+      db.session.commit()
       event = wsl.Event.query.filter_by(
         name=event_name, year=event_year).first()
 
       # event will have just been created and so will have the
       # most up-to-date results
       if event is not None:
-        db.session.commit()
         return make_csv_response(event.results)
 
   # Try to create the event if season creation wasn't enough
@@ -51,6 +51,7 @@ def get_event_results():
   # update the event if we didn't need to create it
   elif not event.completed:
     event.update()
-  db.session.commit()
 
+  # commit updates and return response
+  db.session.commit()
   return make_csv_response(event.results)

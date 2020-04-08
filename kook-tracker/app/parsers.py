@@ -6,7 +6,9 @@ from config import Config
 
 
 _MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  'Jan', 'Feb', 'Mar', 'Apr',
+  'May', 'Jun', 'Jul', 'Aug',
+  'Sep', 'Oct', 'Nov', 'Dec'
 ]
 
 
@@ -74,13 +76,14 @@ def get_event_ids(season_url, event_names=None):
   Parameters
   -------------------------
   season_url: str
-    a valid WSL website URL corresponding to the main page for a Men's Championship
-    Tour season
+    a valid WSL website URL corresponding to the main page for a Men's
+    Championship Tour season
   event_names: str or array_like(str) or None
     either a single string event name or an iterable of string event names for
-    which to find ids. Valid events are those with links to event pages. If left
-    as None, will find ids for all currently valid events in a season. Otherwise,
-    if any specified events are not valid, a `ValueError` will be raised.
+    which to find ids. Valid events are those with links to event pages. If
+    left as None, will find ids for all currently valid events in a season.
+    Otherwise, if any specified events are not valid, a `ValueError` will be
+    raised
 
   Returns
   -------------------------
@@ -117,7 +120,8 @@ def get_event_ids(season_url, event_names=None):
 #                    Event Page parsers
 # =============================================================================
 def get_event_url(event):
-  return Config.MAIN_URL + '/events/{}/mct/{}/{}'.format(event.season.year, event.id, event.name)
+  return Config.MAIN_URL + '/events/{}/mct/{}/{}'.format(
+    event.season.year, event.id, event.name)
 
 
 def get_event_data_from_event_homepage(event_url):
@@ -212,7 +216,8 @@ def get_heat_data(round_url, heat_id):
     if _is_placeholder_athlete_name(athlete_name):
       continue
 
-    score = div.find_next_sibling('div', class_='hot-heat-athlete__score').text
+    score = div.find_next_sibling(
+      'div', class_='hot-heat-athlete__score').text
 
     # if score isn't a number, that's either because the heat hasn't started
     # or it has but the athlete hasn't taken a wave yet. To differentiate
