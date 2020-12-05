@@ -45,7 +45,7 @@ def get_event_results():
   # informative error as to what's invalid about it
   if event is None:
     event_id = parsers.get_event_ids(season.url, event_names=event_name)
-    event = Event.create(name=event_name, id=event_id, season=season)
+    event = wsl.Event.create(name=event_name, id=event_id, season=season)
     db.session.add(event)
 
   # update the event if we didn't need to create it
