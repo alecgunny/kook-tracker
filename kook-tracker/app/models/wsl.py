@@ -174,8 +174,9 @@ class Event(mixins.Updatable, db.Model):
     for i, round_ in enumerate(self.rounds):
       for j, heat in enumerate(round_.heats):
         for athlete in heat.athletes:
+          score = athlete.score or 0.0
           csv_string += "\n{},{},{},{:0.2f}".format(
-            i, j, athlete.athlete.name, athlete.score
+            i, j, athlete.athlete.name, score
           )
     return csv_string
 
