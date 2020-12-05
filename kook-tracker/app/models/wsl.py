@@ -202,7 +202,7 @@ class Season(db.Model):
   @classmethod
   def create(cls, **kwargs):
     assert 'year' in kwargs
-    if kwargs['year'] > datetime.datetime.now().year:
+    if kwargs['year'] > (datetime.datetime.now().year + 1):
       raise ValueError(
         'Cannot create season for future year {}'.format(kwargs['year'])
       )
@@ -210,9 +210,12 @@ class Season(db.Model):
     obj = cls(**kwargs)
     for event_name, event_id in parsers.get_event_ids(obj.url).items():
       try:
-        db.session.add(Event.create(name=event_name, id=event_id, season=obj))
+        event = Event.create(name=event_name, id=event_id, season=obj)
       except parsers.EventNotReady:
-        continue
+        bad_event = obj.query.filter_by(id=event_id).first()
+        obj.events.remove(bad_event)
+      else:
+        db.session.add(event)
     return obj
 
 

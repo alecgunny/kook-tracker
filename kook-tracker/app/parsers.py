@@ -50,9 +50,16 @@ def get_event_data_from_season_homepage(season_url):
   for row in rows:
     id = int(row.attrs['class'][0].split('-')[1])
 
+    # TODO: dealing with the year here is nontrivial if it
+    # occurs in the year before or after the intended season
+    # (e.g. first event of 2021 season is in Dec. 2020),
+    # since it's included with the month headers grouping events.
+    # I don't think we ever use it, so I'm not too worried about
+    # it at the moment, but could be problematic down the line
+    # so noting for posterity
     month, start_day, _ = row.find(
       'td', class_='event-date-range').text.split(maxsplit=2)
-    month = _MONTHS.index(month)
+    month = _MONTHS.index(month) + 1
     start_date = _get_date(year, month, start_day)
 
     status = row.find('span', class_='event-status').find('span').text.lower()
@@ -101,7 +108,7 @@ def get_event_ids(season_url, event_names=None):
 
     event_id, event_name = data['link'].split("/")[-2:]
     if event_names is None or event_name in event_names:
-      event_ids[event_name] = event_id
+      event_ids[event_name] = int(event_id)
 
   # if event names are specifically requested and they couldn't be found,
   # raise an error
@@ -133,9 +140,10 @@ def get_event_data_from_event_homepage(event_url):
   event_status = event_status_div.find(
     'span', class_='event-status').text.strip(' \n').lower()
 
-  month, start_day, _ = soup.find(
+  month, start_day, year = soup.find(
     'div', class_='event-schedule__date-range').text.split(maxsplit=2)
-  month = _MONTHS.index(month)
+  month = _MONTHS.index(month) + 1
+  year = year.split(",")[-1].strip()
   start_date = _get_date(year, month, start_day)
 
   return event_status, start_date
