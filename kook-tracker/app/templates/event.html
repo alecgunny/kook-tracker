@@ -25,4 +25,27 @@
             </tr>
         {% endfor %}
     </table>
+    <table style="border: 0px">
+        {% for kook_row in kook_rows %}
+            <tr>
+                {% for kook in kook_row %}
+                    <td style="border-collapse:separate;border: 0px;padding-left:80px;padding-right:80px;padding-top:10px">
+                        <table style="border-collapse:collapse;border: 4px solid #000000">
+                            <tr><td style="background-color:{{ kook.background }};color:{{ kook.text }};text-align:center">
+                                {{ kook.name }}
+                            </td></tr>
+                            {% for athlete in kook.athletes %}
+                                <tr>
+                                    <td style="padding-right:20px">{{ athlete.name }}</td><td>{{ athlete.score }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>Total</td><td>{{ kook.score }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

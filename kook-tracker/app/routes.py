@@ -30,14 +30,17 @@ def event(year, name):
       if athlete_name in attrs["athletes"]:
         return attrs["color"]
     else:
-      print("Could not find competitor for {}".format(athlete_name))
+      print("Could not find kook with athlete {}".format(athlete_name))
 
   default_cell = {
     "name": "TBD",
     "background": "#ffffff",
     "score": 0.0
   }
-  row = [{"table": False, "title": "Round {}".format(n+1)} for n, round in enumerate(event.rounds)]
+  row = [{
+      "table": False,
+      "title": "Round {}".format(n+1)
+    } for n, round in enumerate(event.rounds)]
   rows = [row]
   num_rows = max([len(list(round.heats)) for round in event.rounds])
   for i in range(num_rows):
@@ -69,7 +72,43 @@ def event(year, name):
         })
       row.append({"table": table, "title": False})
     rows.append(row)
-  return render_template('event.html', rows=rows)
+
+  _SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
+  kook_rows = []
+  idx, row = 0, []
+  for kook, attrs in kooks.items():
+    h, s, v = Color(hex=attrs["color"]).hsv
+    text_color = "#ffffff" if v < 0.3 else "#000000"
+    kook_dict = {"background": attrs["color"], "text": text_color, "name": kook}
+    total_score, athletes = 0, []
+    for athlete_name in attrs["athletes"]:
+      athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
+      for n, round in enumerate(event.rounds[2:]):
+        for heat in round.heats:
+          heat_result = wsl.HeatResult.query.filter_by(
+            athlete_id=athlete.id, heat_id=heat.id).first()
+          if heat_result is not None:
+            if n == (len(list(event.rounds)) - 3):
+              n += 1
+              winning_score = max([result.score for result in heat.athletes])
+              if heat_result.score == winning_score:
+                n += 1
+            break
+        else:
+          break
+      score = _SCORE_BREAKDOWN[n]
+      total_score += score
+      athletes.append({"name": athlete_name, "score": score})
+
+    kook_dict["score"] = total_score
+    kook_dict["athletes"] = athletes
+
+    row.append(kook_dict)
+    idx += 1
+    if idx == 3:
+      kook_rows.append(row)
+      idx, row = 0, []
+  return render_template('event.html', rows=rows, kook_rows=kook_rows)
 
 
 def make_csv_response(csv_string):
