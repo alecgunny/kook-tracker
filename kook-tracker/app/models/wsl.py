@@ -18,9 +18,7 @@ class HeatResult(db.Model):
     primary_key=True
   )
 
-  # store scores as ints in the range [0, 60]
-  # calculate float value at read time by
-  # dividing by 6
+  index = db.Column(db.Integer, primary_key=True)
   score = db.Column(db.Numeric(4, 2), default=None)
 
   heat = db.relationship(
@@ -49,7 +47,7 @@ class Heat(mixins.Updatable, db.Model):
     status, scores = parsers.get_heat_data(self.round.url, self.id)
     self.status = status
 
-    for athlete_name, score in scores.items():
+    for index, (athlete_name, score) in enumerate(scores):
       athlete = Athlete.query.filter_by(name=athlete_name).first()
 
       # create athlete if they don't exist

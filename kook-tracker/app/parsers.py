@@ -192,7 +192,8 @@ def _is_placeholder_athlete_name(athlete_name):
   regexs = [
     'Round of [0-9]{1,2}, Heat [0-9]{1,2} winner',
     'finals, Heat [0-9]{1,2} winner$',
-    'Event seed #[0-9]{1,2}'
+    'Event seed #[0-9]{1,2}',
+    'Round seed #[0-9]{1,2}'
   ]
   if any([re.search(r, athlete_name) is not None for r in regexs]):
     return True
@@ -218,11 +219,11 @@ def get_heat_data(round_url, heat_id):
   athlete_divs = heat_div.find_all(
     'div', class_='hot-heat-athlete__name--full')
 
-  scores = {}
+  scores = []
   for div in athlete_divs:
     athlete_name = div.text
     if _is_placeholder_athlete_name(athlete_name):
-      continue
+      scores[None] = None
 
     score = div.find_next_sibling(
       'div', class_='hot-heat-athlete__score').text
@@ -232,8 +233,9 @@ def get_heat_data(round_url, heat_id):
     # these, we'll use None for the former case and 0 for the latter and use
     # status to decide which one to use
     try:
-      # get the 
-      scores[athlete_name] = round(float(score), 2)
+      score = round(float(score), 2)
     except ValueError:
-      scores[athlete_name] = None if status == 0 else 0
+      score = None if status == 0 else 0
+
+    scores.append((athlete_name, score))
   return status, scores

@@ -23,25 +23,44 @@ def season(year):
 
 @app.route('/seasons/<year>/event/<name>')
 def event(year, name):
+  # hard-code import of kook drafts while I don't have
+  # a database set up for that info yet
   from app.kooks import kooks
   event = wsl.Event.query.filter_by(year=year, name=name).first()
+
   def find_color_for_athlete(athlete_name):
+    '''
+    quick utility function for finding the color
+    to assign to an athlete's box based on the
+    kook that drafted them
+    '''
     for kook, attrs in kooks.items():
       if athlete_name in attrs["athletes"]:
         return attrs["color"]
     else:
-      print("Could not find kook with athlete {}".format(athlete_name))
+      raise ValueError(
+        "Could not find kook with athlete {}".format(athlete_name)
+      )
 
+  # top section of event page will be a large table displaying
+  # the heat-by-heat results from an event.
   default_cell = {
     "name": "TBD",
-    "background": "#ffffff",
+    "background": "#bbbbbb",
     "score": 0.0
   }
-  row = [{
-      "table": False,
-      "title": "Round {}".format(n+1)
-    } for n, round in enumerate(event.rounds)]
-  rows = [row]
+
+  # attributes of cells in this table with be either `table`,
+  # if there's a table to display, or `title`, a special
+  # attribute reserved for the first row so that we know
+  # how many round columns to create
+  first_row = []
+  for n, _ in enumerate(event.rounds):
+    cell = {"table": False, "title": "Round {}".format(n+1)}
+    first_row.append(cell)
+  rows = [first_row]
+
+  # now piece together each row of the table separately
   num_rows = max([len(list(round.heats)) for round in event.rounds])
   for i in range(num_rows):
     row = []
@@ -108,7 +127,11 @@ def event(year, name):
     if idx == 3:
       kook_rows.append(row)
       idx, row = 0, []
-  return render_template('event.html', rows=rows, kook_rows=kook_rows)
+
+  event_name = '{} {}'.format(name, year)
+  return render_template(
+    'event.html', event_name=event_name, rows=rows, kook_rows=kook_rows
+  )
 
 
 def make_csv_response(csv_string):
