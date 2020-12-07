@@ -1,6 +1,75 @@
-from flask import request, make_response
+from flask import request, make_response, render_template
 from app import app, db, parsers
 from app.models import wsl
+
+from colorutils import Color
+
+
+@app.route('/')
+def index():
+  seasons = wsl.Season.query.all()
+  seasons = [{'year': season.year} for season in seasons]
+  return render_template('index.html', seasons=seasons)
+
+
+@app.route('/seasons/<year>')
+def season(year):
+  events = wsl.Event.query.filter_by(year=year)
+  events = [{'name': event.name} for event in events]
+  for event in events:
+    event['title'] = event['name'].replace('-', ' ').title()
+  return render_template('season.html', event_year=year, events=events)
+
+
+@app.route('/seasons/<year>/event/<name>')
+def event(year, name):
+  from app.kooks import kooks
+  event = wsl.Event.query.filter_by(year=year, name=name).first()
+  def find_color_for_athlete(athlete_name):
+    for kook, attrs in kooks.items():
+      if athlete_name in attrs["athletes"]:
+        return attrs["color"]
+    else:
+      print("Could not find competitor for {}".format(athlete_name))
+
+  default_cell = {
+    "name": "TBD",
+    "background": "#ffffff",
+    "score": 0.0
+  }
+  row = [{"table": False, "title": "Round {}".format(n+1)} for n, round in enumerate(event.rounds)]
+  rows = [row]
+  num_rows = max([len(list(round.heats)) for round in event.rounds])
+  for i in range(num_rows):
+    row = []
+    for round in event.rounds:
+      try:
+        heat = round.heats[i]
+      except IndexError:
+        row.append({"table": False, "title": False})
+        continue
+
+      table = []
+      max_score = max([result.score for result in heat.athletes])
+      for result in heat.athletes:
+        name = result.athlete.name
+        background = find_color_for_athlete(name)
+
+        h, s, v = Color(hex=background).hsv
+        text_color = "#ffffff" if v < 0.3 else "#000000"
+
+        winner = result.score == max_score
+        border = "5px solid #000000" if winner else "1px solid #ffffff"
+        table.append({
+          "name": name,
+          "background": background,
+          "score": result.score,
+          "text": text_color,
+          "border": border
+        })
+      row.append({"table": table, "title": False})
+    rows.append(row)
+  return render_template('event.html', rows=rows)
 
 
 def make_csv_response(csv_string):

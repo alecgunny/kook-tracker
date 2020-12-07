@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Welcome kook</h1>
+    <h2>Pick a season</h2>
+    {% for a_season in seasons %}
+        <div>
+            <a href="{{ url_for('season', year=a_season.year) }}">{{ a_season.year }}</a>
+        </div>
+    {% endfor %}
+{% endblock %}

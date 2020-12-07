@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Events in {{ event_year }}</h1>
+    {% for a_event in events %}
+        <div>
+            <a href="{{ url_for('event', year=event_year, name=a_event.name) }}">{{ a_event.title }}</a>
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ event_name }}</h1>
+    <table>
+        {% for row in rows %}
+            <tr>
+                {% for col in row %}
+                    {% if col.title %}
+                        <th>{{ col.title }}</th>
+                    {% elif col.table %}
+                        <td>
+                            <table>
+                                {% for result in col.table %}
+                                    <tr style="background-color:{{ result.background }};color:{{ result.text }}">
+                                        <td style="border:{{ result.border }}">{{ result.name }}</td><td>{{ result.score }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
