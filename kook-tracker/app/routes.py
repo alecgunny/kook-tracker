@@ -1,5 +1,5 @@
 from flask import request, make_response, render_template
-from app import app, db, parsers
+from app import app, db, parsers, client
 from app.models import wsl
 
 from colorutils import Color
@@ -26,7 +26,8 @@ def event(year, name):
   # hard-code import of kook drafts while I don't have
   # a database set up for that info yet
   from app.kooks import kooks
-  event = wsl.Event.query.filter_by(year=year, name=name).first()
+  event_name = name
+  event = wsl.Event.query.filter_by(year=year, name=event_name).first()
 
   def find_color_for_athlete(athlete_name):
     '''
@@ -34,6 +35,9 @@ def event(year, name):
     to assign to an athlete's box based on the
     kook that drafted them
     '''
+    if wsl._is_placeholder_athlete_name(athlete_name):
+      return "#bbbbbb"
+
     for kook, attrs in kooks.items():
       if athlete_name in attrs["athletes"]:
         return attrs["color"]
@@ -44,12 +48,6 @@ def event(year, name):
 
   # top section of event page will be a large table displaying
   # the heat-by-heat results from an event.
-  default_cell = {
-    "name": "TBD",
-    "background": "#bbbbbb",
-    "score": 0.0
-  }
-
   # attributes of cells in this table with be either `table`,
   # if there's a table to display, or `title`, a special
   # attribute reserved for the first row so that we know
@@ -60,27 +58,40 @@ def event(year, name):
     first_row.append(cell)
   rows = [first_row]
 
+  for round in event.rounds:
+    if not round.completed and not client.sleeping:
+      round.update()
+
   # now piece together each row of the table separately
-  num_rows = max([len(list(round.heats)) for round in event.rounds])
+  heat_winning_scores = {}
+  num_rows = max([len(round.heats.all()) for round in event.rounds])
   for i in range(num_rows):
     row = []
     for round in event.rounds:
+      # try to get the heat for this row. If there aren't enough,
+      # then we'll just leave it blank
       try:
         heat = round.heats[i]
       except IndexError:
         row.append({"table": False, "title": False})
         continue
 
+      # now build this table for this table *element*
+      # record the winning score so that we can circle the
+      # corresponding box
       table = []
-      max_score = max([result.score for result in heat.athletes])
+      max_score = max([result.score or 0 for result in heat.athletes])
+      heat_winning_scores[heat.id] = max_score
       for result in heat.athletes:
         name = result.athlete.name
         background = find_color_for_athlete(name)
+        alpha_values = ["55", "bb", "ff"]
+        background += alpha_values[heat.status]
 
         h, s, v = Color(hex=background).hsv
         text_color = "#ffffff" if v < 0.3 else "#000000"
 
-        winner = result.score == max_score
+        winner = (result.score == max_score) and heat.completed
         border = "5px solid #000000" if winner else "1px solid #ffffff"
         table.append({
           "name": name,
@@ -98,7 +109,12 @@ def event(year, name):
   for kook, attrs in kooks.items():
     h, s, v = Color(hex=attrs["color"]).hsv
     text_color = "#ffffff" if v < 0.3 else "#000000"
-    kook_dict = {"background": attrs["color"], "text": text_color, "name": kook}
+    kook_dict = {
+      "background": attrs["color"],
+      "text": text_color,
+      "name": kook
+    }
+
     total_score, athletes = 0, []
     for athlete_name in attrs["athletes"]:
       athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
@@ -109,12 +125,13 @@ def event(year, name):
           if heat_result is not None:
             if n == (len(list(event.rounds)) - 3):
               n += 1
-              winning_score = max([result.score for result in heat.athletes])
+              winning_score = heat_winning_scores[heat.id]
               if heat_result.score == winning_score:
                 n += 1
             break
         else:
           break
+
       score = _SCORE_BREAKDOWN[n]
       total_score += score
       athletes.append({"name": athlete_name, "score": score})
@@ -122,13 +139,16 @@ def event(year, name):
     kook_dict["score"] = total_score
     kook_dict["athletes"] = athletes
 
+    # reset row after every 3. TODO: something more robust here
+    # for configurable competitor sizes and displays
     row.append(kook_dict)
     idx += 1
     if idx == 3:
       kook_rows.append(row)
       idx, row = 0, []
 
-  event_name = '{} {}'.format(name, year)
+  event_name = event_name.replace('-', ' ').title()
+  event_name = '{} {}'.format(event_name, year)
   return render_template(
     'event.html', event_name=event_name, rows=rows, kook_rows=kook_rows
   )
@@ -186,3 +206,38 @@ def get_event_results():
   # commit updates and return response
   db.session.commit()
   return make_csv_response(event.results)
+
+
+@app.route('/reset')
+def reset_event():
+  year = request.args.get('year')
+  name = request.args.get('name')
+  event = wsl.Event.query.filter_by(year=year, name=name).first()
+  if event is None:
+    return "No event", 400
+
+  id = event.id
+  season = event.season
+
+  objects_deleted = 0
+  rounds = wsl.Round.query.filter_by(event=event)
+  for round in rounds:
+    heats = wsl.Heat.query.filter_by(round=round)
+    for heat in heats:
+      objects_deleted += wsl.HeatResult.query.filter_by(heat=heat).delete()
+    objects_deleted += heats.delete()
+  objects_deleted += rounds.delete()
+
+  db.session.delete(event)
+  db.session.commit()
+  app.logger.info("Deleted {} objects".format(objects_deleted + 1))
+
+  app.logger.info("Creating new event {}".format(name))
+  event = wsl.Event.create(name=name, season=season, id=id)
+  app.logger.info("Event created")
+
+  db.session.add(event)
+  db.session.commit()
+  app.logger.info("Event added to database")
+
+  return "Success!", 200

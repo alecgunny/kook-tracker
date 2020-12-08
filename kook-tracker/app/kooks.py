@@ -13,74 +13,113 @@ palette = [
 kooks = {
     "Alex B": {
         "athletes": [
-            "Gabriel Medina",
-            "Michel Bourez",
-            "Wade Carmichael",
-            "Jesse Mendes"
+            # "Gabriel Medina",
+            # "Michel Bourez",
+            # "Wade Carmichael",
+            # "Jesse Mendes"
+            "John John Florence",
+            "Adriano de Souza",
+            "Caio Ibelli",
+            "Alex Ribeiro"
         ]
     },
     "Charlie P": {
         "athletes": [
-            "Owen Wright",
-            "Kelly Slater",
-            "Ricardo Christie",
-            "Peterson Crisanto"
+            # "Owen Wright",
+            # "Kelly Slater",
+            # "Ricardo Christie",
+            # "Peterson Crisanto"
+            "Gabriel Medina",
+            "Kanoa Igarashi",
+            "Connor O'Leary",
+            "Event seed #36"
         ]
     },
     "Dusty D": {
         "athletes": [
-            "John John Florence",
-            "Jeremy Flores",
-            "Michael Rodrigues",
-            "Deivid Silva"
+            # "John John Florence",
+            # "Jeremy Flores",
+            # "Michael Rodrigues",
+            # "Deivid Silva"
+            "Kelly Slater",
+            "Yago Dora",
+            "Ryan Callinan",
+            "Miguel Pupo"
         ]
     },
     "Alec G": {
         "athletes": [
-            "Jordy Smith",
+            # "Jordy Smith",
+            # "Conner Coffin",
+            # "Kanoa Igarashi",
+            # "Willian Cardoso"
+            "Filipe Toledo",
             "Conner Coffin",
-            "Kanoa Igarashi",
-            "Willian Cardoso"
+            "Deivid Silva",
+            # "Miguel Pupo",
+            "Morgan Cibilic"
         ]
     },
     "Rocky F": {
         "athletes": [
-            "Filipe Toledo",
-            "Kolohe Andino",
-            "Caio Ibelli",
-            "Leonardo Fioravanti"
+            # "Filipe Toledo",
+            # "Kolohe Andino",
+            # "Caio Ibelli",
+            # "Leonardo Fioravanti"
+            "Jordy Smith",
+            "Julian Wilson",
+            "Frederico Morais",
+            "Peterson Crisanto"
         ]
     },
     "Mike P": {
         "athletes": [
-            "Julian Wilson",
-            "Adrian Buchan",
-            "Ryan Callinan",
-            "Mateus Herdy"
+            # "Julian Wilson",
+            # "Adrian Buchan",
+            # "Ryan Callinan",
+            # "Mateus Herdy"
+            "Kolohe Andino",
+            "Jeremy Flores",
+            "Matthew McGillivray",
+            "Wade Carmichael"
         ]
     },
     "Nick S": {
         "athletes": [
-            "Italo Ferreira",
+            # "Italo Ferreira",
+            # "Seth Moniz",
+            # "Soli Bailey",
+            # "Reef Heazlewood"
+            "Jack Robinson",
             "Seth Moniz",
-            "Soli Bailey",
-            "Reef Heazlewood"
+            # "Event seed #34",
+            "Leonardo Fioravanti",
+            "Ethan Ewing"
         ]
     },
     "Charlie B": {
         "athletes": [
-            "Ezekiel Lau",
-            "Griffin Colapinto",
-            "Joan Duru",
-            "Jadson Andre"
+            # "Ezekiel Lau",
+            # "Griffin Colapinto",
+            # "Joan Duru",
+            # "Jadson Andre"
+            "Italo Ferreira",
+            "Jack Freestone",
+            # "Adrian Buchan",
+            "Mikey Wright",
+            "Event seed #35"
         ]
     },
     "Kurt D": {
         "athletes": [
-            "Mikey Wright",
-            "Jack Freestone",
-            "Yago Dora",
+            # "Mikey Wright",
+            # "Jack Freestone",
+            # "Yago Dora",
             "Sebastian Zietz"
+            # "Owen Wright",
+            "Michel Bourez",
+            "Griffin Colapinto",
+            "Jadson Andre"
         ]
     }
 }

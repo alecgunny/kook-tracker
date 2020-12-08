@@ -1,9 +1,9 @@
-from app import db
-from app import parsers
+import datetime
+import re
+
+from app import db, parsers, app
 from app.models import mixins
 from config import Config
-
-import datetime
 
 
 class HeatResult(db.Model):
@@ -15,7 +15,7 @@ class HeatResult(db.Model):
   athlete_id = db.Column(
     db.Integer,
     db.ForeignKey('athlete.id'),
-    primary_key=True
+    # primary_key=True
   )
 
   index = db.Column(db.Integer, primary_key=True)
@@ -25,6 +25,19 @@ class HeatResult(db.Model):
     'Heat', backref=db.backref('heats', lazy=True))
   athlete = db.relationship(
     'Athlete', backref=db.backref('athletes', lazy=True))
+
+
+def _is_placeholder_athlete_name(athlete_name):
+  # probably overkill on precision but whatever
+  regexs = [
+    'Round of [0-9]{1,2}, Heat [0-9]{1,2} winner',
+    'finals, Heat [0-9]{1,2} winner$',
+    'Event seed #[0-9]{1,2}',
+    'Round seed #[0-9]{1,2}'
+  ]
+  if any([re.search(r, athlete_name) is not None for r in regexs]):
+    return True
+  return False
 
 
 class Heat(mixins.Updatable, db.Model):
@@ -48,24 +61,78 @@ class Heat(mixins.Updatable, db.Model):
     self.status = status
 
     for index, (athlete_name, score) in enumerate(scores):
-      athlete = Athlete.query.filter_by(name=athlete_name).first()
+      # if we're being reported a placeholder athlete name,
+      # then make sure that the heat hasn't started yet. If it has,
+      # we need to investigate
+      if _is_placeholder_athlete_name(athlete_name) and status != 0:
+        msg = "Still using placeholder name {} in ongoing heat {}".format(
+          athlete_name, self.id)
+        app.logger.warn(msg)
+        heat_result = HeatResult.query.filter_by(
+          heat=self, index=index)
 
-      # create athlete if they don't exist
-      # note that we don't need to worry about placeholder names since
-      # the parser function takes care of checking for these first
+        try:
+          athlete = heat_reslt.first().athlete
+        except AttributeError:
+          # case 1: there's no existing entry, so just move on and
+          # pretend this never happend
+          continue
+
+        # case 2: that heat result has a placeholder name attached to it
+        # delete it and move on
+        if _is_placeholder_athlete_name(athlete.name):
+          msg = "Removing placeholder heat result from heat {}".format(
+            self.id)
+          app.logger.warn(msg)
+          heat_result.delete()
+          continue
+        # case 3: that heat used to have a real athete associated 
+        # with it. I guess keep it for now?
+        else:
+          athlete_name = athlete.name
+
+      # create athlete if they don't exist. Note that his means
+      # we will create some placeholder athletes, but
+      # they won't have any heat results after things get updated
+      athlete = Athlete.query.filter_by(name=athlete_name).first()
       if athlete is None:
         athlete = Athlete(name=athlete_name)
         db.session.add(athlete)
-        db.session.commit() # need a commit for heat result query
 
-      # try to update an existing heat result if it exists, otherwise
-      # create a new one
+      # index heat result by the heat and their order in the heat
+      # this way when rounds update from some TBD placeholder to
+      # a real athlete name we can update the athlete name accordingly
+      # the cost of this is having some placeholder athlete names in
+      # our athlete db but that seems like a small price to pay
       heat_result = HeatResult.query.filter_by(
-        heat=self, athlete=athlete).first()
+        heat=self, index=index).first()
+
+      # first case: this heat result hasn't been created yet
+      # instantiate it and add it to our session
       if heat_result is None:
-        heat_result = HeatResult(athlete=athlete)
+        heat_result = HeatResult(index=index, athlete=athlete)
         self.athletes.append(heat_result)
         db.session.add(heat_result)
+      else:
+        # second case: the heat has been created but the athlete
+        # being used to instantiate is being updated
+        if heat_result.athlete.name != athlete_name:
+          # if this is not because the instantiated athlete was
+          # a placeholder, we won't do this automatically, but
+          # will leave it to you to do manually if you think this
+          # is correct
+          if not _is_placeholder_athlete_name(heat_result.athlete.name):
+            msg = (
+              "Athlete {} is trying to be replaced by athlete {} "
+              "in heat {}. If this is desired, consider doing it "
+              "manually".format(
+                heat_result.athlete.name, athlete_name, self.id
+              )
+            )
+            raise ValueError(msg)
+
+          # updat the heat result athlete
+          heat_result.athlete = athlete
 
       # update the heat result score
       heat_result.score = score
@@ -199,19 +266,34 @@ class Season(db.Model):
     return parsers.get_season_url(self)
 
   @classmethod
-  def create(cls, **kwargs):
-    assert 'year' in kwargs
-    if kwargs['year'] > (datetime.datetime.now().year + 1):
+  def create(cls, year, **kwargs):
+    # allow for possibility that season starts in late
+    # of the year before
+    if year > (datetime.datetime.now().year + 1):
       raise ValueError(
         'Cannot create season for future year {}'.format(kwargs['year'])
       )
 
-    obj = cls(**kwargs)
+    # instantiate the season then add all the events we can to it
+    obj = cls(year=year, **kwargs)
     for event_name, event_id in parsers.get_event_ids(obj.url).items():
+      # skipping freshwater pro by default since its format is so different
+      if event_name == "freshwater-pro":
+        continue
+
+      # don't need to create events that have already been created
+      # not quite sure why or when this might occur but hey why not
+      event = Event.query.filter_by(
+        name=event_name, id=event_id, season=obj
+      ).first()
+      if event is not None:
+        continue
+
+      # if event isn't ready, remove it from the session. Otherwise add it
       try:
         event = Event.create(name=event_name, id=event_id, season=obj)
       except parsers.EventNotReady:
-        bad_event = obj.query.filter_by(id=event_id).first()
+        bad_event = obj.query.filter_by(year=kwargs["year"]).first()
         obj.events.remove(bad_event)
       else:
         db.session.add(event)
@@ -226,3 +308,18 @@ class Athlete(db.Model):
     'HeatResult',
     backref='result_athlete'
   )
+
+
+def delete_season(year):
+  season = Season.query.filter_by(year=year)
+  events = Event.query.filter_by(season=season.first())
+  for event in events:
+      rounds = Round.query.filter_by(event=event)
+      for round in rounds:
+          heats = Heat.query.filter_by(round=round)
+          for heat in heats:
+              HeatResult.query.filter_by(heat=heat).delete()
+          heats.delete()
+      rounds.delete()
+  events.delete()
+  season.delete()

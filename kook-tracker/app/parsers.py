@@ -1,7 +1,7 @@
-from app import client
 import json
 import datetime
-import re
+
+from app import client
 from config import Config
 
 
@@ -187,19 +187,6 @@ def get_heat_ids(round_url):
   return [int(div.attrs['data-heat-id']) for div in heat_divs]
 
 
-def _is_placeholder_athlete_name(athlete_name):
-  # probably overkill on precision but whatever
-  regexs = [
-    'Round of [0-9]{1,2}, Heat [0-9]{1,2} winner',
-    'finals, Heat [0-9]{1,2} winner$',
-    'Event seed #[0-9]{1,2}',
-    'Round seed #[0-9]{1,2}'
-  ]
-  if any([re.search(r, athlete_name) is not None for r in regexs]):
-    return True
-  return False
-
-
 def get_heat_data(round_url, heat_id):
   heat_div = find_heat_divs(round_url, heat_id)
 
@@ -222,9 +209,6 @@ def get_heat_data(round_url, heat_id):
   scores = []
   for div in athlete_divs:
     athlete_name = div.text
-    if _is_placeholder_athlete_name(athlete_name):
-      scores[None] = None
-
     score = div.find_next_sibling(
       'div', class_='hot-heat-athlete__score').text
 

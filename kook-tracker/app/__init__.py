@@ -7,6 +7,7 @@ from client import Client
 import logging
 import os
 
+
 config = Config()
 app = Flask(__name__)
 app.config.from_object(config)
@@ -16,7 +17,8 @@ if not os.path.exists(config.LOG_DIR):
 
 logging.basicConfig(
   filename=os.path.join(config.LOG_DIR, 'app.log'),
-  level=logging.INFO)
+  level=logging.INFO
+)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, compare_type=True)
