@@ -10,10 +10,11 @@
                         <th>{{ col.title }}</th>
                     {% elif col.table %}
                         <td>
-                            <table>
+                            <table class="result-cell">
                                 {% for result in col.table %}
                                     <tr style="background-color:{{ result.background }};color:{{ result.text }}">
-                                        <td style="border:{{ result.border }}">{{ result.name }}</td><td>{{ result.score }}</td>
+                                        <td class="heat-cell" style="border:{{ result.border }}">{{ result.name }}</td>
+                                        <td class="heat-cell">{{ result.score }}</td>
                                     </tr>
                                 {% endfor %}
                             </table>

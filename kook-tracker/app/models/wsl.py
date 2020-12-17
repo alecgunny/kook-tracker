@@ -72,7 +72,7 @@ class Heat(mixins.Updatable, db.Model):
           heat=self, index=index)
 
         try:
-          athlete = heat_reslt.first().athlete
+          athlete = heat_result.first().athlete
         except AttributeError:
           # case 1: there's no existing entry, so just move on and
           # pretend this never happend
@@ -172,7 +172,7 @@ class Round(mixins.Updatable, db.Model):
         # unless current heat is either upcoming, which means the next heat
         # doesn't need updating, or we're on the last heat, which means break
         # now instead in order to avoid the loop else clause
-        if heat.status == 0 or n == (len(self.heats)-1):
+        if heat.status == 0 or n == (len(self.heats.all())-1):
           break
 
       elif _do_break:

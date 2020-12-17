@@ -1,0 +1,16 @@
+table.result-cell {
+    width: 100%;
+}
+
+td.heat-cell {
+    border-radius: 5px;
+    text-align: center;
+}
+
+td.heat-cell.:hover {
+  box-shadow: 0 0 11px rgba(33,33,33,.2); 
+}
+
+body {
+    font-family: 'Didact Gothic', sans-serif;
+}

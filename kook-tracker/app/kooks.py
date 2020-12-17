@@ -1,14 +1,16 @@
-palette = [
-  "#3f0d12",
-  "#a71d31",
-  "#f1f0cc",
-  "#d5bf86",
-  "#8d775f",
-  "#0075f2",
-  "#096b72",
-  "#ffb7c3",
-  "#697a21"
-]
+# palette = [
+#   "#3f0d12",
+#   "#a71d31",
+#   "#f1f0cc",
+#   "#d5bf86",
+#   "#8d775f",
+#   "#0075f2",
+#   "#096b72",
+#   "#ffb7c3",
+#   "#697a21"
+# ]
+palette = ["ed1c24","ff6600","235789","f1d302","020100","71816d","0ead69","9593d9","ae76a6"]
+palette = ["#"+x for x in palette]
 
 kooks = {
     "Alex B": {
@@ -32,7 +34,7 @@ kooks = {
             "Gabriel Medina",
             "Kanoa Igarashi",
             "Connor O'Leary",
-            "Event seed #36"
+            "Joshua Moniz"
         ]
     },
     "Dusty D": {
@@ -107,7 +109,7 @@ kooks = {
             "Jack Freestone",
             # "Adrian Buchan",
             "Mikey Wright",
-            "Event seed #35"
+            "Miguel Tudela"
         ]
     },
     "Kurt D": {
@@ -115,7 +117,7 @@ kooks = {
             # "Mikey Wright",
             # "Jack Freestone",
             # "Yago Dora",
-            "Sebastian Zietz"
+            "Sebastian Zietz",
             # "Owen Wright",
             "Michel Bourez",
             "Griffin Colapinto",
