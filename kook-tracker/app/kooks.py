@@ -1,16 +1,15 @@
-# palette = [
-#   "#3f0d12",
-#   "#a71d31",
-#   "#f1f0cc",
-#   "#d5bf86",
-#   "#8d775f",
-#   "#0075f2",
-#   "#096b72",
-#   "#ffb7c3",
-#   "#697a21"
-# ]
-palette = ["ed1c24","ff6600","235789","f1d302","020100","71816d","0ead69","9593d9","ae76a6"]
-palette = ["#"+x for x in palette]
+palette = [
+    "ed1c24",
+    "ff6600",
+    "235789",
+    "f1d302",
+    "020100",
+    "71816d",
+    "0ead69",
+    "9593d9",
+    "ae76a6",
+]
+palette = ["#" + x for x in palette]
 
 kooks = {
     "Alex B": {
@@ -22,7 +21,7 @@ kooks = {
             "John John Florence",
             "Adriano de Souza",
             "Caio Ibelli",
-            "Alex Ribeiro"
+            "Alex Ribeiro",
         ]
     },
     "Charlie P": {
@@ -34,7 +33,7 @@ kooks = {
             "Gabriel Medina",
             "Kanoa Igarashi",
             "Connor O'Leary",
-            "Joshua Moniz"
+            "Joshua Moniz",
         ]
     },
     "Dusty D": {
@@ -46,7 +45,7 @@ kooks = {
             "Kelly Slater",
             "Yago Dora",
             "Ryan Callinan",
-            "Miguel Pupo"
+            "Miguel Pupo",
         ]
     },
     "Alec G": {
@@ -59,7 +58,7 @@ kooks = {
             "Conner Coffin",
             "Deivid Silva",
             # "Miguel Pupo",
-            "Morgan Cibilic"
+            "Morgan Cibilic",
         ]
     },
     "Rocky F": {
@@ -71,7 +70,7 @@ kooks = {
             "Jordy Smith",
             "Julian Wilson",
             "Frederico Morais",
-            "Peterson Crisanto"
+            "Peterson Crisanto",
         ]
     },
     "Mike P": {
@@ -83,7 +82,7 @@ kooks = {
             "Kolohe Andino",
             "Jeremy Flores",
             "Matthew McGillivray",
-            "Wade Carmichael"
+            "Wade Carmichael",
         ]
     },
     "Nick S": {
@@ -96,7 +95,7 @@ kooks = {
             "Seth Moniz",
             # "Event seed #34",
             "Leonardo Fioravanti",
-            "Ethan Ewing"
+            "Ethan Ewing",
         ]
     },
     "Charlie B": {
@@ -109,7 +108,7 @@ kooks = {
             "Jack Freestone",
             # "Adrian Buchan",
             "Mikey Wright",
-            "Miguel Tudela"
+            "Miguel Tudela",
         ]
     },
     "Kurt D": {
@@ -121,9 +120,9 @@ kooks = {
             # "Owen Wright",
             "Michel Bourez",
             "Griffin Colapinto",
-            "Jadson Andre"
+            "Jadson Andre",
         ]
-    }
+    },
 }
 
 for (kook, attrs), color in zip(kooks.items(), palette):
