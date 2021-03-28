@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 82
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.config
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+known_first_party = ["app"]
+known_third_party = ["alembic", "bs4", "client", "colorutils", "config", "flask", "flask_migrate", "flask_sqlalchemy", "sqlalchemy"]
+multi_line_output = 3
+include_trailing_comma = true
