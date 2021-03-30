@@ -1,129 +1,164 @@
-palette = [
-    "ed1c24",
-    "ff6600",
-    "235789",
-    "f1d302",
-    "020100",
-    "71816d",
-    "0ead69",
-    "9593d9",
-    "ae76a6",
-]
-palette = ["#" + x for x in palette]
+from collections import defaultdict
 
-kooks = {
-    "Alex B": {
-        "athletes": [
-            # "Gabriel Medina",
-            # "Michel Bourez",
-            # "Wade Carmichael",
-            # "Jesse Mendes"
-            "John John Florence",
-            "Adriano de Souza",
-            "Caio Ibelli",
-            "Alex Ribeiro",
-        ]
-    },
-    "Charlie P": {
-        "athletes": [
-            # "Owen Wright",
-            # "Kelly Slater",
-            # "Ricardo Christie",
-            # "Peterson Crisanto"
-            "Gabriel Medina",
-            "Kanoa Igarashi",
-            "Connor O'Leary",
-            "Joshua Moniz",
-        ]
-    },
-    "Dusty D": {
-        "athletes": [
-            # "John John Florence",
-            # "Jeremy Flores",
-            # "Michael Rodrigues",
-            # "Deivid Silva"
-            "Kelly Slater",
-            "Yago Dora",
-            "Ryan Callinan",
-            "Miguel Pupo",
-        ]
-    },
-    "Alec G": {
-        "athletes": [
-            # "Jordy Smith",
-            # "Conner Coffin",
-            # "Kanoa Igarashi",
-            # "Willian Cardoso"
-            "Filipe Toledo",
-            "Conner Coffin",
-            "Deivid Silva",
-            # "Miguel Pupo",
-            "Morgan Cibilic",
-        ]
-    },
-    "Rocky F": {
-        "athletes": [
-            # "Filipe Toledo",
-            # "Kolohe Andino",
-            # "Caio Ibelli",
-            # "Leonardo Fioravanti"
-            "Jordy Smith",
-            "Julian Wilson",
-            "Frederico Morais",
-            "Peterson Crisanto",
-        ]
-    },
-    "Mike P": {
-        "athletes": [
-            # "Julian Wilson",
-            # "Adrian Buchan",
-            # "Ryan Callinan",
-            # "Mateus Herdy"
-            "Kolohe Andino",
-            "Jeremy Flores",
-            "Matthew McGillivray",
-            "Wade Carmichael",
-        ]
-    },
-    "Nick S": {
-        "athletes": [
-            # "Italo Ferreira",
-            # "Seth Moniz",
-            # "Soli Bailey",
-            # "Reef Heazlewood"
-            "Jack Robinson",
-            "Seth Moniz",
-            # "Event seed #34",
-            "Leonardo Fioravanti",
-            "Ethan Ewing",
-        ]
-    },
-    "Charlie B": {
-        "athletes": [
-            # "Ezekiel Lau",
-            # "Griffin Colapinto",
-            # "Joan Duru",
-            # "Jadson Andre"
-            "Italo Ferreira",
-            "Jack Freestone",
-            # "Adrian Buchan",
-            "Mikey Wright",
-            "Miguel Tudela",
-        ]
-    },
-    "Kurt D": {
-        "athletes": [
-            # "Mikey Wright",
-            # "Jack Freestone",
-            # "Yago Dora",
-            "Sebastian Zietz",
-            # "Owen Wright",
-            "Michel Bourez",
-            "Griffin Colapinto",
-            "Jadson Andre",
-        ]
-    },
+import attr
+
+
+@attr.s(auto_attribs=True)
+class Kook:
+    name: str
+    color: str
+
+    def __attrs_post_init__(self):
+        self.rosters = defaultdict(dict)
+
+    def add_roster(self, season, event, athletes):
+        self.rosters[season][event] = athletes
+
+
+rosters = {
+    2021: {
+        "billabong-pipe-masters-presented-by-hydro-flask": {
+            "Alex B": [
+                "John John Florence",
+                "Adriano de Souza",
+                "Caio Ibelli",
+                "Alex Ribeiro",
+            ],
+            "Charlie P": [
+                "John John Florence",
+                "Adriano de Souza",
+                "Caio Ibelli",
+                "Alex Ribeiro",
+            ],
+            "Dusty D": [
+                "Kelly Slater",
+                "Yago Dora",
+                "Ryan Callinan",
+                "Miguel Pupo",
+            ],
+            "Alec G": [
+                "Filipe Toledo",
+                "Conner Coffin",
+                "Deivid Silva",
+                "Morgan Cibilic",
+            ],
+            "Rocky F": [
+                "Jordy Smith",
+                "Julian Wilson",
+                "Frederico Morais",
+                "Peterson Crisanto",
+            ],
+            "Mike P": [
+                "Kolohe Andino",
+                "Jeremy Flores",
+                "Matthew McGillivray",
+                "Wade Carmichael",
+            ],
+            "Nick S": [
+                "Jack Robinson",
+                "Seth Moniz",
+                "Leonardo Fioravanti",
+                "Ethan Ewing",
+            ],
+            "Charlie B": [
+                "Italo Ferreira",
+                "Jack Freestone",
+                "Mikey Wright",
+                "Miguel Tudela",
+            ],
+            "Kurt D": [
+                "Sebastian Zietz",
+                "Michel Bourez",
+                "Griffin Colapinto",
+                "Jadson Andre",
+            ],
+        },
+        "rip-curl-newcastle-cup-presented-by-corona": {
+            "Rocky F": [
+                "John John Florence",
+                "Wade Carmichael",
+                "Caio Ibelli",
+                "Alex Ribeiro",
+            ],
+            "Nick S": [
+                "Italo Ferreira",
+                "Jack Freestone",
+                "Ethan Ewing",
+                "Matt Banting",
+            ],
+            "Mike P": [
+                "Jordy Smith",
+                "Yago Dora",
+                "Matthew McGillivray",
+                "Jackson Baker",
+            ],
+            "Kurt D": [
+                "Filipe Toledo",
+                "Mikey Wright",
+                "Seth Moniz",
+                "Adriano de Souza",
+            ],
+            "Dusty D": [
+                "Gabriel Medina",
+                "Jeremy Flores",
+                "Adrian Buchan",
+                "Miguel Pupo",
+            ],
+            "Charlie B": [
+                "Julian Wilson",
+                "Owen Wright",
+                "Connor O'Leary",
+                "Leonardo Fioravanti",
+            ],
+            "Charlie P": [
+                "Griffin Colapinto",
+                "Jack Robinson",
+                "Frederico Morais",
+                "Michel Bourez",
+            ],
+            "Alex B": [
+                "Conner Coffin",
+                "Morgan Cibilic",
+                "Jadson Andre",
+                "Peterson Crisanto",
+            ],
+            "Alec G": [
+                "Kanoa Igarashi",
+                "Ryan Callinan",
+                "Deivid Silva",
+                "Crosby Colapinto",
+            ],
+        },
+    }
 }
 
-for (kook, attrs), color in zip(kooks.items(), palette):
-    attrs["color"] = color
+palette = [
+    "#ed1c24",
+    "#ff6600",
+    "#235789",
+    "#f1d302",
+    "#020100",
+    "#71816d",
+    "#0ead69",
+    "#9593d9",
+    "#ae76a6",
+]
+
+kook_names = [
+    "Alex B",
+    "Charlie P",
+    "Dusty D",
+    "Alec G",
+    "Rocky F",
+    "Mike P",
+    "Nick S",
+    "Charlie B",
+    "Kurt D",
+]
+
+kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]
+
+for year, events in rosters.items():
+    for event, rstrs in events.items():
+        for kook in kooks:
+            kook.add_roster(year, event, rstrs[kook.name])

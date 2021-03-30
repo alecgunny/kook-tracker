@@ -21,7 +21,7 @@ def season(year):
     return render_template("season.html", event_year=year, events=events)
 
 
-def _find_color_for_athlete(athlete_name, kooks):
+def _find_color_for_athlete(athlete_name, event, kooks):
     """
     quick utility function for finding the color
     to assign to an athlete's box based on the
@@ -30,9 +30,13 @@ def _find_color_for_athlete(athlete_name, kooks):
     if wsl._is_placeholder_athlete_name(athlete_name):
         return "#bbbbbb"
 
-    for kook, attrs in kooks.items():
-        if athlete_name in attrs["athletes"]:
-            return attrs["color"]
+    for kook in kooks:
+        try:
+            roster = kook.rosters[event.year][event.name]
+        except KeyError:
+            continue
+        if athlete_name in roster:
+            return kook.color
     else:
         raise ValueError(
             "Could not find kook with athlete {}".format(athlete_name)
@@ -89,7 +93,7 @@ def _build_athlete_rows(event, kooks):
                 # find the background color this athlete's cell
                 # should have based on the kook that drafted them
                 # add an alpha value based on the status of the heat
-                background = _find_color_for_athlete(name, kooks)
+                background = _find_color_for_athlete(name, event, kooks)
                 background += ["55", "bb", "ff"][heat.status]
 
                 winner = (result.score == max_score) and heat.completed
@@ -112,15 +116,16 @@ def _build_kook_rows(event, kooks, heat_winning_scores):
     _SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
     kook_rows = []
     idx, row = 0, []
-    for kook, attrs in kooks.items():
+
+    for kook in kooks:
         kook_dict = {
-            "background": attrs["color"],
-            "text": _get_text_color[attrs["color"]],
-            "name": kook,
+            "background": kook.color,
+            "text": _get_text_color(kook.color),
+            "name": kook.name,
         }
 
         total_score, athletes = 0, []
-        for athlete_name in attrs["athletes"]:
+        for athlete_name in kook.rosters[event.year][event.name]:
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
 
             # only add a score to the base if the athlete

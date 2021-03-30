@@ -38,7 +38,9 @@ def _get_date(year, month, day):
 #                      Season Page Parsers
 # =============================================================================
 def get_season_url(season):
-    return "https://www.worldsurfleague.com/events/{}/mct".format(season.year)
+    return "https://www.worldsurfleague.com/events/{}/mct?all=1".format(
+        season.year
+    )
 
 
 def get_event_data_from_season_homepage(season_url):
