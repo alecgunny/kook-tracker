@@ -226,10 +226,11 @@ def get_heat_data(round_url, heat_id):
             "div", class_="hot-heat-athlete__score"
         ).text
 
-        # if score isn't a number, that's either because the heat hasn't started
-        # or it has but the athlete hasn't taken a wave yet. To differentiate
-        # these, we'll use None for the former case and 0 for the latter and use
-        # status to decide which one to use
+        # if score isn't a number, that's either because
+        # the heat hasn't started or it has but the
+        # athlete hasn't taken a wave yet. To differentiate
+        # these, we'll use None for the former case and 0
+        # for the latter and use status to decide which one to use
         try:
             score = round(float(score), 2)
         except ValueError:

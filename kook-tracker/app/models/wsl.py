@@ -156,27 +156,27 @@ class Round(mixins.Updatable, db.Model):
         return obj
 
     def _do_update(self):
-        # some custom logic that will only update a heat if the one before it is
-        # completed or ongoing
-        _do_break = False
+        no_more_updates = False
         for n, heat in enumerate(self.heats):
-            # heat is not completd and we haven't triggered a break yet
-            if not heat.update() and not _do_break:
-                # trigger a break after updating next heat, for side-by-side heats
-                _do_break = True
+            if no_more_updates:
+                # only update upcoming heats if they're currently
+                # populated by placeholder athlete names
+                athletes = [r.athlete.name for r in heat.athletes]
+                if any(list(map(_is_placeholder_athlete_name, athletes))):
+                    heat.update()
+                continue
+            else:
+                completed = heat.update()
 
-                # unless current heat is either upcoming, which means the next heat
-                # doesn't need updating, or we're on the last heat, which means break
-                # now instead in order to avoid the loop else clause
-                if heat.status == 0 or n == (len(self.heats.all()) - 1):
-                    break
+                # if this heat is upcoming, then all proceeding
+                # heats in this round are by definition upcoming
+                # too, so we can stop trying to update heats
+                if heat.status == 0:
+                    no_more_updates = True
 
-            elif _do_break:
-                break
-
-        else:
-            # we never triggered a break i.e. all heats are completed
-            self.completed = True
+        # if the last heat returned completd = True,
+        # then we're done
+        self.completed = completed
 
 
 class Event(mixins.Updatable, db.Model):
@@ -206,7 +206,8 @@ class Event(mixins.Updatable, db.Model):
             + datetime.timedelta(days=Config.LEAD_DAYS_FOR_EVENT_CREATION)
         ) < start_date:
             raise parsers.EventNotReady(
-                "Start date for event {} is {} days away, stopping creation".format(
+                "Start date for event {} is {} days away, "
+                "stopping creation".format(
                     obj.name, (start_date - datetime.datetime.now()).days
                 )
             )
@@ -243,13 +244,15 @@ class Event(mixins.Updatable, db.Model):
 
     def _do_update(self):
         for round_ in self.rounds:
-            # update returns completion status, so if round hasn't completed after
-            # its own update, stop because there's no sense updating rounds that
-            # haven't begun yet
+            # update returns completion status, so if
+            # round hasn't completed after its own update,
+            # stop because there's no sense updating rounds
+            # that haven't begun yet
             if not round_.update():
                 break
         else:
-            # loop completed without breaking: means all our rounds have completed
+            # loop completed without breaking:
+            # means all our rounds have completed
             self.completed = True
 
 
@@ -273,7 +276,8 @@ class Season(db.Model):
         # instantiate the season then add all the events we can to it
         obj = cls(year=year, **kwargs)
         for event_name, event_id in parsers.get_event_ids(obj.url).items():
-            # skipping freshwater pro by default since its format is so different
+            # skipping freshwater pro by default since
+            # its format is so different
             if event_name == "freshwater-pro":
                 continue
 
@@ -285,7 +289,8 @@ class Season(db.Model):
             if event is not None:
                 continue
 
-            # if event isn't ready, remove it from the session. Otherwise add it
+            # if event isn't ready, remove it from the session.
+            # Otherwise add it
             try:
                 event = Event.create(name=event_name, id=event_id, season=obj)
             except parsers.EventNotReady:

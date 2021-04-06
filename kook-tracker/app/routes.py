@@ -1,7 +1,9 @@
+import time
+
 from colorutils import Color
 from flask import make_response, render_template, request
 
-from app import app, client, db, parsers
+from app import Config, app, client, db, parsers
 from app.models import wsl
 
 
@@ -63,9 +65,27 @@ def _build_athlete_rows(event, kooks):
         first_row.append(cell)
     rows = [first_row]
 
+    last_round_complete, do_break = False, False
     for round in event.rounds:
         if not round.completed and not client.sleeping:
-            round.update()
+            # this round hasn't completed and so needs updating
+            this_round_complete = round.update()
+            if do_break:
+                break
+
+            if last_round_complete and not this_round_complete:
+                # the previous round is complete but this one
+                # isn't. This means we need to do one more
+                # update on the _next_ round to fill in any
+                # athletes that have won from this round
+                # do this by setting a flag letting it
+                # know to break after the next update
+                do_break = True
+                sleep_time = Config.CLIENT_WAIT_SECONDS - (
+                    time.time() - client.last_call_time
+                )
+                time.sleep(sleep_time)
+            last_round_complete = this_round_complete
 
     # now piece together each row of the table separately
     heat_winning_scores = {}
