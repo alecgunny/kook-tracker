@@ -188,6 +188,10 @@ class Event(mixins.Updatable, db.Model):
     def url(self):
         return parsers.get_event_url(self)
 
+    @property
+    def sorted_rounds(self):
+        return sorted(self.rounds, key=lambda r: r.number)
+
     @classmethod
     def create(cls, **kwargs):
         obj = cls(**kwargs)
@@ -289,7 +293,6 @@ class Season(db.Model):
 
             # if event isn't ready, remove it from the session.
             # Otherwise add it
-            app.logger.info(f"Creating event {event_name}: {event_id}")
             try:
                 event = Event.create(name=event_name, id=event_id, season=obj)
             except parsers.EventNotReady:

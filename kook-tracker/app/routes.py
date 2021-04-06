@@ -42,7 +42,7 @@ def _find_color_for_athlete(athlete_name, event, kooks):
     else:
         raise ValueError(
             "Could not find kook with athlete {} on roster "
-            "for event  {} in season {}".format(
+            "for event {} in season {}".format(
                 athlete_name, event.name, event.year
             )
         )
@@ -62,16 +62,18 @@ def _build_athlete_rows(event, kooks):
     attribute reserved for the first row so that we know
     how many round columns to create
     """
+    rounds = event.sorted_rounds
     first_row = []
-    for n, _ in enumerate(event.rounds):
+    for n in range(len(rounds)):
         cell = {"table": False, "title": "Round {}".format(n + 1)}
         first_row.append(cell)
     rows = [first_row]
 
-    last_round_complete, do_break = False, False
-    for round in event.rounds:
+    last_round_complete, do_break = True, False
+    for round in rounds:
         if not round.completed and not client.sleeping:
             # this round hasn't completed and so needs updating
+            app.logger.info(f"Updating round {round.id} for event {event.name}")
             this_round_complete = round.update()
             if do_break:
                 break
@@ -92,10 +94,10 @@ def _build_athlete_rows(event, kooks):
 
     # now piece together each row of the table separately
     heat_winning_scores = {}
-    num_rows = max([len(round.heats.all()) for round in event.rounds])
+    num_rows = max([len(round.heats.all()) for round in rounds])
     for i in range(num_rows):
         row = []
-        for round in event.rounds:
+        for round in rounds:
             # try to get the heat for this row. If there aren't enough,
             # then we'll just leave it blank
             try:
@@ -139,6 +141,7 @@ def _build_kook_rows(event, kooks, heat_winning_scores):
     _SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
     kook_rows = []
     idx, row = 0, []
+    rounds = event.sorted_rounds
 
     for kook in kooks:
         kook_dict = {
@@ -154,7 +157,7 @@ def _build_kook_rows(event, kooks, heat_winning_scores):
             # only add a score to the base if the athlete
             # has progressed into the 3rd (1-based) round
             # or higher
-            for n, round in enumerate(event.rounds[2:]):
+            for n, round in enumerate(rounds[2:]):
                 for heat in round.heats:
                     heat_result = wsl.HeatResult.query.filter_by(
                         athlete_id=athlete.id, heat_id=heat.id
@@ -162,7 +165,7 @@ def _build_kook_rows(event, kooks, heat_winning_scores):
 
                     if heat_result is not None:
                         # there is a heat in this round featuring the athlete
-                        if (n + 3) == len(list(event.rounds)):
+                        if (n + 3) == len(list(rounds)):
                             # if we're in the last round, add an extra because
                             # we won't be able to iterate and increment again
                             n += 1
@@ -259,7 +262,9 @@ def get_event_results():
     # to make it not None. At the very least we'll get a more
     # informative error as to what's invalid about it
     if event is None:
-        event_id = parsers.get_event_ids(season.url, event_names=event_name)
+        event_id = parsers.get_event_ids(season.url, event_names=event_name)[
+            event_name
+        ]
         event = wsl.Event.create(name=event_name, id=event_id, season=season)
         db.session.add(event)
 
