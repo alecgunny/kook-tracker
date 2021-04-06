@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from app import Config, app, db, logger, parsers
+from app import Config, app, db, parsers
 from app.models import mixins
 
 
@@ -289,7 +289,7 @@ class Season(db.Model):
 
             # if event isn't ready, remove it from the session.
             # Otherwise add it
-            logger.info(f"Creating event {event_name}: {event_id}")
+            app.logger.info(f"Creating event {event_name}: {event_id}")
             try:
                 event = Event.create(name=event_name, id=event_id, season=obj)
             except parsers.EventNotReady:
