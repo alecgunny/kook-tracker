@@ -294,7 +294,7 @@ class Season(db.Model):
             try:
                 event = Event.create(name=event_name, id=event_id, season=obj)
             except parsers.EventNotReady:
-                bad_event = obj.query.filter_by(year=kwargs["year"]).first()
+                bad_event = obj.query.filter_by(year=year).first()
                 obj.events.remove(bad_event)
             else:
                 db.session.add(event)
