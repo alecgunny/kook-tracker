@@ -1,9 +1,7 @@
 import datetime
 import re
 
-from config import Config
-
-from app import app, db, parsers
+from app import Config, app, db, logger, parsers
 from app.models import mixins
 
 
@@ -212,8 +210,8 @@ class Event(mixins.Updatable, db.Model):
                 )
             )
 
-        # double check that event is ready to be scraped by making sure that
-        # all the rounds have valid links
+        # double check that event is ready to be scraped by
+        # making sure that all the rounds have valid links
         try:
             round_ids = parsers.get_round_ids(obj.url + "/results")
         except parsers.EventNotReady:
@@ -291,6 +289,7 @@ class Season(db.Model):
 
             # if event isn't ready, remove it from the session.
             # Otherwise add it
+            logger.info(f"Creating event {event_name}: {event_id}")
             try:
                 event = Event.create(name=event_name, id=event_id, season=obj)
             except parsers.EventNotReady:

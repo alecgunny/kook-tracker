@@ -41,7 +41,10 @@ def _find_color_for_athlete(athlete_name, event, kooks):
             return kook.color
     else:
         raise ValueError(
-            "Could not find kook with athlete {}".format(athlete_name)
+            "Could not find kook with athlete {} on roster "
+            "for event  {} in season {}".format(
+                athlete_name, event.name, event.year
+            )
         )
 
 
