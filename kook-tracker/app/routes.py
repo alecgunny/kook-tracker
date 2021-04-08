@@ -6,6 +6,8 @@ from flask import make_response, render_template, request
 from app import Config, app, client, db, parsers
 from app.models import wsl
 
+_SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
+
 
 @app.route("/")
 def index():
@@ -93,15 +95,16 @@ def _build_athlete_rows(event, kooks):
             last_round_complete = this_round_complete
 
     # now piece together each row of the table separately
-    heat_winning_scores = {}
+    heat_winning_scores, heat_losing_scores = {}, {}
     num_rows = max([len(round.heats.all()) for round in rounds])
     for i in range(num_rows):
         row = []
         for round in rounds:
             # try to get the heat for this row. If there aren't enough,
             # then we'll just leave it blank
+            heats = round.sorted_heats
             try:
-                heat = round.heats[i]
+                heat = heats[i]
             except IndexError:
                 row.append({"table": False, "title": False})
                 continue
@@ -111,7 +114,9 @@ def _build_athlete_rows(event, kooks):
             # corresponding box
             table = []
             max_score = max([result.score or 0 for result in heat.athletes])
+            min_score = min([result.score or 0 for result in heat.athletes])
             heat_winning_scores[heat.id] = max_score
+            heat_losing_scores[heat.id] = min_score
             for result in heat.athletes:
                 name = result.athlete.name
 
@@ -121,7 +126,12 @@ def _build_athlete_rows(event, kooks):
                 background = _find_color_for_athlete(name, event, kooks)
                 background += ["55", "bb", "ff"][heat.status]
 
-                winner = (result.score == max_score) and heat.completed
+                winner = heat.completed
+                if round.number < 2:
+                    winner &= result.score != min_score
+                else:
+                    winner &= result.score == max_score
+
                 border = "5px solid #000000" if winner else "1px solid #ffffff"
                 table.append(
                     {
@@ -134,14 +144,50 @@ def _build_athlete_rows(event, kooks):
                 )
             row.append({"table": table, "title": False})
         rows.append(row)
-    return rows, heat_winning_scores
+    return rows, heat_winning_scores, heat_losing_scores
 
 
-def _build_kook_rows(event, kooks, heat_winning_scores):
-    _SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
+def _compute_points_possible(athletes):
+    num_rounds = len(_SCORE_BREAKDOWN) - 1
+    positions = [
+        [i] * 2 ** (num_rounds - n) for n, i in enumerate(_SCORE_BREAKDOWN)
+    ]
+
+    points_possible, leftover_positions = 0, 0
+    heat_idx = []
+    for athlete in athletes:
+        heat = athlete.pop("heat")
+        completed = athlete.pop("completed")
+        if completed:
+            points_possible += athlete["score"]
+        elif heat is None:
+            leftover_positions += 1
+        else:
+            heat_idx.append(heat)
+
+    round_idx = 1
+    while len(heat_idx) > 1:
+        unique_heats = set(heat_idx)
+        for _ in range(len(heat_idx) - len(unique_heats)):
+            points_possible += positions[round_idx].pop(0)
+
+        heat_idx = [i // 2 for i in unique_heats]
+        round_idx += 1
+
+    if len(heat_idx) == 1:
+        points_possible += positions[-1].pop(0)
+
+    for _ in range(leftover_positions):
+        for round in positions[::-1]:
+            if round:
+                points_possible += round.pop(0)
+    return points_possible
+
+
+def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
     kook_rows = []
     idx, row = 0, []
-    rounds = event.sorted_rounds
+    rounds = [r.sorted_heats for r in event.sorted_rounds]
 
     for kook in kooks:
         kook_dict = {
@@ -153,44 +199,48 @@ def _build_kook_rows(event, kooks, heat_winning_scores):
         total_score, athletes = 0, []
         for athlete_name in kook.rosters[event.year][event.name]:
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
+            elimination_heat = None
 
-            # only add a score to the base if the athlete
-            # has progressed into the 3rd (1-based) round
-            # or higher
-            for n, round in enumerate(rounds[2:]):
-                for heat in round.heats:
+            for i, round in enumerate(rounds):
+                for j, heat in enumerate(round):
                     heat_result = wsl.HeatResult.query.filter_by(
                         athlete_id=athlete.id, heat_id=heat.id
                     ).first()
 
                     if heat_result is not None:
-                        # there is a heat in this round featuring the athlete
-                        if (n + 3) == len(list(rounds)):
-                            # if we're in the last round, add an extra because
-                            # we won't be able to iterate and increment again
-                            n += 1
-
-                            # check if they have the winning score and add
-                            # another if they've won the whole comp
-                            winning_score = heat_winning_scores[heat.id]
-                            if heat_result.score == winning_score:
-                                n += 1
-
-                        # don't need to keep searching this round for the
-                        # athlete, so exit
                         break
                 else:
-                    # the athlete is not in this round and has
-                    # been eliminated, so stop iterating and
-                    # assign the score
-                    break
+                    if i != 1:
+                        break
+                    else:
+                        continue
 
-            score = _SCORE_BREAKDOWN[n]
+                winner = heat.completed
+                if i < 2:
+                    winner &= heat_result.score != heat_losing_scores[heat.id]
+                else:
+                    winner &= heat_result.score == heat_winning_scores[heat.id]
+
+                last_heat = heat
+                if i == 2:
+                    elimination_heat = j
+            else:
+                i += 2 if winner else 1
+
+            score = _SCORE_BREAKDOWN[max(i - 2, 0)]
             total_score += score
-            athletes.append({"name": athlete_name, "score": score})
+            athletes.append(
+                {
+                    "name": athlete_name,
+                    "score": score,
+                    "heat": elimination_heat,
+                    "completed": last_heat.completed and not winner,
+                }
+            )
 
         kook_dict["score"] = total_score
         kook_dict["athletes"] = athletes
+        kook_dict["possible"] = _compute_points_possible(athletes)
 
         # reset row after every 3. TODO: something more robust here
         # for configurable competitor sizes and displays
@@ -211,8 +261,12 @@ def event(year, name):
     event_name = name
     event = wsl.Event.query.filter_by(year=year, name=event_name).first()
 
-    rows, heat_winning_scores = _build_athlete_rows(event, kooks)
-    kook_rows = _build_kook_rows(event, kooks, heat_winning_scores)
+    rows, heat_winning_scores, heat_losing_scores = _build_athlete_rows(
+        event, kooks
+    )
+    kook_rows = _build_kook_rows(
+        event, kooks, heat_winning_scores, heat_losing_scores
+    )
 
     event_name = event_name.replace("-", " ").title()
     event_name = "{} {}".format(event_name, year)

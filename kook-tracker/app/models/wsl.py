@@ -144,6 +144,10 @@ class Round(mixins.Updatable, db.Model):
     def url(self):
         return parsers.get_round_url(self)
 
+    @property
+    def sorted_heats(self):
+        return sorted(self.heats, key=lambda heat: heat.id)
+
     @classmethod
     def create(cls, **kwargs):
         obj = cls(completed=False, **kwargs)
@@ -155,15 +159,18 @@ class Round(mixins.Updatable, db.Model):
 
     def _do_update(self):
         no_more_updates = False
-        for n, heat in enumerate(self.heats):
+        heats = sorted(self.heats, key=lambda h: h.id)
+        for n, heat in enumerate(heats):
             if no_more_updates:
                 # only update upcoming heats if they're currently
                 # populated by placeholder athlete names
                 athletes = [r.athlete.name for r in heat.athletes]
                 if any(list(map(_is_placeholder_athlete_name, athletes))):
+                    app.logger.info(f"Updating athletes for heat {heat.id}")
                     heat.update()
                 continue
             else:
+                app.logger.info(f"Updating heat {heat.id}")
                 completed = heat.update()
 
                 # if this heat is upcoming, then all proceeding
