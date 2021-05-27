@@ -129,6 +129,174 @@ rosters = {
                 "Crosby Colapinto",
             ],
         },
+        "rip-curl-narrabeen-classic-presented-by-corona": {
+            "Rocky F": [
+                "Owen Wright",
+                "Jack Robinson",
+                "Caio Ibelli",
+                "Connor O'Leary",
+            ],
+            "Nick S": [
+                "Italo Ferreira",
+                "Wade Carmichael",
+                "Reef Heazlewood",
+                "Dylan Moffat",
+            ],
+            "Mike P": [
+                "Gabriel Medina",
+                "Yago Dora",
+                "Jeremy Flores",
+                "Matthew McGillivray",
+            ],
+            "Kurt D": [
+                "John John Florence",
+                "Ryan Callinan",
+                "Leonardo Fioravanti",
+                "Peterson Crisanto",
+            ],
+            "Dusty D": [
+                "Filipe Toledo",
+                "Griffin Colapinto",
+                "Mikey Wright",
+                "Miguel Pupo",
+            ],
+            "Mick U": [
+                "Jordy Smith",
+                "Julian Wilson",
+                "Deivid Silva",
+                "Ethan Ewing",
+            ],
+            "Charlie P": [
+                "Mick Fanning",
+                "Jack Freestone",
+                "Seth Moniz",
+                "Michel Bourez",
+            ],
+            "Alex B": [
+                "Conner Coffin",
+                "Alex Ribeiro",
+                "Frederico Morais",
+                "Jadson Andre",
+            ],
+            "Alec G": [
+                "Kanoa Igarashi",
+                "Morgan Cibilic",
+                "Adriano de Souza",
+                "Adrian Buchan",
+            ],
+        },
+        "boost-mobile-margaret-river-pro-presented-by-corona": {
+            "Kurt D": [
+                "John John Florence",
+                "Adriano de Souza",
+                "Jeremy Flores",
+                "Cyrus Cox",
+            ],
+            "Dusty D": [
+                "Gabriel Medina",
+                "Yago Dora",
+                "Michel Bourez",
+                "Deivid Silva",
+            ],
+            "Mick U": [
+                "Italo Ferreira",
+                "Frederico Morais",
+                "Ethan Ewing",
+                "Peterson Crisanto",
+            ],
+            "Charlie P": [
+                "Filipe Toledo",
+                "Griffin Colapinto",
+                "Wade Carmichael",
+                "Miguel Pupo",
+            ],
+            "Alex B": [
+                "Julian Wilson",
+                "Jordy Smith",
+                "Adrian Buchan",
+                "Alex Ribeiro",
+            ],
+            "Alec G": [
+                "Kanoa Igarashi",
+                "Conner Coffin",
+                "Morgan Cibilic",
+                "Jadson Andre",
+            ],
+            "Rocky F": [
+                "Owen Wright",
+                "Jack Freestone",
+                "Connor O'Leary",
+                "Matthew McGillivray",
+            ],
+            "Nick S": [
+                "Jack Robinson",
+                "Ryan Callinan",
+                "Reef Heazlewood",
+                "Jacob Willcox",
+            ],
+            "Mike P": [
+                "Seth Moniz",
+                "Mikey Wright",
+                "Caio Ibelli",
+                "Leonardo Fioravanti",
+            ],
+        },
+        "rip-curl-rottnest-search-presented-by-corona": {
+            "Kurt D": [
+                "Jeremy Flores",
+                "Yago Dora",
+                "Taj Burrow",
+                "Ethan Ewing",
+            ],
+            "Dusty D": [
+                "Filipe Toledo",
+                "Wade Carmichael",
+                "Deivid Silva",
+                "Miguel Pupo",
+            ],
+            "Mick U": [
+                "Gabriel Medina",
+                "Caio Ibelli",
+                "Connor O'Leary",
+                "Liam O'Brien",
+            ],
+            "Charlie P": [
+                "Italo Ferreira",
+                "Jack Freestone",
+                "Jadson Andre",
+                "Leonardo Fioravanti",
+            ],
+            "Alex B": [
+                "Jordy Smith",
+                "Frederico Morais",
+                "Michel Bourez",
+                "Adriano de Souza",
+            ],
+            "Alec G": [
+                "Conner Coffin",
+                "Owen Wright",
+                "Mikey Wright",
+                "Jacob Willcox",
+            ],
+            "Rocky F": [
+                "Griffin Colapinto",
+                "Morgan Cibilic",
+                "Alex Ribeiro",
+                "Stuart Kennedy",
+            ],
+            "Nick S": [
+                "Jack Robinson",
+                "Seth Moniz",
+                "Julian Wilson",
+                "Kael Walsh",
+            ],
+            "Mike P": [
+                "Kanoa Igarashi",
+                "Ryan Callinan",
+                "Matthew McGillivray",
+                "Peterson Crisanto",
+            ],
+        },
     }
 }
 
@@ -142,6 +310,7 @@ palette = [
     "#0ead69",
     "#9593d9",
     "#ae76a6",
+    "#9593d9",
 ]
 
 kook_names = [
@@ -154,6 +323,7 @@ kook_names = [
     "Nick S",
     "Charlie B",
     "Kurt D",
+    "Mick U",
 ]
 
 kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]
@@ -161,4 +331,8 @@ kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]
 for year, events in rosters.items():
     for event, rstrs in events.items():
         for kook in kooks:
-            kook.add_roster(year, event, rstrs[kook.name])
+            try:
+                roster = rstrs[kook.name]
+            except KeyError:
+                continue
+            kook.add_roster(year, event, roster)

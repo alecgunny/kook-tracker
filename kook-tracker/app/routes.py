@@ -149,9 +149,10 @@ def _build_athlete_rows(event, kooks):
 
 def _compute_points_possible(athletes):
     num_rounds = len(_SCORE_BREAKDOWN) - 1
-    positions = [
-        [i] * 2 ** (num_rounds - n) for n, i in enumerate(_SCORE_BREAKDOWN)
-    ]
+    positions = []
+    for n, i in enumerate(_SCORE_BREAKDOWN):
+        exponent = max(num_rounds - n - 1, 0)
+        positions.append([i] * 2 ** exponent)
 
     points_possible, leftover_positions = 0, 0
     heat_idx = []
@@ -181,6 +182,7 @@ def _compute_points_possible(athletes):
         for round in positions[::-1]:
             if round:
                 points_possible += round.pop(0)
+                break
     return points_possible
 
 
@@ -197,7 +199,12 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
         }
 
         total_score, athletes = 0, []
-        for athlete_name in kook.rosters[event.year][event.name]:
+        try:
+            roster = kook.rosters[event.year][event.name]
+        except KeyError:
+            continue
+
+        for athlete_name in roster:
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
             elimination_heat = None
 
