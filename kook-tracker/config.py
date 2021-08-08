@@ -1,20 +1,19 @@
+import json
 import os
 
 
 def get_database_url():
-    if os.environ.get("RDS_HOSTNAME") is not None:
-        return (
-            "postgresql://{RDS_USERNAME}:{RDS_PASSWORD}"
-            "@{RDS_HOSTNAME}:{RDS_PORT}/{RDS_DB_NAME}".format(**os.environ)
-        )
-    else:
+    try:
+        connection_file = os.environ["DB_CONNECTION_FILE"]
+        with open(connection_file, "r") as f:
+            return json.load(f)["connection"]
+    except KeyError:
         return "sqlite:///" + os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "app.db"
         )
 
 
 class Config:
-    SECRET_KEY = os.environ.get("RDS_PASSWORD", "ruby-tuesday")
     SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

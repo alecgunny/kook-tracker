@@ -10,3 +10,7 @@ kook-tracker/.env
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# old files/secrets
+connection.json
+.ebextensions/.db.config
