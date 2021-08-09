@@ -36,7 +36,7 @@ def season(year: int) -> str:
 
 
 def _find_color_for_athlete(
-    athlete_name: str, event: wsl.Event, kooks: typing.List[Kook]
+    athlete_name: str, event: wsl.Event, kooks: typing.List["Kook"]
 ) -> str:
     """
     quick utility function for finding the color
@@ -107,7 +107,7 @@ def _get_text_color(background_color: str) -> str:
 
 
 def _build_athlete_rows(
-    event: wsl.Event, kooks: typing.List[Kook]
+    event: wsl.Event, kooks: typing.List["Kook"]
 ) -> typing.Tuple[typing.Dict, typing.List[float], typing.List[float]]:
     """
     top section of event page will be a large table displaying
