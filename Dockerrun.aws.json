@@ -4,7 +4,7 @@
     "Volumes": [
         {
             "HostDirectory": "/tmp",
-            "ContainerDirectory": "/tmp
+            "ContainerDirectory": "/tmp"
         }
     ]
 }
