@@ -57,11 +57,13 @@ class Heat(mixins.Updatable, db.Model):
             # then make sure that the heat hasn't started yet. If it has,
             # we need to investigate
             if _is_placeholder_athlete_name(athlete_name) and status != 0:
-                msg = "Still using placeholder name {} in ongoing heat {}".format(
-                    athlete_name, self.id
+                app.logger.warn(
+                    f"Still using placeholder name {athlete_name} "
+                    f"in ongoing heat {self.id}"
                 )
-                app.logger.warn(msg)
-                heat_result = HeatResult.query.filter_by(heat=self, index=index)
+                heat_result = HeatResult.query.filter_by(
+                    heat=self, index=index
+                )
 
                 try:
                     athlete = heat_result.first().athlete
@@ -70,13 +72,12 @@ class Heat(mixins.Updatable, db.Model):
                     # pretend this never happend
                     continue
 
-                # case 2: that heat result has a placeholder name attached to it
-                # delete it and move on
+                # case 2: that heat result has a placeholder
+                # name attached to it: delete it and move on
                 if _is_placeholder_athlete_name(athlete.name):
-                    msg = "Removing placeholder heat result from heat {}".format(
-                        self.id
+                    app.logger.warn(
+                        f"Removing placeholder heat result from heat {self.id}"
                     )
-                    app.logger.warn(msg)
                     heat_result.delete()
                     continue
                 # case 3: that heat used to have a real athete associated
@@ -115,11 +116,13 @@ class Heat(mixins.Updatable, db.Model):
                     # a placeholder, we won't do this automatically, but
                     # will leave it to you to do manually if you think this
                     # is correct
-                    if not _is_placeholder_athlete_name(heat_result.athlete.name):
+                    if not _is_placeholder_athlete_name(
+                        heat_result.athlete.name
+                    ):
                         msg = (
-                            "Athlete {} is trying to be replaced by athlete {} "
-                            "in heat {}. If this is desired, consider doing it "
-                            "manually".format(
+                            "Athlete {} is trying to be replaced by "
+                            "athlete {} in heat {}. If this is desired, "
+                            "consider doing it manually".format(
                                 heat_result.athlete.name, athlete_name, self.id
                             )
                         )
@@ -205,7 +208,9 @@ class Event(mixins.Updatable, db.Model):
 
         # first verify that status is ok and that we're close enough to the
         # event to warrant building it
-        status, start_date = parsers.get_event_data_from_event_homepage(obj.url)
+        status, start_date = parsers.get_event_data_from_event_homepage(
+            obj.url
+        )
         if status in ("canceled", "postponed"):
             raise parsers.EventNotReady(
                 "Status for event {} is currently {}".format(obj.name, status)
@@ -278,9 +283,7 @@ class Season(db.Model):
         # allow for possibility that season starts in late
         # of the year before
         if year > (datetime.datetime.now().year + 1):
-            raise ValueError(
-                "Cannot create season for future year {}".format(kwargs["year"])
-            )
+            raise ValueError(f"Cannot create season for future year {year}")
 
         # instantiate the season then add all the events we can to it
         obj = cls(year=year, **kwargs)

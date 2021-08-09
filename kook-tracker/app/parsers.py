@@ -38,9 +38,7 @@ def _get_date(year, month, day):
 #                      Season Page Parsers
 # =============================================================================
 def get_season_url(season):
-    return "https://www.worldsurfleague.com/events/{}/mct?all=1".format(
-        season.year
-    )
+    return f"{Config.MAIN_URL}/events/{season.year}/mct?all=1"
 
 
 def get_event_data_from_season_homepage(season_url):
@@ -69,16 +67,24 @@ def get_event_data_from_season_homepage(season_url):
         month, start_day, _ = row.find(
             "td", class_="event-date-range"
         ).text.split(maxsplit=2)
+
         month = _MONTHS.index(month) + 1
         start_date = _get_date(year, month, start_day)
 
-        status = row.find("span", class_="event-status").find("span").text.lower()
+        status = (
+            row.find("span", class_="event-status").find("span").text.lower()
+        )
 
         link = row.find("a", class_="event-schedule-details__event-name")
         if link is not None:
             link = link.attrs["href"]
         data.append(
-            {"id": id, "start_date": start_date, "status": status, "link": link}
+            {
+                "id": id,
+                "start_date": start_date,
+                "status": status,
+                "link": link,
+            }
         )
     return data
 
@@ -93,10 +99,11 @@ def get_event_ids(season_url, event_names=None):
         a valid WSL website URL corresponding to the main page for a Men's
         Championship Tour season
     event_names: str or array_like(str) or None
-        either a single string event name or an iterable of string event names for
-        which to find ids. Valid events are those with links to event pages. If
-        left as None, will find ids for all currently valid events in a season.
-        Otherwise, if any specified events are not valid, a `ValueError` will be
+        either a single string event name or an iterable of string
+        event names for which to find ids. Valid events are those
+        with links to event pages. If left as None, will find ids
+        for all currently valid events in a season. Otherwise, if
+        any specified events are not valid, a `ValueError` will be
         raised
 
     Returns
@@ -104,6 +111,7 @@ def get_event_ids(season_url, event_names=None):
     event_ids: dict
         dictionary mapping event names to WSL assigned ids
     """
+
     if isinstance(event_names, str):
         event_names = [event_names]
 
@@ -117,8 +125,8 @@ def get_event_ids(season_url, event_names=None):
         if event_names is None or event_name in event_names:
             event_ids[event_name] = int(event_id)
 
-    # if event names are specifically requested and they couldn't be found,
-    # raise an error
+    # if event names are specifically requested
+    # and they couldn't be found, raise an error
     if event_names is not None and any(
         [name not in event_ids for name in event_names]
     ):
@@ -175,6 +183,7 @@ def get_round_ids(event_url):
     round_link_divs = soup.find_all(
         "div", class_="post-event-watch-round-nav__item"
     )
+
     if len(round_link_divs) == 0:
         raise EventNotReady
 
@@ -217,7 +226,9 @@ def get_heat_data(round_url, heat_id):
         status = 1
 
     # next get athlete names and scores
-    athlete_divs = heat_div.find_all("div", class_="hot-heat-athlete__name--full")
+    athlete_divs = heat_div.find_all(
+        "div", class_="hot-heat-athlete__name--full"
+    )
 
     scores = []
     for div in athlete_divs:

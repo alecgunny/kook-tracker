@@ -1,10 +1,16 @@
 import time
+import typing
 
 from colorutils import Color
 from flask import make_response, render_template, request
 
 from app import Config, app, client, db, parsers
+from app.kooks import kooks
 from app.models import wsl
+
+if typing.TYPE_CHECKING:
+    from app.kooks import Kook
+
 
 _SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
 
@@ -17,7 +23,11 @@ def index():
 
 
 @app.route("/seasons/<year>")
-def season(year):
+def season(year: int) -> str:
+    """
+    Returns an HTML page with a list of links
+    to the given Season's Events
+    """
     events = wsl.Event.query.filter_by(year=year)
     events = [{"name": event.name} for event in events]
     for event in events:
@@ -25,23 +35,53 @@ def season(year):
     return render_template("season.html", event_year=year, events=events)
 
 
-def _find_color_for_athlete(athlete_name, event, kooks):
+def _find_color_for_athlete(
+    athlete_name: str, event: wsl.Event, kooks: typing.List[Kook]
+) -> str:
     """
     quick utility function for finding the color
     to assign to an athlete's box based on the
     kook that drafted them
+
+    Paramters
+    ---------
+    :param athlete_name: Name of the athlete to which
+        to assign a color for their Event page cells
+    :parm event: The Event page for which this athlete's
+        cells are being rendered
+    :param kooks: List of kooks whose rosters to check
+        for the given athlete
+
+    Returns
+    -------
+    :return color: The color to associate with this
+        athlete's cells on the event page
     """
     if wsl._is_placeholder_athlete_name(athlete_name):
+        # for placeholders before an athlete
+        # has been put into a slot, use a
+        # generic grey color
         return "#bbbbbb"
 
+    # otherwise look through all available kooks
+    # to find the one that has the given athlete
+    # on their roster for this event
     for kook in kooks:
         try:
             roster = kook.rosters[event.year][event.name]
         except KeyError:
+            # this kook doesn't have a roster for
+            # this event, move on
             continue
+
         if athlete_name in roster:
+            # return the kook's color if the athlete
+            # is on their roster
             return kook.color
     else:
+        # we looped through all known kooks and
+        # couldn't find one that has rostered
+        # this athlete. Somethings' wrong.
         raise ValueError(
             "Could not find kook with athlete {} on roster "
             "for event {} in season {}".format(
@@ -50,12 +90,25 @@ def _find_color_for_athlete(athlete_name, event, kooks):
         )
 
 
-def _get_text_color(background_color):
-    h, s, v = Color(hex=background_color).hsv
+def _get_text_color(background_color: str) -> str:
+    """
+    Utility function for deciding whether to
+    use black or white text depending on the
+    background color of the given cell
+    """
+    # get the "value" of the color: i.e. a
+    # number representing how light or dark
+    # the color is
+    _, __, v = Color(hex=background_color).hsv
+
+    # if the value is sufficiently dark, use
+    # white text, otherwise use black
     return "#ffffff" if v < 0.3 else "#000000"
 
 
-def _build_athlete_rows(event, kooks):
+def _build_athlete_rows(
+    event: wsl.Event, kooks: typing.List[Kook]
+) -> typing.Tuple[typing.Dict, typing.List[float], typing.List[float]]:
     """
     top section of event page will be a large table displaying
     the heat-by-heat results from an event.
@@ -75,7 +128,9 @@ def _build_athlete_rows(event, kooks):
     for round in rounds:
         if not round.completed and not client.sleeping:
             # this round hasn't completed and so needs updating
-            app.logger.info(f"Updating round {round.id} for event {event.name}")
+            app.logger.info(
+                f"Updating round {round.id} for event {event.name}"
+            )
             this_round_complete = round.update()
             if do_break:
                 break
@@ -147,42 +202,111 @@ def _build_athlete_rows(event, kooks):
     return rows, heat_winning_scores, heat_losing_scores
 
 
-def _compute_points_possible(athletes):
+def _compute_points_possible(athletes: typing.List[typing.Dict]) -> float:
+    """
+    Given a roster of athletes and some associated
+    metadata, return the number of possible points
+    such a roster can score for a given event.
+
+    Parameters
+    ----------
+    :param athletes: A list of dictionaries with the
+        following keys for specifying athletes on a roster:
+        - `name`: The athlete name
+        - `score`: The total points the athlete has scored
+            for their kook thus far in the event
+        - `heat`: Which heat number in an elimination round
+            the athlete last occupied, or `None` if they
+            haven't reached an elimination round
+        - `completed`: Whether the athlete has finished
+            competing in this event or not
+
+    Returns
+    -------
+    :return points_possible: How many points the kook
+        with this roster can still score in the given
+        event
+    """
+
     num_rounds = len(_SCORE_BREAKDOWN) - 1
+
+    # make a list of the points that can be achieved
+    # by finishing in a given position in the Event
     positions = []
     for n, i in enumerate(_SCORE_BREAKDOWN):
         exponent = max(num_rounds - n - 1, 0)
         positions.append([i] * 2 ** exponent)
 
+    # initialize the points possible counter, as
+    # well as how many athletes on the given roster
+    # whose elimination heat position is as yet unknown
     points_possible, leftover_positions = 0, 0
     heat_idx = []
     for athlete in athletes:
         heat = athlete.pop("heat")
         completed = athlete.pop("completed")
+
         if completed:
+            # the athlete has stopped competing, so add
+            # their scored points to the total
             points_possible += athlete["score"]
         elif heat is None:
+            # this athlete has not been given an elimination
+            # heat yet, so defer making judgements about
+            # how many points they can score until later
             leftover_positions += 1
         else:
+            # otherwise record which heat this athlete
+            # is in to track which athletes might
+            # be forced to compete with one another
+            # before the finals
             heat_idx.append(heat)
 
+    # simulate the Event heats for all elimination
+    # rounds to see when two rostered athletes might
+    # need to compete against one another
     round_idx = 1
     while len(heat_idx) > 1:
+        # calculate how many heats the rostered athletes
+        # will be competing in in this round
         unique_heats = set(heat_idx)
         for _ in range(len(heat_idx) - len(unique_heats)):
+            # if it is less than the total number of athletes,
+            # at least two of the rostered athletes are
+            # competing against one another, therfore
+            # take the corresponding score from this round
+            # for each athlete this must stop here
             points_possible += positions[round_idx].pop(0)
 
+        # increment all the heat indices forwared to
+        # the next round by dividing them by two
+        # and then increment the round
         heat_idx = [i // 2 for i in unique_heats]
         round_idx += 1
 
     if len(heat_idx) == 1:
+        # if we've gotten all the way to the end
+        # and we still have one athlete, add the
+        # winning score to the total
         points_possible += positions[-1].pop(0)
 
+    # for those athletes which have not been seeded
+    # in an elimination round yet, take the most
+    # optimistic assumption and grant them all the
+    # highest possible remaining point totals
     for _ in range(leftover_positions):
         for round in positions[::-1]:
+            # iterate through the rounds backwards, starting
+            # with the most valuable
             if round:
+                # if there are any spots left to finish in
+                # this round, add the corresponding amount
+                # of points to the running total
                 points_possible += round.pop(0)
                 break
+
+    # return the total possible number of points
+    # this roster can still score
     return points_possible
 
 
@@ -261,10 +385,6 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
 
 @app.route("/seasons/<year>/event/<name>")
 def event(year, name):
-    # hard-code import of kook drafts while I don't have
-    # a database set up for that info yet
-    from app.kooks import kooks
-
     event_name = name
     event = wsl.Event.query.filter_by(year=year, name=event_name).first()
 
@@ -354,7 +474,9 @@ def reset_event():
     for round in rounds:
         heats = wsl.Heat.query.filter_by(round=round)
         for heat in heats:
-            objects_deleted += wsl.HeatResult.query.filter_by(heat=heat).delete()
+            objects_deleted += wsl.HeatResult.query.filter_by(
+                heat=heat
+            ).delete()
         objects_deleted += heats.delete()
     objects_deleted += rounds.delete()
 

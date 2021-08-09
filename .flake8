@@ -2,9 +2,15 @@
 max-line-length = 79
 max-complexity = 18
 select = B,C,E,F,W,T4,B9
-ignore = W503  # ignore for consistency with black
+
+# ignore for consistency with black
+ignore = W503
 
 # ignore asterisk imports and unused
 # import errors in __init__ files
 per-file-ignores = 
     **/__init__.py:F401,F403
+
+# ignore migrations directory
+exclude = 
+    kook-tracker/migrations/*.py

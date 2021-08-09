@@ -1,4 +1,5 @@
 [tool.black]
+line-length = 79
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -17,6 +18,5 @@ exclude = '''
 
 [tool.isort]
 known_first_party = ["app"]
-known_third_party = ["alembic", "attr", "bs4", "client", "colorutils", "config", "flask", "flask_migrate", "flask_sqlalchemy", "sqlalchemy"]
 multi_line_output = 3
 include_trailing_comma = true
