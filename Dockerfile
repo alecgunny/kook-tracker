@@ -9,6 +9,7 @@ RUN apt-get update && \
         postgresql \
         python-psycopg2 \
         libpq-dev && \
+      pip3 install wheel && \
       pip3 install -r /tmp/requirements.txt && \
       rm /tmp/requirements.txt && \
       rm -rf /var/lib/apt/lists/*
