@@ -1,5 +1,6 @@
 FROM ubuntu:18.04
 
+# do environment set up
 COPY requirements.txt /tmp/
 RUN set -ex \
         \
@@ -17,7 +18,9 @@ RUN set -ex \
         && pip3 install wheel && pip3 install -r /tmp/requirements.txt \
         \
         && rm -rf /tmp/requirements.txt /var/lib/apt/lists/*
+COPY /tmp/connection.json /tmp/connection.json
 
+# set up the app specific settings
 COPY kook-tracker /app
 WORKDIR /app
 EXPOSE 5000
