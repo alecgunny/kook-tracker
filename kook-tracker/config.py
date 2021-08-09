@@ -5,12 +5,13 @@ import os
 def get_database_url():
     try:
         connection_file = os.environ["DB_CONNECTION_FILE"]
-        with open(connection_file, "r") as f:
-            return json.load(f)["connection"]
     except KeyError:
         return "sqlite:///" + os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "app.db"
         )
+
+    with open(connection_file, "r") as f:
+        return json.load(f)["connection"]
 
 
 class Config:
