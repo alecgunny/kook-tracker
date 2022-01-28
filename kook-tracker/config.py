@@ -1,17 +1,17 @@
-import json
 import os
 
 
 def get_database_url():
-    try:
-        connection_file = os.environ["DB_CONNECTION_FILE"]
-    except KeyError:
-        return "sqlite:///" + os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "app.db"
-        )
-
-    with open(connection_file, "r") as f:
-        return json.load(f)["connection"]
+    return "postgresql://{}:{}/{}?user={}&password={}".format(
+        os.environ["RDS_HOSTNAME"],
+        os.environ["RDS_PORT"],
+        os.environ["RDS_DB_NAME"],
+        os.environ["RDS_USERNAME"],
+        os.environ["RDS_PASSWORD"]
+    )
+    # return "sqlite:///" + os.path.join(
+    #     os.path.abspath(os.path.dirname(__file__)), "app.db"
+    # )
 
 
 class Config:
