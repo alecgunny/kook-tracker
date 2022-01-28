@@ -21,7 +21,9 @@ class Client:
         try:
             with urllib.request.urlopen(url) as html:
                 if self.app is not None:
-                    self.app.logger.info("Request to {} successful".format(url))
+                    self.app.logger.info(
+                        "Request to {} successful".format(url)
+                    )
                 self.last_call_time = time.time()
                 return bs(html, "lxml")
 
