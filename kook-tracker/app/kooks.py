@@ -319,7 +319,7 @@ rosters = {
                 "Miguel Tudela",
             ],
             "Alex B": [
-                "Griffiin Colapinto",
+                "Griffin Colapinto",
                 "Ezekiel Lau",
                 "Frederico Morais",
                 "Callum Robson",
