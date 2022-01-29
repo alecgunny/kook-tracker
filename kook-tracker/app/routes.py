@@ -386,15 +386,20 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
 
 @app.route("/seasons/<year>/event/<name>")
 def event(year, name):
+    app.logger.debug(f"Getting data for {year} event {name}")
     event_name = name
     event = wsl.Event.query.filter_by(year=year, name=event_name).first()
+    app.logger.debug(f"Found {year} event {name} in database")
 
     rows, heat_winning_scores, heat_losing_scores = _build_athlete_rows(
         event, kooks
     )
+    app.logger.debug(f"Retrieved {len(rows)} of athlete data")
+
     kook_rows = _build_kook_rows(
         event, kooks, heat_winning_scores, heat_losing_scores
     )
+    app.logger.debug(f"Retrieved {len(kook_rows)} of kook data")
 
     event_name = event_name.replace("-", " ").title()
     event_name = "{} {}".format(event_name, year)
