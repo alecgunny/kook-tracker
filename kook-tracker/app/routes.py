@@ -146,7 +146,8 @@ def _build_athlete_rows(
                 sleep_time = Config.CLIENT_WAIT_SECONDS - (
                     time.time() - client.last_call_time
                 )
-                time.sleep(sleep_time)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
             last_round_complete = this_round_complete
 
     # now piece together each row of the table separately
