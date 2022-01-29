@@ -15,7 +15,7 @@ if not os.path.exists(config.LOG_DIR):
     os.makedirs(config.LOG_DIR)
 
 logging.basicConfig(
-    filename=os.path.join(config.LOG_DIR, "app.log"), level=logging.INFO
+    filename=os.path.join(config.LOG_DIR, "app.log"), level=logging.DEBUG
 )
 
 db = SQLAlchemy(app)

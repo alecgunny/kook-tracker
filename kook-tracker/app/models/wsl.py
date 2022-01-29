@@ -50,6 +50,9 @@ class Heat(mixins.Updatable, db.Model):
 
     def _do_update(self):
         status, scores = parsers.get_heat_data(self.round.url, self.id)
+        app.logger.debug(
+            f"Read scores {scores} for heat {self.id} with status {status}"
+        )
         self.status = status
 
         for index, (athlete_name, score) in enumerate(scores):
@@ -91,6 +94,7 @@ class Heat(mixins.Updatable, db.Model):
             athlete = Athlete.query.filter_by(name=athlete_name).first()
             if athlete is None:
                 athlete = Athlete(name=athlete_name)
+                app.logger.debug(f"Adding athlete {athlete_name} to database")
                 db.session.add(athlete)
 
             # index heat result by the heat and their order in the heat
@@ -156,6 +160,7 @@ class Round(mixins.Updatable, db.Model):
         obj = cls(completed=False, **kwargs)
         heat_ids = parsers.get_heat_ids(obj.url)
         for id in heat_ids:
+            app.logger.debug(f"Creating heat {id}")
             db.session.add(Heat.create(id=id, round=obj))
         obj.completed = all([heat.completed for heat in obj.heats])
         return obj
@@ -238,6 +243,7 @@ class Event(mixins.Updatable, db.Model):
         # initialize all the internal rounds and heats
         with db.session.no_autoflush:
             for n, round_id in enumerate(round_ids):
+                app.logger.debug(f"Creating round {round_id}")
                 db.session.add(Round.create(id=round_id, number=n, event=obj))
 
         # if this is an event from the past, we can set it completed up front
