@@ -297,6 +297,64 @@ rosters = {
                 "Peterson Crisanto",
             ],
         },
+    },
+    2022: {
+        "billabong-pro-pipeline": {
+            "Nick S": [
+                "John John Florence",
+                "Imaikalani deVault",
+                "Jake Marshall",
+                "Lucca Mesinas",
+            ],
+            "Mike P": [
+                "Italo Ferreira",
+                "Seth Moniz",
+                "Jackson Baker",
+                "Joao Chianca",
+            ],
+            "Charlie P": [
+                "Filipe Toledo",
+                "Morgan Cibilic",
+                "Connor O'Leary",
+                "Miguel Tudela",
+            ],
+            "Alex B": [
+                "Griffiin Colapinto",
+                "Ezekiel Lau",
+                "Frederico Morais",
+                "Callum Robson",
+            ],
+            "Andrew H": [
+                "Kanoa Igarashi",
+                "Ryan Callinan",
+                "Ethan Ewing",
+                "Samuel Pupo",
+            ],
+            "Rocky F": [
+                "Owen Wright",
+                "Nat Young",
+                "Leonardo Fioravanti",
+                "Liam O'Brien",
+            ],
+            "Kurt D": [
+                "Jack Robinson",
+                "Jordy Smith",
+                "Caio Ibelli",
+                "Jadson Andre",
+            ],
+            "Alec G": [
+                "Kolohe Andino",
+                "Conner Coffin",
+                "Matthew McGillivray",
+                "Carlos Munoz",
+            ],
+            "Dusty D": [
+                "Kelly Slater",
+                "Barron Mamiya",
+                "Miguel Pupo",
+                "Deivid Silva",
+            ],
+        }
     }
 }
 
@@ -324,6 +382,7 @@ kook_names = [
     "Charlie B",
     "Kurt D",
     "Mick U",
+    "Andrew H"
 ]
 
 kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]
