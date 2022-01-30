@@ -355,7 +355,7 @@ rosters = {
                 "Deivid Silva",
             ],
         }
-    }
+    },
 }
 
 palette = [
@@ -369,7 +369,7 @@ palette = [
     "#9593d9",
     "#ae76a6",
     "#9593d9",
-    "#9593d9"
+    "#9593d9",
 ]
 
 kook_names = [
@@ -383,7 +383,7 @@ kook_names = [
     "Charlie B",
     "Kurt D",
     "Mick U",
-    "Andrew H"
+    "Andrew H",
 ]
 
 kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]
