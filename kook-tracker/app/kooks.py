@@ -334,7 +334,7 @@ rosters = {
                 "Owen Wright",
                 "Nat Young",
                 "Leonardo Fioravanti",
-                "Liam O'Brien",
+                "Jordan Lawler",
             ],
             "Kurt D": [
                 "Jack Robinson",
