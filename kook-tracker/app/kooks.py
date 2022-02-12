@@ -354,7 +354,63 @@ rosters = {
                 "Miguel Pupo",
                 "Deivid Silva",
             ],
-        }
+        },
+        "hurley-pro-sunset-beach": {
+            "Mike P": [
+                "John John Florence",
+                "Billy Kemper",
+                "Filipe Toledo",
+                "Jordan Lawler",
+            ],
+            "Charlie P": [
+                "Italo Ferreira",
+                "Kai Lenny",
+                "Joao Chianca",
+                "Jackson Baker",
+            ],
+            "Alex B": [
+                "Miguel Pupo",
+                "Caio Ibelli",
+                "Nat Young",
+                "Connor O'Leary",
+            ],
+            "Andrew H": [
+                "Seth Moniz",
+                "Ethan Ewing",
+                "Callum Robson",
+                "Jake Marshall",
+            ],
+            "Rocky F": [
+                "Conner Coffin",
+                "Leonardo Fioravanti",
+                "Frederico Morais",
+                "Jadson Andre",
+            ],
+            "Kurt D": [
+                "Jordy Smith",
+                "Morgan Ciblic",
+                "Lucca Mesinas",
+                "Deivid Silva",
+            ],
+            "Alec G": [
+                "Kanoa Igarashi",
+                "Kolohe Andino",
+                "Ryan Callinan",
+                "Samuel Pupo",
+            ],
+            "Dusty D": [
+                "Jack Robinson",
+                "Kelly Slater",
+                "Griffin Colapinto",
+                "Matthew McGillivray",
+            ],
+            "Nick S": [
+                "Ezekiel Lau",
+                "Barron Mamiya",
+                "Owen Wright",
+                "Imaikalani deVault",
+            ],
+        },
     },
 }
 
