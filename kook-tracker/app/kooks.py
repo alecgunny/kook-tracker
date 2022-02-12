@@ -388,7 +388,7 @@ rosters = {
             ],
             "Kurt D": [
                 "Jordy Smith",
-                "Morgan Ciblic",
+                "Morgan Cibilic",
                 "Lucca Mesinas",
                 "Deivid Silva",
             ],
