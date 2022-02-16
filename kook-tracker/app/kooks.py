@@ -364,7 +364,7 @@ rosters = {
             ],
             "Charlie P": [
                 "Italo Ferreira",
-                "Kai Lenny",
+                "Koa Smith",
                 "Joao Chianca",
                 "Jackson Baker",
             ],

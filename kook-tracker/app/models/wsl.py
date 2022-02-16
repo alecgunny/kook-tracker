@@ -123,14 +123,12 @@ class Heat(mixins.Updatable, db.Model):
                     if not _is_placeholder_athlete_name(
                         heat_result.athlete.name
                     ):
-                        msg = (
-                            "Athlete {} is trying to be replaced by "
-                            "athlete {} in heat {}. If this is desired, "
-                            "consider doing it manually".format(
+                        app.logger.warn(
+                            "Athlete {} is being replaced by "
+                            "athlete {} in heat {}.".format(
                                 heat_result.athlete.name, athlete_name, self.id
                             )
                         )
-                        raise ValueError(msg)
 
                     # updat the heat result athlete
                     heat_result.athlete = athlete
