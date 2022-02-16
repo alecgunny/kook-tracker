@@ -79,15 +79,16 @@ def _find_color_for_athlete(
             # is on their roster
             return kook.color
     else:
+        return None
         # we looped through all known kooks and
         # couldn't find one that has rostered
         # this athlete. Somethings' wrong.
-        raise ValueError(
-            "Could not find kook with athlete {} on roster "
-            "for event {} in season {}".format(
-                athlete_name, event.name, event.year
-            )
-        )
+        # raise ValueError(
+        #     "Could not find kook with athlete {} on roster "
+        #     "for event {} in season {}".format(
+        #         athlete_name, event.name, event.year
+        #     )
+        # )
 
 
 def _get_text_color(background_color: str) -> str:
@@ -180,7 +181,6 @@ def _build_athlete_rows(
                 # should have based on the kook that drafted them
                 # add an alpha value based on the status of the heat
                 background = _find_color_for_athlete(name, event, kooks)
-                background += ["55", "bb", "ff"][heat.status]
 
                 winner = heat.completed
                 if round.number < 2:
@@ -188,7 +188,19 @@ def _build_athlete_rows(
                 else:
                     winner &= result.score == max_score
 
-                border = "5px solid #000000" if winner else "1px solid #ffffff"
+                if background is None:
+                    background = "#888888"
+                    border_color = "#ff0000"
+                    border_width = 3
+                elif winner:
+                    border_color = "#000000"
+                    border_width = 5
+                else:
+                    border_color = "#ffffff"
+                    border_width = 1
+
+                background += ["55", "bb", "ff"][heat.status]
+                border = f"{border_width}px solid {border_color}"
                 table.append(
                     {
                         "name": name,
