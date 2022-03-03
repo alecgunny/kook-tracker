@@ -422,7 +422,7 @@ rosters = {
                 "Miguel Pupo",
                 "Caio Ibelli",
                 "Nat Young",
-                "Jack Robinson",
+                "Justin Becret",
             ],
             "Andrew H": [
                 "Italo Ferreira",
@@ -437,7 +437,7 @@ rosters = {
                 "Vasco Ribeiro",
             ],
             "Kurt D": [
-                "Jackson Robinson",
+                "Jack Robinson",
                 "Griffin Colapinto",
                 "Samuel Pupo",
                 "Deivid Silva",
@@ -445,7 +445,7 @@ rosters = {
             "Alec G": [
                 "Kanoa Igarashi",
                 "Conner Coffin",
-                "Morgan Ciblic",
+                "Morgan Cibilic",
                 "Matthew McGillivray",
             ],
             "Dusty D": [
@@ -463,7 +463,7 @@ rosters = {
             "Mike P": [
                 "Barron Mamiya",
                 "Frederico Morais",
-                "Imaikalani de Vault",
+                "Imaikalani deVault",
                 "Lucca Mesinas",
             ],
         },
