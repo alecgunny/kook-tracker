@@ -256,11 +256,10 @@ def _compute_points_possible(athletes: typing.List[typing.Dict]) -> float:
     points_possible, leftover_positions = 0, 0
     heat_idx = []
     for athlete in athletes:
-        if athlete.score == "N/A":
-            continue
-
         heat = athlete.pop("heat")
         completed = athlete.pop("completed")
+        if heat == "N/A":
+            continue
 
         if completed:
             # the athlete has stopped competing, so add
