@@ -256,6 +256,9 @@ def _compute_points_possible(athletes: typing.List[typing.Dict]) -> float:
     points_possible, leftover_positions = 0, 0
     heat_idx = []
     for athlete in athletes:
+        if athlete.score == "N/A":
+            continue
+
         heat = athlete.pop("heat")
         completed = athlete.pop("completed")
 
@@ -343,6 +346,18 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
 
         for athlete_name in roster:
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
+            if athlete is None:
+                app.logger.warning(f"No athlete '{athlete_name}' in database")
+                athletes.append(
+                    {
+                        "name": athlete_name,
+                        "score": "N/A",
+                        "heat": "N/A",
+                        "completed": True,
+                    }
+                )
+                continue
+
             elimination_heat = None
 
             for i, round in enumerate(rounds):
