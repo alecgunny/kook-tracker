@@ -411,6 +411,62 @@ rosters = {
                 "Imaikalani deVault",
             ],
         },
+        "meo-pro-portugal": {
+            "Charlie P": [
+                "John John Florence",
+                "Joao Chianca",
+                "Kolohe Andino",
+                "Afonso Antunes",
+            ],
+            "Alex B": [
+                "Miguel Pupo",
+                "Caio Ibelli",
+                "Nat Young",
+                "Jack Robinson",
+            ],
+            "Andrew H": [
+                "Italo Ferreira",
+                "Ezekiel Lau",
+                "Seth Moniz",
+                "Connor O'Leary",
+            ],
+            "Rocky F": [
+                "Filipe Toledo",
+                "Owen Wright",
+                "Leonardo Fioravanti",
+                "Vasco Ribeiro",
+            ],
+            "Kurt D": [
+                "Jackson Robinson",
+                "Griffin Colapinto",
+                "Samuel Pupo",
+                "Deivid Silva",
+            ],
+            "Alec G": [
+                "Kanoa Igarashi",
+                "Conner Coffin",
+                "Morgan Ciblic",
+                "Matthew McGillivray",
+            ],
+            "Dusty D": [
+                "Jordy Smith",
+                "Jake Marshall",
+                "Jackson Baker",
+                "Jadson Andre",
+            ],
+            "Nick S": [
+                "Kelly Slater",
+                "Ethan Ewing",
+                "Ryan Callinan",
+                "Callum Robson",
+            ],
+            "Mike P": [
+                "Barron Mamiya",
+                "Frederico Morais",
+                "Imaikalani de Vault",
+                "Lucca Mesinas",
+            ],
+        },
     },
 }
 
