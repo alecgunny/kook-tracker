@@ -27,4 +27,4 @@ class Client:
 
     @lru_cache
     def __call__(self, url):
-        self.make_request(url, ttl_hash=self.get_ttl_hash())
+        return self.make_request(url, ttl_hash=self.get_ttl_hash())
