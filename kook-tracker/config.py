@@ -2,16 +2,18 @@ import os
 
 
 def get_database_url():
-    return "postgresql://{}:{}/{}?user={}&password={}".format(
-        os.environ["RDS_HOSTNAME"],
-        os.environ["RDS_PORT"],
-        os.environ["RDS_DB_NAME"],
-        os.environ["RDS_USERNAME"],
-        os.environ["RDS_PASSWORD"],
-    )
-    # return "sqlite:///" + os.path.join(
-    #     os.path.abspath(os.path.dirname(__file__)), "app.db"
-    # )
+    try:
+        return "postgresql://{}:{}/{}?user={}&password={}".format(
+            os.environ["RDS_HOSTNAME"],
+            os.environ["RDS_PORT"],
+            os.environ["RDS_DB_NAME"],
+            os.environ["RDS_USERNAME"],
+            os.environ["RDS_PASSWORD"],
+        )
+    except KeyError:
+        return "sqlite:///" + os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), "app.db"
+        )
 
 
 class Config:

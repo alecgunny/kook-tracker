@@ -154,15 +154,14 @@ def get_event_data_from_event_homepage(event_url):
     year = int(url_split[url_split.index("events") + 1])
     soup = client(event_url)
 
-    event_status_div = soup.find("div", class_="current-status")
     event_status = (
-        event_status_div.find("span", class_="event-status")
-        .text.strip(" \n")
+        soup.find("span", class_="status-module__status")
+        .text.strip("\n")
         .lower()
     )
 
     month, start_day, year = soup.find(
-        "div", class_="event-schedule__date-range"
+        "span", class_="joint-event-info__meta-item--date-range"
     ).text.split(maxsplit=2)
     month = _MONTHS.index(month) + 1
     year = year.split(",")[-1].strip()
@@ -179,7 +178,7 @@ def get_round_url(round_):
 
 
 def get_round_ids(event_url):
-    soup = client(event_url)
+    soup = client(event_url + "/results")
     round_link_divs = soup.find_all(
         "div", class_="post-event-watch-round-nav__item"
     )
