@@ -467,6 +467,62 @@ rosters = {
                 "Lucca Mesinas",
             ],
         },
+        "rip-curl-pro-bells-beach": {
+            "Alex B": [
+                "Kanoa Igarashi",
+                "Kelly Slater",
+                "Caio Ibelli",
+                "Tully Wylie",
+            ],
+            "Andrew H": [
+                "Griffin Colapinto",
+                "Connor O'Leary",
+                "Nat Young",
+                "Deivid Silva",
+            ],
+            "Rocky F": [
+                "Filipe Toledo",
+                "Owen Wright",
+                "Jadson Andre",
+                "Imaikalani deVault",
+            ],
+            "Kurt D": [
+                "John John Florence",
+                "Seth Moniz",
+                "Mick Fanning",
+                "Callum Robson",
+            ],
+            "Alec G": [
+                "Italo Ferreira",
+                "Miguel Pupo",
+                "Leonardo Fioravanti",
+                "Matthew McGillivray",
+            ],
+            "Dusty D": [
+                "Jordy Smith",
+                "Ezekiel Lau",
+                "Morgan Ciblic",
+                "Lucca Mesinas",
+            ],
+            "Nick S": [
+                "Jack Robinson",
+                "Ethan Ewing",
+                "Jake Marshall",
+                "Samulel Pupo",
+            ],
+            "Mike P": [
+                "Kolohe Andino",
+                "Baron Mamiya",
+                "Joao Chianca",
+                "Mikey Wright",
+            ],
+            "Charlie P": [
+                "Ryan Callinan",
+                "Conner Coffiin",
+                "Frederico Morais",
+                "Jackson Baker",
+            ],
+        },
     },
 }
 
