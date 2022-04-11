@@ -127,7 +127,7 @@ def _build_athlete_rows(
 
     last_round_complete, do_break = True, False
     for round in rounds:
-        if not round.completed and not client.sleeping:
+        if not round.completed:
             # this round hasn't completed and so needs updating
             app.logger.info(
                 f"Updating round {round.id} for event {event.name}"
@@ -369,6 +369,7 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
                         break
                 else:
                     if i != 1:
+                        last_heat = heat
                         break
                     else:
                         continue
