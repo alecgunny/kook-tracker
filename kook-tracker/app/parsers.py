@@ -121,7 +121,7 @@ def get_event_ids(season_url, event_names=None):
         if data["link"] is None:
             continue
 
-        event_id, event_name = data["link"].split("/")[-2:]
+        event_id, event_name = data["link"].split("/")[-3:-1]
         if event_names is None or event_name in event_names:
             event_ids[event_name] = int(event_id)
 
