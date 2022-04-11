@@ -178,7 +178,7 @@ def get_round_url(round_):
 
 
 def get_round_ids(event_url):
-    soup = client(event_url + "/results")
+    soup = client(event_url)
     round_link_divs = soup.find_all(
         "div", class_="post-event-watch-round-nav__item"
     )
