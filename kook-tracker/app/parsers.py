@@ -144,7 +144,7 @@ def get_event_ids(season_url, event_names=None):
 #                    Event Page parsers
 # =============================================================================
 def get_event_url(event):
-    return Config.MAIN_URL + "/events/{}/mct/{}/{}".format(
+    return Config.MAIN_URL + "/events/{}/ct/{}/{}".format(
         event.season.year, event.id, event.name
     )
 
