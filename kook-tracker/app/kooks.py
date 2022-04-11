@@ -501,24 +501,24 @@ rosters = {
             "Dusty D": [
                 "Jordy Smith",
                 "Ezekiel Lau",
-                "Morgan Ciblic",
+                "Morgan Cibilic",
                 "Lucca Mesinas",
             ],
             "Nick S": [
                 "Jack Robinson",
                 "Ethan Ewing",
                 "Jake Marshall",
-                "Samulel Pupo",
+                "Samuel Pupo",
             ],
             "Mike P": [
                 "Kolohe Andino",
-                "Baron Mamiya",
+                "Barron Mamiya",
                 "Joao Chianca",
                 "Mikey Wright",
             ],
             "Charlie P": [
                 "Ryan Callinan",
-                "Conner Coffiin",
+                "Conner Coffin",
                 "Frederico Morais",
                 "Jackson Baker",
             ],
