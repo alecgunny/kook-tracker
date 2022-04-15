@@ -49,7 +49,12 @@ class Heat(mixins.Updatable, db.Model):
         return obj
 
     def _do_update(self):
-        status, scores = parsers.get_heat_data(self.round.url, self.id)
+        try:
+            status, scores = parsers.get_heat_data(self.round.url, self.id)
+        except Exception as e:
+            app.logger.error(e)
+            return
+
         app.logger.debug(
             f"Read scores {scores} for heat {self.id} with status {status}"
         )
