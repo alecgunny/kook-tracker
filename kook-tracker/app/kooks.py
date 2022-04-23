@@ -556,19 +556,19 @@ rosters = {
             ],
             "Nick S": [
                 "Jack Robinson",
-                "Baron Mamiya",
+                "Barron Mamiya",
                 "Jake Marshall",
                 "Leonardo Fioravanti",
             ],
             "Mike P": [
                 "Jordy Smith",
                 "Kolohe Andino",
-                "Conner Coffiin",
+                "Conner Coffin",
                 "Imaikalani deVault",
             ],
             "Charlie P": [
                 "Ryan Callinan",
-                "Morgan Ciblic",
+                "Morgan Cibilic",
                 "Frederico Morais",
                 "Samuel Pupo",
             ],
