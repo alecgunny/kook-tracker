@@ -523,6 +523,62 @@ rosters = {
                 "Jackson Baker",
             ],
         },
+        "margaret-river-pro": {
+            "Andrew H": [
+                "John John Florence",
+                "Nat Young",
+                "Seth Moniz",
+                "Jack Thomas",
+            ],
+            "Rocky F": [
+                "Kanoa Igarashi",
+                "Miguel Pupo",
+                "Joao Chianca",
+                "Jacob Willcox",
+            ],
+            "Kurt D": [
+                "Filipe Toledo",
+                "Owen Wright",
+                "Ezekiel Lau",
+                "Jadson Andre",
+            ],
+            "Alec G": [
+                "Italo Ferreira",
+                "Griffin Colapinto",
+                "Matthew McGillivray",
+                "Deivid Silva",
+            ],
+            "Dusty D": [
+                "Ethan Ewing",
+                "Caio Ibelli",
+                "Jackson Baker",
+                "Lucca Mesinas",
+            ],
+            "Nick S": [
+                "Jack Robinson",
+                "Baron Mamiya",
+                "Jake Marshall",
+                "Leonardo Fioravanti",
+            ],
+            "Mike P": [
+                "Jordy Smith",
+                "Kolohe Andino",
+                "Conner Coffiin",
+                "Imaikalani deVault",
+            ],
+            "Charlie P": [
+                "Ryan Callinan",
+                "Morgan Ciblic",
+                "Frederico Morais",
+                "Samuel Pupo",
+            ],
+            "Alex B": [
+                "Callum Robson",
+                "Kelly Slater",
+                "Connor O'Leary",
+                "Ben Spence",
+            ],
+        },
     },
 }
 
