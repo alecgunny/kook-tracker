@@ -139,8 +139,6 @@ def _build_athlete_rows(
                 do_break = True
             last_round_complete = this_round_complete
 
-    # now piece together each row of the table separately
-    heat_winning_scores, heat_losing_scores = {}, {}
     num_rows = max([len(round.heats.all()) for round in rounds])
     for i in range(num_rows):
         row = []
@@ -158,10 +156,8 @@ def _build_athlete_rows(
             # record the winning score so that we can circle the
             # corresponding box
             table = []
-            max_score = max([result.score or 0 for result in heat.athletes])
-            min_score = min([result.score or 0 for result in heat.athletes])
-            heat_winning_scores[heat.id] = max_score
-            heat_losing_scores[heat.id] = min_score
+            scores = [result.score or 0 for result in heat.athletes]
+            max_score, min_score = max(scores), min(scores)
             for result in heat.athletes:
                 name = result.athlete.name
 
@@ -200,7 +196,64 @@ def _build_athlete_rows(
                 )
             row.append({"table": table, "title": False})
         rows.append(row)
-    return rows, heat_winning_scores, heat_losing_scores
+    return rows
+
+
+def _compute_athlete_event_score(
+    athlete: wsl.Athlete,
+    rounds: typing.List[wsl.Round],
+) -> float:
+    elimination_heat = None
+    for i, round in enumerate(rounds):
+        for j, heat in enumerate(round):
+            results = [(i.athlete.id, i.score) for i in heat.athletes]
+            scores, ids = tuple(map(list, zip(*results)))
+            if athlete.id in ids:
+                # we've found the heat for this athlete in this
+                # round, so do some analysis on it
+                break
+        else:
+            # otherwise this athlete wasn't found in this round
+            if i == 1:
+                # if this was the elimination round, this could
+                # be because they won their first round, so go
+                # to the next round to see if they have a heat there
+                continue
+            else:
+                # otherwise this athlete has been eliminated, so
+                # mark this heat as their last heat and stop
+                # moving on to the next rounds
+                last_heat = heat
+                break
+
+        # an athlete "won" a heat if the heat is completed
+        # and the athlete's score is either not the worst
+        # (for the first two rounds) or the best (for all
+        # rounds after the elimination round). We use "won"
+        # to mean that they progressed to the next round
+        score = scores[ids.index(athlete.id)]
+        winner = heat.completed
+        if i < 2:
+            winner &= score != min(scores)
+        else:
+            winner &= score == max(scores)
+
+        last_heat = heat
+        if i == 2:
+            elimination_heat = j
+    else:
+        # if the round iteration never broke, the
+        # athlete was in a heat in every round,
+        # so use the "winner" designation to decide
+        # if their score index should be for the champion
+        # score or the second place score
+        i += 2 if winner else 1
+
+    # if we only have six rounds, this is after the
+    # cut and so the minimum score isn't given to anyone
+    offset = int(len(rounds) == 6)
+    score = _SCORE_BREAKDOWN[max(i - 2, 0) + offset]
+    return score, last_heat, elimination_heat, winner
 
 
 def _compute_points_possible(
@@ -319,7 +372,7 @@ def _compute_points_possible(
     return points_possible
 
 
-def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
+def _build_kook_rows(event, kooks):
     kook_rows = []
     idx, row = 0, []
     rounds = [r.sorted_heats for r in event.sorted_rounds]
@@ -340,6 +393,9 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
 
         for athlete_name in roster:
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
+
+            # if the athlete name is unrecoganized,
+            # send back some blank data indicating this
             if athlete is None:
                 app.logger.warning(f"No athlete '{athlete_name}' in database")
                 athletes.append(
@@ -352,36 +408,12 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
                 )
                 continue
 
-            elimination_heat = None
-
-            for i, round in enumerate(rounds):
-                for j, heat in enumerate(round):
-                    heat_result = wsl.HeatResult.query.filter_by(
-                        athlete_id=athlete.id, heat_id=heat.id
-                    ).first()
-
-                    if heat_result is not None:
-                        break
-                else:
-                    if i != 1:
-                        last_heat = heat
-                        break
-                    else:
-                        continue
-
-                winner = heat.completed
-                if i < 2:
-                    winner &= heat_result.score != heat_losing_scores[heat.id]
-                else:
-                    winner &= heat_result.score == heat_winning_scores[heat.id]
-
-                last_heat = heat
-                if i == 2:
-                    elimination_heat = j
-            else:
-                i += 2 if winner else 1
-
-            score = _SCORE_BREAKDOWN[max(i - 2, 0) + offset]
+            (
+                score,
+                last_heat,
+                elimination_heat,
+                winner,
+            ) = _compute_athlete_event_score(athlete, rounds)
             total_score += score
             athletes.append(
                 {
@@ -415,14 +447,10 @@ def event(year, name):
     event = wsl.Event.query.filter_by(year=year, name=event_name).first()
     app.logger.debug(f"Found {year} event {name} in database")
 
-    rows, heat_winning_scores, heat_losing_scores = _build_athlete_rows(
-        event, kooks
-    )
+    rows = _build_athlete_rows(event, kooks)
     app.logger.debug(f"Retrieved {len(rows)} of athlete data")
 
-    kook_rows = _build_kook_rows(
-        event, kooks, heat_winning_scores, heat_losing_scores
-    )
+    kook_rows = _build_kook_rows(event, kooks)
     app.logger.debug(f"Retrieved {len(kook_rows)} of kook data")
 
     event_name = event_name.replace("-", " ").title()
