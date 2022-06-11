@@ -579,6 +579,44 @@ rosters = {
                 "Ben Spence",
             ],
         },
+        "quiksilverroxy-pro-g-land": {
+            "Rocky F": [
+                "John John Florence",
+                "Connor O'Leary",
+            ],
+            "Kurt D": [
+                "Italo Ferreira",
+                "Caio Ibelli",
+            ],
+            "Alec G": [
+                "Filipe Toledo",
+                "Matthew McGillivray",
+            ],
+            "Dusty D": [
+                "Jack Robinson",
+                "Kolohe Andino",
+            ],
+            "Nick S": [
+                "Gabriel Medina",
+                "Rio Waida",
+            ],
+            "Mike P": [
+                "Kelly Slater",
+                "Ethan Ewing",
+            ],
+            "Charlie P": [
+                "Kanoa Igarashi",
+                "Griffin Colapinto",
+            ],
+            "Alex B": [
+                "Jadson Andre",
+                "Jordy Smith",
+            ],
+            "Andrew H": [
+                "Nat Young",
+                "Miguel Pupo",
+            ],
+        },
     },
 }
 

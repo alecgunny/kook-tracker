@@ -78,16 +78,10 @@ def _find_color_for_athlete(
             # is on their roster
             return kook.color
     else:
+        # we looped through all the kooks and none of
+        # them has rostered this athlete. Don't raise
+        # an error, leave that to the calling process
         return None
-        # we looped through all known kooks and
-        # couldn't find one that has rostered
-        # this athlete. Somethings' wrong.
-        # raise ValueError(
-        #     "Could not find kook with athlete {} on roster "
-        #     "for event {} in season {}".format(
-        #         athlete_name, event.name, event.year
-        #     )
-        # )
 
 
 def _get_text_color(background_color: str) -> str:
@@ -209,7 +203,10 @@ def _build_athlete_rows(
     return rows, heat_winning_scores, heat_losing_scores
 
 
-def _compute_points_possible(athletes: typing.List[typing.Dict]) -> float:
+def _compute_points_possible(
+    athletes: typing.List[typing.Dict],
+    score_breakdown: typing.List[int],
+) -> float:
     """
     Given a roster of athletes and some associated
     metadata, return the number of possible points
@@ -227,6 +224,9 @@ def _compute_points_possible(athletes: typing.List[typing.Dict]) -> float:
             haven't reached an elimination round
         - `completed`: Whether the athlete has finished
             competing in this event or not
+    :param score_breakdown: A List of the scores that
+        can be achieved for an athlete's finish in each
+        round of the competition.
 
     Returns
     -------
@@ -235,12 +235,12 @@ def _compute_points_possible(athletes: typing.List[typing.Dict]) -> float:
         event
     """
 
-    num_rounds = len(_SCORE_BREAKDOWN) - 1
+    num_rounds = len(score_breakdown) - 1
 
     # make a list of the points that can be achieved
     # by finishing in a given position in the Event
     positions = []
-    for n, i in enumerate(_SCORE_BREAKDOWN):
+    for n, i in enumerate(score_breakdown):
         exponent = max(num_rounds - n - 1, 0)
         positions.append([i] * 2 ** exponent)
 
@@ -323,6 +323,7 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
     kook_rows = []
     idx, row = 0, []
     rounds = [r.sorted_heats for r in event.sorted_rounds]
+    offset = int(len(rounds) == 6)
 
     for kook in kooks:
         kook_dict = {
@@ -380,7 +381,7 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
             else:
                 i += 2 if winner else 1
 
-            score = _SCORE_BREAKDOWN[max(i - 2, 0)]
+            score = _SCORE_BREAKDOWN[max(i - 2, 0) + offset]
             total_score += score
             athletes.append(
                 {
@@ -393,7 +394,9 @@ def _build_kook_rows(event, kooks, heat_winning_scores, heat_losing_scores):
 
         kook_dict["score"] = total_score
         kook_dict["athletes"] = athletes
-        kook_dict["possible"] = _compute_points_possible(athletes)
+        kook_dict["possible"] = _compute_points_possible(
+            athletes, _SCORE_BREAKDOWN[offset:]
+        )
 
         # reset row after every 3. TODO: something more robust here
         # for configurable competitor sizes and displays
