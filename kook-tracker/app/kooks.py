@@ -1,18 +1,21 @@
 from collections import defaultdict
+from dataclasses import dataclass
 
-import attr
 
-
-@attr.s(auto_attribs=True)
+@dataclass
 class Kook:
     name: str
     color: str
 
     def __attrs_post_init__(self):
         self.rosters = defaultdict(dict)
+        self.year_longs = defaultdict(dict)
 
     def add_roster(self, season, event, athletes):
         self.rosters[season][event] = athletes
+
+    def add_year_long(self, season, event, athlete):
+        self.year_longs[season][event] = athlete
 
 
 rosters = {

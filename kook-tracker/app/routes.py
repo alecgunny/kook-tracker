@@ -200,92 +200,56 @@ def _build_athlete_rows(
 
 
 def _compute_athlete_event_score(
-    athlete: wsl.Athlete,
-    rounds: typing.List[wsl.Round],
+    athlete: wsl.Athlete, event_id: int, num_rounds: int
 ) -> float:
-    elimination_heat = None
-    for i, round in enumerate(rounds):
-        for j, heat in enumerate(round):
-            results = [(i.athlete.id, i.score) for i in heat.athletes]
-            scores, ids = tuple(map(list, zip(*results)))
-            if athlete.id in ids:
-                # we've found the heat for this athlete in this
-                # round, so do some analysis on it
-                break
-        else:
-            # otherwise this athlete wasn't found in this round
-            if i == 1:
-                # if this was the elimination round, this could
-                # be because they won their first round, so go
-                # to the next round to see if they have a heat there
-                continue
-            else:
-                # otherwise this athlete has been eliminated, so
-                # mark this heat as their last heat and stop
-                # moving on to the next rounds
-                last_heat = heat
-                break
+    # elimination_heat = None
+    results = (
+        wsl.HeatResult.query.filter_by(athlete=athlete)
+        .join(wsl.HeatResult.heat, aliased=True)
+        .join(wsl.Heat.round, aliased=True)
+        .join(wsl.Round.event, aliased=True)
+        .filter_by(id=event_id)
+    ).all()
 
-        # an athlete "won" a heat if the heat is completed
-        # and the athlete's score is either not the worst
-        # (for the first two rounds) or the best (for all
-        # rounds after the elimination round). We use "won"
-        # to mean that they progressed to the next round
-        score = scores[ids.index(athlete.id)]
-        winner = heat.completed
-        if i < 2:
-            winner &= score != min(scores)
-        else:
-            winner &= score == max(scores)
+    # find the result corresponding to this athletes
+    # farthest round so far in the competition
+    max_round_number, max_result = 0, None
+    for result in results:
+        if result.heat.round.number > max_round_number:
+            max_result = result
+            max_round_number = max_result.heat.round.number
 
-        last_heat = heat
-        if i == 2:
-            elimination_heat = j
-    else:
-        # if the round iteration never broke, the
-        # athlete was in a heat in every round,
-        # so use the "winner" designation to decide
-        # if their score index should be for the champion
-        # score or the second place score
-        i += 2 if winner else 1
+    # decide if the athlete "won" this heat
+    # based on whether it has completed and
+    # if they have the worst score or not
+    scores = [float(i.score) for i in max_result.heat.athletes]
+    score = float(max_result.score)
+    winner = max_result.heat.completed & (score != min(scores))
+
+    # winners will always get an extra score index
+    # from wherever their last round was
+    max_round_number += 1 if winner else 0
 
     # if we only have six rounds, this is after the
     # cut and so the minimum score isn't given to anyone
-    offset = int(len(rounds) == 6)
-    score = _SCORE_BREAKDOWN[max(i - 2, 0) + offset]
-    return score, last_heat, elimination_heat, winner
+    offset = int(num_rounds == 6)
+    score_idx = max(max_round_number - 1, 0) + offset
+    score = _SCORE_BREAKDOWN[score_idx]
+    return score, max_result.heat, winner
 
 
 def _compute_points_possible(
-    athletes: typing.List[typing.Dict],
+    heat_idx: typing.List[int],
+    leftover_positions: int,
     score_breakdown: typing.List[int],
 ) -> float:
     """
-    Given a roster of athletes and some associated
-    metadata, return the number of possible points
-    such a roster can score for a given event.
-
-    Parameters
-    ----------
-    :param athletes: A list of dictionaries with the
-        following keys for specifying athletes on a roster:
-        - `name`: The athlete name
-        - `score`: The total points the athlete has scored
-            for their kook thus far in the event
-        - `heat`: Which heat number in an elimination round
-            the athlete last occupied, or `None` if they
-            haven't reached an elimination round
-        - `completed`: Whether the athlete has finished
-            competing in this event or not
-    :param score_breakdown: A List of the scores that
-        can be achieved for an athlete's finish in each
-        round of the competition.
-
-    Returns
-    -------
-    :return points_possible: How many points the kook
-        with this roster can still score in the given
-        event
+    Given the indices of the heats occupied by a
+    roster of athletes, as well as the number of
+    athletes on a roster who haven't been seeded
+    in an elimination heat yet, compute the highest
+    possible score achievable by such a roster according
+    to the given score breakdown.
     """
 
     num_rounds = len(score_breakdown) - 1
@@ -297,37 +261,11 @@ def _compute_points_possible(
         exponent = max(num_rounds - n - 1, 0)
         positions.append([i] * 2 ** exponent)
 
-    # initialize the points possible counter, as
-    # well as how many athletes on the given roster
-    # whose elimination heat position is as yet unknown
-    points_possible, leftover_positions = 0, 0
-    heat_idx = []
-    for athlete in athletes:
-        heat = athlete.pop("heat")
-        completed = athlete.pop("completed")
-        if heat == "N/A":
-            continue
-
-        if completed:
-            # the athlete has stopped competing, so add
-            # their scored points to the total
-            points_possible += athlete["score"]
-        elif heat is None:
-            # this athlete has not been given an elimination
-            # heat yet, so defer making judgements about
-            # how many points they can score until later
-            leftover_positions += 1
-        else:
-            # otherwise record which heat this athlete
-            # is in to track which athletes might
-            # be forced to compete with one another
-            # before the finals
-            heat_idx.append(heat)
-
     # simulate the Event heats for all elimination
     # rounds to see when two rostered athletes might
     # need to compete against one another
     round_idx = 1
+    points_possible = 0
     while len(heat_idx) > 1:
         # calculate how many heats the rostered athletes
         # will be competing in in this round
@@ -376,9 +314,21 @@ def _build_kook_rows(event, kooks):
     kook_rows = []
     idx, row = 0, []
     rounds = [r.sorted_heats for r in event.sorted_rounds]
-    offset = int(len(rounds) == 6)
+    num_rounds = len(rounds)
 
     for kook in kooks:
+        # if this kook doesn't have a roster for this
+        # competition, then we'll just move on
+        try:
+            roster = kook.rosters[event.year][event.name]
+        except KeyError:
+            continue
+
+        # for each kook, construct a colored table with the
+        # names of each athlete they have rostered, the
+        # score that athlete has achieved so far in the
+        # competition, as well as the total points the roster
+        # has scored and _can possibly_ score in the competition
         kook_dict = {
             "background": kook.color,
             "text": _get_text_color(kook.color),
@@ -386,11 +336,7 @@ def _build_kook_rows(event, kooks):
         }
 
         total_score, athletes = 0, []
-        try:
-            roster = kook.rosters[event.year][event.name]
-        except KeyError:
-            continue
-
+        possible_score, leftover_spots, heat_idx = 0, 0, []
         for athlete_name in roster:
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
 
@@ -408,27 +354,54 @@ def _build_kook_rows(event, kooks):
                 )
                 continue
 
-            (
-                score,
-                last_heat,
-                elimination_heat,
-                winner,
-            ) = _compute_athlete_event_score(athlete, rounds)
-            total_score += score
-            athletes.append(
-                {
-                    "name": athlete_name,
-                    "score": score,
-                    "heat": elimination_heat,
-                    "completed": last_heat.completed and not winner,
-                }
+            # compute the athlete's score so far, as well as the
+            # last heat they competed in and whether they were
+            # able to advance through it
+            score, last_heat, winner = _compute_athlete_event_score(
+                athlete, event.id, num_rounds
             )
+
+            # add the score to the ongoing total score tally
+            total_score += score
+
+            # now do some gross logic to keep track of the points possible
+            if (
+                last_heat.round.number >= 1
+                and last_heat.completed
+                and not winner
+            ):
+                # this athlete is done, so add their current score
+                # to the points possible tally and be done with it
+                possible_score += score
+            elif last_heat.round.number >= 2:
+                # this athlete is still competing and will have been
+                # assigned a heat in the elimination phase of the
+                # tournament, so we can keep track of the indices of
+                # these heats for this kook to figure out if any of
+                # their athletes will compete before the finals
+                heats = enumerate(last_heat.round.sorted_heats)
+                hidx = [i for i, j in heats if j.id == last_heat.id][0]
+                heat_idx.append(hidx)
+            else:
+                # this athlete has not been eliminated but has not
+                # been assigned a heat in the elimination phase, so
+                # we don't know where they'll end up. For points possible
+                # then, we'll be optimistic and just assign this athlete
+                # the best possible score once all the known spots are taken
+                leftover_spots += 1
+
+            athletes.append({"name": athlete_name, "score": score})
+
+        # use the collected heat indices and number of
+        # leftover spots to finish the points possible
+        # calculation for this kook
+        possible_score += _compute_points_possible(
+            heat_idx, leftover_spots, _SCORE_BREAKDOWN[-num_rounds:]
+        )
 
         kook_dict["score"] = total_score
         kook_dict["athletes"] = athletes
-        kook_dict["possible"] = _compute_points_possible(
-            athletes, _SCORE_BREAKDOWN[offset:]
-        )
+        kook_dict["possible"] = possible_score
 
         # reset row after every 3. TODO: something more robust here
         # for configurable competitor sizes and displays
