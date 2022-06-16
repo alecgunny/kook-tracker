@@ -121,9 +121,30 @@ def get_event_ids(season_url, event_names=None):
         if data["link"] is None:
             continue
 
-        event_id, event_name = data["link"].split("/")[-3:-1]
-        if event_names is None or event_name in event_names:
-            event_ids[event_name] = int(event_id)
+        for i in range(2):
+            try:
+                event_id, event_name = data["link"].split("/")[-3:-1]
+                if event_names is None or event_name in event_names:
+                    event_ids[event_name] = int(event_id)
+            except ValueError as exc:
+                if "invalid literal" in str(exc) and i == 0:
+                    soup = client(data["link"])
+                    link = soup.find("a", class_="event-results")
+                    print(link)
+                    data["link"] = link.attrs["href"]
+                else:
+                    raise
+            else:
+                if "el-salvador" in event_name:
+                    event_id = 12
+                    event_ids[event_name] = event_id
+                break
+        else:
+            raise ValueError(
+                "Event link with start date {} has broken link {}".format(
+                    data["start_date"], data["link"]
+                )
+            )
 
     # if event names are specifically requested
     # and they couldn't be found, raise an error
