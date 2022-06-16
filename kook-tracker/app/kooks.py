@@ -620,6 +620,44 @@ rosters = {
                 "Miguel Pupo",
             ],
         },
+        "surf-city-el-salvador-pro": {
+            "Kurt D": [
+                "Italo Ferreira",
+                "Kolohe Andino",
+            ],
+            "Alec G": [
+                "Jack Robinson",
+                "Matthew McGillivray",
+            ],
+            "Dusty D": [
+                "Kanoa Igarashi",
+                "Caio Ibelli",
+            ],
+            "Nick S": [
+                "Filipe Toledo",
+                "Ethan Ewing",
+            ],
+            "Mike P": [
+                "Miguel Pupo",
+                "Griffin Colapinto",
+            ],
+            "Charlie P": [
+                "Yago Dora",
+                "Gabriel Medina",
+            ],
+            "Alex B": [
+                "Carlos Munoz",
+                "Callum Robson",
+            ],
+            "Andrew H": [
+                "Connor O'Leary",
+                "Nat Young",
+            ],
+            "Rocky F": [
+                "Samuel Pupo",
+                "Jordy Smith",
+            ],
+        },
     },
 }
 
