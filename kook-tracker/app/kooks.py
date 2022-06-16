@@ -7,7 +7,7 @@ class Kook:
     name: str
     color: str
 
-    def __attrs_post_init__(self):
+    def __post_init__(self):
         self.rosters = defaultdict(dict)
         self.year_longs = defaultdict(dict)
 
