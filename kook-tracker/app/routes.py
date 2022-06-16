@@ -222,9 +222,13 @@ def _compute_athlete_event_score(
     # decide if the athlete "won" this heat
     # based on whether it has completed and
     # if they have the worst score or not
-    scores = [float(i.score) for i in max_result.heat.athletes]
-    score = float(max_result.score)
-    winner = max_result.heat.completed & (score != min(scores))
+    if max_result.heat.completed:
+        scores = [i.score or 0 for i in max_result.heat.athletes]
+        scores = list(map(float, scores))
+        score = float(max_result.score)
+        winner = score != min(scores)
+    else:
+        winner = False
 
     # winners will always get an extra score index
     # from wherever their last round was

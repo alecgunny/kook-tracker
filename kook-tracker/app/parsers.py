@@ -124,8 +124,7 @@ def get_event_ids(season_url, event_names=None):
         for i in range(2):
             try:
                 event_id, event_name = data["link"].split("/")[-3:-1]
-                if event_names is None or event_name in event_names:
-                    event_ids[event_name] = int(event_id)
+                event_id = int(event_id)
             except ValueError as exc:
                 if "invalid literal" in str(exc) and i == 0:
                     soup = client(data["link"])
@@ -137,7 +136,8 @@ def get_event_ids(season_url, event_names=None):
             else:
                 if "el-salvador" in event_name:
                     event_id = 12
-                    event_ids[event_name] = event_id
+                if event_names is None or event_name in event_names:
+                    event_ids[event_name] = int(event_id)
                 break
         else:
             raise ValueError(
