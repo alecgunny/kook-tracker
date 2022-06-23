@@ -157,7 +157,6 @@ def _build_athlete_rows(
             # corresponding box
             table = []
             scores = [result.score or 0 for result in heat.athletes]
-            max_score, min_score = max(scores), min(scores)
             for result in heat.athletes:
                 name = result.athlete.name
 
@@ -168,9 +167,9 @@ def _build_athlete_rows(
 
                 winner = heat.completed
                 if round.number < 2:
-                    winner &= result.score != min_score
+                    winner &= result.score != min(scores)
                 else:
-                    winner &= result.score == max_score
+                    winner &= result.score == max(scores)
 
                 if background is None:
                     background = "#888888"
@@ -203,6 +202,7 @@ def _compute_athlete_event_score(
     athlete: wsl.Athlete, event_id: int, num_rounds: int
 ) -> float:
     # elimination_heat = None
+    offset = int(num_rounds == 6)
     results = (
         wsl.HeatResult.query.filter_by(athlete=athlete)
         .join(wsl.HeatResult.heat, aliased=True)
@@ -218,6 +218,9 @@ def _compute_athlete_event_score(
         if result.heat.round.number > max_round_number:
             max_result = result
             max_round_number = max_result.heat.round.number
+
+    if max_result is None:
+        return _SCORE_BREAKDOWN[offset], max_result, False
 
     # decide if the athlete "won" this heat
     # based on whether it has completed and
@@ -236,7 +239,6 @@ def _compute_athlete_event_score(
 
     # if we only have six rounds, this is after the
     # cut and so the minimum score isn't given to anyone
-    offset = int(num_rounds == 6)
     score_idx = max(max_round_number - 1, 0) + offset
     score = _SCORE_BREAKDOWN[score_idx]
     return score, max_result.heat, winner
@@ -370,14 +372,15 @@ def _build_kook_rows(event, kooks):
 
             # now do some gross logic to keep track of the points possible
             if (
-                last_heat.round.number >= 1
+                last_heat is not None
+                and last_heat.round.number >= 1
                 and last_heat.completed
                 and not winner
             ):
                 # this athlete is done, so add their current score
                 # to the points possible tally and be done with it
                 possible_score += score
-            elif last_heat.round.number >= 2:
+            elif last_heat is not None and last_heat.round.number >= 2:
                 # this athlete is still competing and will have been
                 # assigned a heat in the elimination phase of the
                 # tournament, so we can keep track of the indices of

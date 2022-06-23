@@ -173,11 +173,22 @@ def get_event_data_from_event_homepage(event_url):
     year = int(url_split[url_split.index("events") + 1])
     soup = client(event_url)
 
-    event_status = (
-        soup.find("span", class_="status-module__status")
-        .text.strip("\n")
-        .lower()
-    )
+    try:
+        event_status = (
+            soup.find("span", class_="status-module__status")
+            .text.strip("\n")
+            .lower()
+        )
+    except AttributeError:
+        if soup.find("div", id="live-strip") is not None:
+            return "live", datetime.datetime.now()
+        else:
+            raise ValueError("Event homepage is off")
+
+    # we don't actually need the start date if the event
+    # has already started to just return a dummy date
+    if event_status == "live":
+        return event_status, datetime.datetime.now()
 
     month, start_day, year = soup.find(
         "span", class_="joint-event-info__meta-item--date-range"
@@ -207,9 +218,24 @@ def get_round_ids(event_url):
 
     round_ids = []
     for div in round_link_divs:
-        round_ids.append(
-            int(json.loads(div.find("a").attrs["data-gtm-event"])["round-ids"])
+        link = div.find("a")
+        try:
+            metadata = link.attrs["data-gtm-event"]
+        except KeyError:
+            continue
+        else:
+            metadata = json.loads(metadata)
+
+        round_id = metadata["slug"].split("-")[1]
+        round_ids.append(int(round_id))
+
+    if len(round_ids) == 0:
+        raise ValueError(
+            "Couldn't find any round ids in round divs:\n {}".format(
+                "\n\n".join(map(str, round_link_divs))
+            )
         )
+
     return round_ids
 
 
