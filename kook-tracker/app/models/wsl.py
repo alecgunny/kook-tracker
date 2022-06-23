@@ -114,7 +114,9 @@ class Heat(mixins.Updatable, db.Model):
             # first case: this heat result hasn't been created yet
             # instantiate it and add it to our session
             if heat_result is None:
-                heat_result = HeatResult(index=index, athlete=athlete)
+                heat_result = HeatResult(
+                    heat=self, index=index, athlete=athlete
+                )
                 self.athletes.append(heat_result)
                 db.session.add(heat_result)
             else:
