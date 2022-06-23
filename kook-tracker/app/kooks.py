@@ -658,6 +658,44 @@ rosters = {
                 "Jordy Smith",
             ],
         },
+        "oi-rio-pro": {
+            "Alec G": [
+                "Filipe Toledo",
+                "Callum Robson",
+            ],
+            "Dusty D": [
+                "Italo Ferreira",
+                "Michael Rodrigues",
+            ],
+            "Nick S": [
+                "Gabriel Medina",
+                "Caio Ibelli",
+            ],
+            "Mike P": [
+                "Jack Robinson",
+                "Yago Dora",
+            ],
+            "Charlie P": [
+                "Griffin Colapinto",
+                "Ethan Ewing",
+            ],
+            "Alex B": [
+                "Connor O'Leary",
+                "Nat Young",
+            ],
+            "Andrew H": [
+                "Kanoa Igarashi",
+                "Matthew McGillivray",
+            ],
+            "Rocky F": [
+                "Miguel Pupo",
+                "Jake Marshall",
+            ],
+            "Kurt D": [
+                "Kolohe Andino",
+                "Joao Chianca",
+            ],
+        },
     },
 }
 

@@ -128,16 +128,14 @@ def get_event_ids(season_url, event_names=None):
             except ValueError as exc:
                 if "invalid literal" in str(exc) and i == 0:
                     soup = client(data["link"])
-                    link = soup.find("a", class_="event-results")
-                    print(link)
+                    header = soup.find("h1", class_="event-information__title")
+                    link = header.find("a")
                     data["link"] = link.attrs["href"]
                 else:
                     raise
             else:
-                if "el-salvador" in event_name:
-                    event_id = 12
                 if event_names is None or event_name in event_names:
-                    event_ids[event_name] = int(event_id)
+                    event_ids[event_name] = event_id
                 break
         else:
             raise ValueError(
