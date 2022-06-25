@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ event_year }} Season</h1>
+    <table style="font-size:10pt;border: 1px solid black;border-collapse: collapse;">
+        <tr>
+            <th></th>
+            {% for kook in kooks %}
+                <th class="heat-cell" style="font-size:10pt;border: 1px solid black;border-collapse: collapse;background-color: {{kook.color}};color: {{kook.text}}">{{ kook.name }}</th>
+            {% endfor %}
+        {% for a_event in events %}
+            <tr>
+                <td style="font-size:10pt;border: 1px solid black;border-collapse: collapse">
+                    <a href="{{ url_for('event', year=event_year, name=a_event.name) }}">{{ a_event.title }}</a>
+                </td>
+            {% for pick in a_event.picks %}
+                <td style="font-size:10pt;border: 1px solid black;border-collapse: collapse;padding: 10px">
+                    <table>
+                        <tr>
+                            <td style="font-size:10pt;width:70%">{{ pick[0] }}</td>
+                            <td style="font-size:10pt;background-color:#444444;color:#ffffff;width:30%">{{ pick[1] }}</td>
+                        </tr>
+                    </table>
+                </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        <tr>
+            <td style="font-size:12pt;border-top: 3px solid black">Total</td>
+            {% for total in totals %}
+                <td style="text-align:right;font-size:12pt;border: 1px solid black;border-top: 3px solid black;border-collapse: collapse">{{ total }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+{% endblock %}
