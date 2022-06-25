@@ -1,6 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
+from app import app
+
 
 @dataclass
 class Kook:
@@ -414,7 +416,7 @@ rosters = {
                 "Imaikalani deVault",
             ],
         },
-        "meo-pro-portugal": {
+        "meo-portugal-pro": {
             "Charlie P": [
                 "John John Florence",
                 "Joao Chianca",
@@ -699,6 +701,99 @@ rosters = {
     },
 }
 
+year_long_picks = {
+    2022: {
+        "billabong-pro-pipeline": {
+            "Nick S": "John John Florence",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Italo Ferreira",
+            "Alex B": "John John Florence",
+            "Andrew H": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "John John Florence",
+            "Alec G": "John John Florence",
+            "Dusty D": "John John Florence",
+        },
+        "hurley-pro-sunset-beach": {
+            "Nick S": "John John Florence",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "John John Florence",
+            "Alex B": "Miguel Pupo",
+            "Andrew H": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "John John Florence",
+            "Alec G": "Kolohe Andino",
+            "Dusty D": "John John Florence",
+        },
+        "meo-portugal-pro": {
+            "Nick S": "Italo Ferreira",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "John John Florence",
+            "Alex B": "Miguel Pupo",
+            "Andrew H": "Kanoa Igarashi",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Filipe Toledo",
+            "Dusty D": "John John Florence",
+        },
+        "rip-curl-pro-bells-beach": {
+            "Nick S": "Griffin Colapinto",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "John John Florence",
+            "Andrew H": "Kanoa Igarashi",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Filipe Toledo",
+            "Dusty D": "John John Florence",
+        },
+        "margaret-river-pro": {
+            "Nick S": "John John Florence",
+            "Mike P": "John John Florence",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "John John Florence",
+            "Andrew H": "Kelly Slater",
+            "Rocky F": "John John Florence",
+            "Kurt D": "John John Florence",
+            "Alec G": "John John Florence",
+            "Dusty D": "John John Florence",
+        },
+        "quiksilverroxy-pro-g-land": {
+            "Nick S": "John John Florence",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Gabriel Medina",
+            "Alex B": "Jack Robinson",
+            "Andrew H": "Kelly Slater",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Italo Ferreira",
+            "Alec G": "Italo Ferreira",
+            "Dusty D": "John John Florence",
+        },
+        "surf-city-el-salvador-pro": {
+            "Nick S": "Filipe Toledo",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Filipe Toledo",
+            "Alex B": "Jack Robinson",
+            "Andrew H": "Kelly Slater",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Italo Ferreira",
+            "Alec G": "Gabriel Medina",
+            "Dusty D": "Jack Robinson",
+        },
+        "oi-rio-pro": {
+            "Nick S": "Filipe Toledo",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Gabriel Medina",
+            "Alex B": "Gabriel Medina",
+            "Andrew H": "Filipe Toledo",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Filipe Toledo",
+            "Dusty D": "Kanoa Igarashi",
+        },
+    }
+}
+
 palette = [
     "#ed1c24",
     "#ff6600",
@@ -737,3 +832,21 @@ for year, events in rosters.items():
             except KeyError:
                 continue
             kook.add_roster(year, event, roster)
+
+            try:
+                year_long = year_long_picks[year][event]
+            except KeyError:
+                app.logger.warn(
+                    "Missing year long picks for event {} {}".format(
+                        year, event
+                    )
+                )
+                continue
+
+            try:
+                pick = year_long[kook.name]
+            except KeyError:
+                raise ValueError(
+                    f"Kook {kook.name} has no pick for event {event}"
+                )
+            kook.add_year_long(year, event, pick)

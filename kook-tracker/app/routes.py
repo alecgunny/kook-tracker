@@ -1,4 +1,5 @@
 import typing
+from collections import OrderedDict
 
 from colorutils import Color
 from flask import make_response, render_template, request
@@ -28,10 +29,67 @@ def season(year: int) -> str:
     to the given Season's Events
     """
     events = wsl.Event.query.filter_by(year=year)
-    events = [{"name": event.name} for event in events]
+    event_dicts, colors, totals = [], [], OrderedDict()
     for event in events:
-        event["title"] = event["name"].replace("-", " ").title()
-    return render_template("season.html", event_year=year, events=events)
+        num_rounds = len([i for i in event.rounds])
+        event_id = event.id
+        event_name = event.name
+
+        event = {"name": event_name}
+        event["title"] = event_name.replace("-", " ").title()
+        event["picks"] = []
+
+        for kook in kooks:
+            try:
+                athlete_name = kook.year_longs[int(year)][event_name]
+            except KeyError:
+                app.logger.warning(
+                    "No year long pick for kook {} in event {} {}".format(
+                        kook.name, year, event_name
+                    )
+                )
+                continue
+
+            colors.append(
+                {
+                    "name": kook.name,
+                    "color": kook.color,
+                    "text": _get_text_color(kook.color),
+                }
+            )
+
+            athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
+            score, _, __ = _compute_athlete_event_score(
+                athlete, event_id, num_rounds
+            )
+            event["picks"].append((athlete_name, score))
+
+            try:
+                totals[kook.name] += score
+            except KeyError:
+                totals[kook.name] = score
+        event_dicts.append(event)
+
+    if len(totals) == 0:
+        return render_template(
+            "season.html", event_year=year, events=event_dicts
+        )
+
+    totals = list(totals.values())
+    sort_totals = sorted(zip(totals, range(len(totals))), reverse=True)
+    totals, idx = zip(*sort_totals)
+
+    colors = [colors[i] for i in idx]
+    for event in event_dicts:
+        event["picks"] = [event["picks"][i] for i in idx]
+
+    return render_template(
+        "season-with-year-longs.html",
+        event_year=year,
+        events=event_dicts,
+        kooks=colors,
+        totals=totals,
+    )
 
 
 def _find_color_for_athlete(

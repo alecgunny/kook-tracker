@@ -191,7 +191,7 @@ def get_event_data_from_event_homepage(event_url):
         return event_status, datetime.datetime.now()
 
     month, start_day, year = soup.find(
-        "span", class_="joint-event-info__meta-item--date-range"
+        "span", class_="event-information__meta-item--date-range"
     ).text.split(maxsplit=2)
     month = _MONTHS.index(month) + 1
     year = year.split(",")[-1].strip()
