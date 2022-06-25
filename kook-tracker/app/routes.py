@@ -224,16 +224,13 @@ def _build_athlete_rows(
                 background = _find_color_for_athlete(name, event, kooks)
 
                 winner = heat.completed
-                if round.number < 2:
+                if round.number < 2 and len(rounds) < 7:
                     winner &= result.score != min(scores)
                 else:
                     winner &= result.score == max(scores)
 
-                if background is None:
-                    background = "#888888"
-                    border_color = "#ff0000"
-                    border_width = 3
-                elif winner:
+                background = background or "#ffffff"
+                if winner:
                     border_color = "#000000"
                     border_width = 5
                 else:
