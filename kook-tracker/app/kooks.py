@@ -698,6 +698,44 @@ rosters = {
                 "Joao Chianca",
             ],
         },
+        "corona-open-j-bay": {
+            "Dusty D": [
+                "Filipe Toledo",
+                "Matthew McGillivray",
+            ],
+            "Nick S": [
+                "Jack Robinson",
+                "Seth Moniz",
+            ],
+            "Mike P": [
+                "Italo Ferreira",
+                "Kolohe Andino",
+            ],
+            "Charlie P": [
+                "Kanoa Igarashi",
+                "Jordy Smith",
+            ],
+            "Alex B": [
+                "Connor O'Leary",
+                "Kelly Slater",
+            ],
+            "Andrew H": [
+                "Luke Thompson",
+                "Nat Young",
+            ],
+            "Rocky F": [
+                "Jadson Andre",
+                "Barron Mamiya",
+            ],
+            "Kurt D": [
+                "Joshe Faulkner",
+                "Samuel Pupo",
+            ],
+            "Alec G": [
+                "Griffin Colapinto",
+                "Ethan Ewing",
+            ],
+        },
     },
 }
 
@@ -789,6 +827,17 @@ year_long_picks = {
             "Rocky F": "John John Florence",
             "Kurt D": "Filipe Toledo",
             "Alec G": "Filipe Toledo",
+            "Dusty D": "Kanoa Igarashi",
+        },
+        "corona-open-j-bay": {
+            "Nick S": "Jack Robinson",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "Gabriel Medina",
+            "Alex B": "Connor O'Leary",
+            "Andrew H": "Filipe Toledo",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Jack Robinson",
             "Dusty D": "Kanoa Igarashi",
         },
     }
