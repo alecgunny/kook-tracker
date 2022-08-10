@@ -68,7 +68,9 @@ def season(year: int) -> str:
                 totals[kook.name] += score
             except KeyError:
                 totals[kook.name] = score
-        event_dicts.append(event)
+
+        if len(event["picks"]) > 0:
+            event_dicts.append(event)
 
     if len(totals) == 0:
         return render_template(
