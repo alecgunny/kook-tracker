@@ -736,6 +736,44 @@ rosters = {
                 "Ethan Ewing",
             ],
         },
+        "outerknown-tahiti-pro": {
+            "Nick S": [
+                "Jack Robinson",
+                "Kauli Vaast",
+            ],
+            "Mike P": [
+                "Filipe Toledo",
+                "Yago Dora",
+            ],
+            "Charlie P": [
+                "Italo Ferreira",
+                "Caio Ibelli",
+            ],
+            "Alex B": [
+                "Nat Young",
+                "Michel Bourez",
+            ],
+            "Andrew H": [
+                "Griffin Colapinto",
+                "Samuel Pupo",
+            ],
+            "Rocky F": [
+                "Miguel Pupo",
+                "Matthew McGillivray",
+            ],
+            "Kurt D": [
+                "Seth Moniz",
+                "Jordy Smith",
+            ],
+            "Alec G": [
+                "Kanoa Igarashi",
+                "Ethan Ewing",
+            ],
+            "Dusty D": [
+                "Kelly Slater",
+                "Barron Mamiya",
+            ],
+        },
     },
 }
 
@@ -839,6 +877,17 @@ year_long_picks = {
             "Kurt D": "Filipe Toledo",
             "Alec G": "Jack Robinson",
             "Dusty D": "Kanoa Igarashi",
+        },
+        "outerknown-tahiti-pro": {
+            "Nick S": "Jack Robinson",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Kelly Slater",
+            "Alex B": "Filipe Toledo",
+            "Andrew H": "Filipe Toledo",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Seth Moniz",
+            "Alec G": "Jack Robinson",
+            "Dusty D": "Kelly Slater",
         },
     }
 }
