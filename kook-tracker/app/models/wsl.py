@@ -58,6 +58,9 @@ class Heat(mixins.Updatable, db.Model):
         app.logger.debug(
             f"Read scores {scores} for heat {self.id} with status {status}"
         )
+        self.update_with_status_and_scores(status, scores)
+
+    def update_with_status_and_scores(self, status, scores):
         self.status = status
 
         for index, (athlete_name, score) in enumerate(scores):
@@ -173,7 +176,7 @@ class Round(mixins.Updatable, db.Model):
     def _do_update(self):
         no_more_updates = False
         heats = sorted(self.heats, key=lambda h: h.id)
-        for n, heat in enumerate(heats):
+        for heat in heats:
             if no_more_updates:
                 # only update upcoming heats if they're currently
                 # populated by placeholder athlete names
@@ -249,7 +252,34 @@ class Event(mixins.Updatable, db.Model):
         with db.session.no_autoflush:
             for n, round_id in enumerate(round_ids):
                 app.logger.debug(f"Creating round {round_id}")
-                db.session.add(Round.create(id=round_id, number=n, event=obj))
+                if n < 2:
+                    round_ = Round.create(id=round_id, number=n, event=obj)
+                    db.session.add(round_)
+                    continue
+                else:
+                    round_ = Round(
+                        id=round_id, number=n, event=obj, completed=False
+                    )
+                    break
+
+            rounds = parsers.parse_bracket(round_.url)
+            for i in range(len(rounds)):
+                heats = rounds[round_.id]
+                for id in sorted(heats.keys()):
+                    heat = Heat(id=id, completed=False, round=round_)
+                    status, scores = heats[id]
+                    heat.update_with_status_and_scores(status, scores)
+                    db.session.add(heat)
+
+                round_.completed = all([i.completed for i in round_.heats])
+                db.session.add(round_)
+
+                round_ = Round(
+                    id=round_id + i + 1,
+                    number=2 + i + 1,
+                    event=obj,
+                    completed=False,
+                )
 
         # if this is an event from the past, we can set it completed up front
         obj.completed = all([round_.completed for round_ in obj.rounds])
@@ -268,17 +298,53 @@ class Event(mixins.Updatable, db.Model):
         return csv_string
 
     def _do_update(self):
-        for round_ in self.rounds:
-            # update returns completion status, so if
-            # round hasn't completed after its own update,
-            # stop because there's no sense updating rounds
-            # that haven't begun yet
-            if not round_.update():
+        sorted_rounds = sorted(self.rounds, key=lambda round: round.id)
+
+        # do first two rounds normally
+        for round_ in sorted_rounds[:2]:
+            if not round._update():
                 break
         else:
-            # loop completed without breaking:
-            # means all our rounds have completed
-            self.completed = True
+            # if both the first two rounds are completed,
+            # start iterating through the bracket rounds
+            rounds = parsers.parse_bracket(sorted_rounds[2].url)
+            all_rounds_complete = True
+
+            for round_ in sorted_rounds[2:]:
+                if round_.completed:
+                    continue
+
+                all_heats_complete = True
+                for heat in round_.sorted_heats:
+                    if heat.completed:
+                        continue
+
+                    status, scores = rounds[round_.id][heat.id]
+                    heat.update_with_status_and_scores(status, scores)
+
+                    if not heat.status:
+                        # if this heat is still upcoming, there's
+                        # no point in updating anything after this
+                        break
+                    all_heats_complete &= heat.completed
+                else:
+                    # if we never broke, then all of the heats
+                    # have at least started, so mark whether the
+                    # round has completed and move on to the next
+                    # one to account for potentially overlapping
+                    # heats between rounds
+                    round_.completed = all_heats_complete
+                    all_rounds_complete &= all_heats_complete
+                    continue
+
+                # otherwise if we broke, one of this round's
+                # heats hasn't started which means there's no
+                # need to look at later rounds, so
+                break
+            else:
+                # if all the rounds have completed, mark
+                # the whole event as done
+                self.completed = all_rounds_complete
 
 
 class Season(db.Model):

@@ -1,5 +1,7 @@
 import datetime
 import json
+import re
+from collections import defaultdict
 
 from config import Config
 
@@ -254,20 +256,26 @@ def get_heat_ids(round_url):
     return [int(div.attrs["data-heat-id"]) for div in heat_divs]
 
 
+def get_heat_status(heat_div):
+    for cls in heat_div.attrs["class"]:
+        match = re.search(r"(?<=--status-)\w+$", cls)
+        if match is not None:
+            status = match.group(0)
+            break
+    else:
+        return 0
+
+    if status == "upcoming":
+        return 0
+    elif status == "over":
+        return 2
+    else:
+        return 1
+
+
 def get_heat_data(round_url, heat_id):
     heat_div = find_heat_divs(round_url, heat_id)
-
-    # first get status
-    heat_status_span = heat_div.find("span", class_="hot-heat__status")
-    status = heat_status_span.attrs["class"][1].split("--")[1]
-
-    # TODO: figure out explicit name for ongoing then we can just use index
-    if status == "upcoming":
-        status = 0
-    elif status == "over":
-        status = 2
-    else:
-        status = 1
+    status = get_heat_status(heat_div)
 
     # next get athlete names and scores
     athlete_divs = heat_div.find_all(
@@ -293,3 +301,31 @@ def get_heat_data(round_url, heat_id):
 
         scores.append((athlete_name, score))
     return status, scores
+
+
+def parse_bracket(round_url):
+    soup = client(round_url)
+    rounds = defaultdict(dict)
+    columns = soup.find_all("div", class_="bracket-stage-round")[:5]
+    for column in columns:
+        heats = column.find_all(
+            "div", class_="post-event-watch-heat-bracket-stage__heat"
+        )
+        for heat in heats:
+            status = get_heat_status(heat)
+            data = json.loads(heat.attrs["data-pickem-gtm"])
+            heat_id = int(data["heat-ids"])
+            round_id = int(data["round-ids"])
+
+            results = []
+            names = heat.find_all("div", class_="hot-heat-athlete__name")
+            scores = heat.find_all("div", class_="hot-heat-athlete__score")
+            for name, score in zip(names, scores):
+                try:
+                    score = float(score)
+                except ValueError:
+                    score = None if not status else 0
+                results.append((name, score))
+            rounds[round_id][heat_id] = (status, results)
+
+    return rounds
