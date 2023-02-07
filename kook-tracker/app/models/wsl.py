@@ -303,7 +303,7 @@ class Event(mixins.Updatable, db.Model):
 
         # do first two rounds normally
         for round_ in sorted_rounds[:2]:
-            if not round._update():
+            if not round_.update():
                 break
         else:
             # if both the first two rounds are completed,
