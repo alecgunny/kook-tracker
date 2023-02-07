@@ -775,6 +775,64 @@ rosters = {
             ],
         },
     },
+    2023: {
+        "billabong-pro-pipeline": {
+            "RJ D": [
+                "Gabriel Medina",
+                "Joao Chianca",
+                "Yago Dora",
+                "Carlos Munoz",
+            ],
+            "Alex B": [
+                "Italo Ferreira",
+                "Nat Young",
+                "Jadson Andre",
+                "Michael Rodrigues",
+            ],
+            "Dusty D": [
+                "Jack Robinson",
+                "Caio Ibelli",
+                "Jordy Smith",
+                "Liam O'Brien",
+            ],
+            "Kurt D": [
+                "John John Florence",
+                "Connor O'Leary",
+                "Imaikalani deVault",
+                "Jake Marshall",
+            ],
+            "Charlie P": [
+                "Kelly Slater",
+                "Samuel Pupo",
+                "Joshua Moniz",
+                "Rio Waida",
+            ],
+            "Alec G": [
+                "Griffin Colapinto",
+                "Miguel Pupo",
+                "Ezekiel Lau",
+                "Maxime Huscenot",
+            ],
+            "Rocky F": [
+                "Filipe Toledo",
+                "Kolohe Andino",
+                "Ryan Callinan",
+                "Callum Robson",
+            ],
+            "Mike P": [
+                "Seth Moniz",
+                "Kanoa Igarashi",
+                "Ian Gentil",
+                "Leonardo Fioravanti",
+            ],
+            "Nick S": [
+                "Ethan Ewing",
+                "Barron Mamiya",
+                "Jackson Baker",
+                "Matthew McGillivray",
+            ],
+        }
+    },
 }
 
 year_long_picks = {
@@ -889,7 +947,20 @@ year_long_picks = {
             "Alec G": "Jack Robinson",
             "Dusty D": "Kelly Slater",
         },
-    }
+    },
+    2023: {
+        "billabong-pro-pipeline": {
+            "Nick S": "John John Florence",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "John John Florence",
+            "Alex B": "Jack Robinson",
+            "RJ D": "Gabriel Medina",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Gabriel Medina",
+            "Alec G": "Griffin Colapinto",
+            "Dusty D": "Jack Robinson",
+        },
+    },
 }
 
 palette = [
@@ -902,6 +973,7 @@ palette = [
     "#0ead69",
     "#9593d9",
     "#ae76a6",
+    "#9593d9",
     "#9593d9",
     "#9593d9",
 ]
@@ -918,6 +990,7 @@ kook_names = [
     "Kurt D",
     "Mick U",
     "Andrew H",
+    "RJ D",
 ]
 
 kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]

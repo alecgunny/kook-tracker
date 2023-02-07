@@ -306,7 +306,7 @@ def get_heat_data(round_url, heat_id):
 def parse_bracket(round_url):
     soup = client(round_url)
     rounds = defaultdict(dict)
-    columns = soup.find_all("div", class_="bracket-stage-round")[:5]
+    columns = soup.find_all("div", class_="bracket-stage-round")
     for column in columns:
         heats = column.find_all(
             "div", class_="post-event-watch-heat-bracket-stage__heat"
@@ -322,10 +322,10 @@ def parse_bracket(round_url):
             scores = heat.find_all("div", class_="hot-heat-athlete__score")
             for name, score in zip(names, scores):
                 try:
-                    score = float(score)
+                    score = float(score.text)
                 except ValueError:
                     score = None if not status else 0
-                results.append((name, score))
+                results.append((name.text, score))
             rounds[round_id][heat_id] = (status, results)
 
     return rounds

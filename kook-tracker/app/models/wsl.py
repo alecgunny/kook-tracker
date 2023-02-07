@@ -274,12 +274,13 @@ class Event(mixins.Updatable, db.Model):
                 round_.completed = all([i.completed for i in round_.heats])
                 db.session.add(round_)
 
-                round_ = Round(
-                    id=round_id + i + 1,
-                    number=2 + i + 1,
-                    event=obj,
-                    completed=False,
-                )
+                if i < (len(rounds) - 1):
+                    round_ = Round(
+                        id=round_id + i + 1,
+                        number=2 + i + 1,
+                        event=obj,
+                        completed=False,
+                    )
 
         # if this is an event from the past, we can set it completed up front
         obj.completed = all([round_.completed for round_ in obj.rounds])
