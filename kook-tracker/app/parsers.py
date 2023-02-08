@@ -285,6 +285,8 @@ def get_heat_data(round_url, heat_id):
     scores = []
     for div in athlete_divs:
         athlete_name = div.text
+        names = athlete_name.split()
+        athlete_name = names[0][0] + ". " + names[-1]
         score = div.find_next_sibling(
             "div", class_="hot-heat-athlete__score"
         ).text

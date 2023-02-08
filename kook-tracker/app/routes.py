@@ -94,6 +94,11 @@ def season(year: int) -> str:
     )
 
 
+def _initialize(name):
+    names = name.split()
+    return names[0][0] + ". " + names[-1]
+
+
 def _find_color_for_athlete(
     athlete_name: str, event: wsl.Event, kooks: typing.List["Kook"]
 ) -> str:
@@ -133,6 +138,7 @@ def _find_color_for_athlete(
             # this event, move on
             continue
 
+        roster = list(map(_initialize, roster))
         if athlete_name in roster:
             # return the kook's color if the athlete
             # is on their roster
@@ -265,9 +271,9 @@ def _compute_athlete_event_score(
     offset = int(num_rounds == 6)
     results = (
         wsl.HeatResult.query.filter_by(athlete=athlete)
-        .join(wsl.HeatResult.heat, aliased=True)
-        .join(wsl.Heat.round, aliased=True)
-        .join(wsl.Round.event, aliased=True)
+        .join(wsl.Heat, wsl.HeatResult.heat_id == wsl.Heat.id)
+        .join(wsl.Round, wsl.Heat.round_id == wsl.Round.id)
+        .join(wsl.Event, wsl.Round.event_id == wsl.Event.id)
         .filter_by(id=event_id)
     ).all()
 
@@ -404,6 +410,7 @@ def _build_kook_rows(event, kooks):
         total_score, athletes = 0, []
         possible_score, leftover_spots, heat_idx = 0, 0, []
         for athlete_name in roster:
+            athlete_name = _initialize(athlete_name)
             athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
 
             # if the athlete name is unrecoganized,
