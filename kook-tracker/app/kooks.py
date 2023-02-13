@@ -831,7 +831,63 @@ rosters = {
                 "Jackson Baker",
                 "Matthew McGillivray",
             ],
-        }
+        },
+        "hurley-pro-sunset-beach": {
+            "Alex B": [
+                "Caio Ibelli",
+                "Leonardo Fioravanti",
+                "Connor O'Leary",
+                "Ian Gentil",
+            ],
+            "Dusty D": [
+                "Jack Robinson",
+                "Miguel Pupo",
+                "Samuel Pupo",
+                "Maxime Huscenot",
+            ],
+            "Kurt D": [
+                "John John Florence",
+                "Yago Dora",
+                "Ezekiel Lau",
+                "Jackson Baker",
+            ],
+            "Charlie P": [
+                "Gabriel Medina",
+                "Jordy Smith",
+                "Jake Marshall",
+                "Michael Rodrigues",
+            ],
+            "Alec G": [
+                "Ethan Ewing",
+                "Seth Moniz",
+                "Ryan Callinan",
+                "Carlos Munoz",
+            ],
+            "Rocky F": [
+                "Italo Ferreira",
+                "Kolohe Andino",
+                "Kai Lenny",
+                "Keanu Asing",
+            ],
+            "Mike P": [
+                "Filipe Toledo",
+                "Kanoa Igarashi",
+                "Matthew McGillivray",
+                "Liam O'Brien",
+            ],
+            "Nick S": [
+                "Barron Mamiya",
+                "Joao Chianca",
+                "Eli Hanneman",
+                "Callum Robson",
+            ],
+            "RJ D": [
+                "Griffin Colapinto",
+                "Kelly Slater",
+                "Nat Young",
+                "Rio Waida",
+            ],
+        },
     },
 }
 
@@ -959,6 +1015,17 @@ year_long_picks = {
             "Kurt D": "Gabriel Medina",
             "Alec G": "Griffin Colapinto",
             "Dusty D": "Jack Robinson",
+        },
+        "hurley-pro-sunset-beach": {
+            "Nick S": "Jack Robinson",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "John John Florence",
+            "Alex B": "Jack Robinson",
+            "RJ D": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Gabriel Medina",
+            "Alec G": "John John Florence",
+            "Dusty D": "John John Florence",
         },
     },
 }
