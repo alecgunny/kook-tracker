@@ -384,7 +384,8 @@ class Season(db.Model):
             try:
                 event = Event.create(name=event_name, id=event_id, season=obj)
             except parsers.EventNotReady:
-                obj.events.remove(obj.events[-1])
+                idx = len(list(obj.events))
+                obj.events.remove(obj.events[idx - 1])
             else:
                 db.session.add(event)
                 db.session.commit()
