@@ -567,9 +567,8 @@ def reset_event():
     event = wsl.Event.query.filter_by(year=year, name=name).first()
     if event is None:
         return "No event", 400
-
     id = event.id
-    season = event.season
+    stat_id = event.stat_id
 
     objects_deleted = 0
     rounds = wsl.Round.query.filter_by(event=event)
@@ -587,7 +586,7 @@ def reset_event():
     app.logger.info("Deleted {} objects".format(objects_deleted + 1))
 
     app.logger.info("Creating new event {}".format(name))
-    event = wsl.Event.create(name=name, season=season, id=id)
+    event = wsl.Event.create(name=name, id=id, stat_id=stat_id, year=year)
     app.logger.info("Event created")
 
     db.session.add(event)
