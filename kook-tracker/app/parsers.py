@@ -164,13 +164,45 @@ def get_event_ids(season_url, event_names=None):
 # =============================================================================
 #                    Event Page parsers
 # =============================================================================
+def get_event_stat_id(event_id, event_year, event_name):
+    url = Config.MAIN_URL + "/events/{}/ct/{}/{}/results".format(
+        event_year, event_id, event_name
+    )
+
+    soup = client(url)
+    buttons = soup.find_all("div", class_="post-event-watch-round-nav__item")
+    for button in buttons:
+        span = button.find("span", class_="round-name")
+        if span.text != "Men's Heats":
+            continue
+
+        target = button.find("a")["href"]
+        match = re.search("(?<=statEventId=)[0-9]+", target)
+        if match is None:
+            continue
+        stat_id = int(match.group(0))
+        break
+    else:
+        raise ValueError(
+            "Couldn't find stat ID for event {} {}".format(
+                event_name, event_year
+            )
+        )
+    return stat_id
+
+
 def get_event_url(event):
     return Config.MAIN_URL + "/events/{}/ct/{}/{}".format(
-        event.season.year, event.id, event.name
+        event.year, event.id, event.name
     )
 
 
-def get_event_data_from_event_homepage(event_url):
+def get_event_results_url(event):
+    return get_event_url(event) + f"/results?statEventId={event.stat_id}"
+
+
+def get_event_data_from_event_homepage(event):
+    event_url = get_event_results_url(event)
     url_split = event_url.split("/")
     year = int(url_split[url_split.index("events") + 1])
     soup = client(event_url)
@@ -206,10 +238,12 @@ def get_event_data_from_event_homepage(event_url):
 #                       Round Page parsers
 # =============================================================================
 def get_round_url(round_):
-    return round_.event.url + "/results?roundId=" + str(round_.id)
+    url = get_event_results_url(round_.event)
+    return url + f"&roundId={round_.id}"
 
 
-def get_round_ids(event_url):
+def get_round_ids(event):
+    event_url = get_event_results_url(event)
     soup = client(event_url)
     round_link_divs = soup.find_all(
         "div", class_="post-event-watch-round-nav__item"
@@ -228,8 +262,12 @@ def get_round_ids(event_url):
         else:
             metadata = json.loads(metadata)
 
-        round_id = metadata["slug"].split("-")[1]
-        round_ids.append(int(round_id))
+        try:
+            metadata = metadata[0]
+        except KeyError:
+            pass
+        round_id = int(metadata["round-ids"])
+        round_ids.append(round_id)
 
     if len(round_ids) == 0:
         raise ValueError(
@@ -238,7 +276,7 @@ def get_round_ids(event_url):
             )
         )
 
-    return round_ids
+    return sorted(list(set(round_ids)))
 
 
 def find_heat_divs(round_url, heat_id=None):

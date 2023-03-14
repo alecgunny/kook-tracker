@@ -888,6 +888,62 @@ rosters = {
                 "Rio Waida",
             ],
         },
+        "meo-rip-curl-pro-portugal": {
+            "Dusty D": [
+                "John John Florence",
+                "Connor O'Leary",
+                "Ryan Callinan",
+                "Tiago Carrique",
+            ],
+            "Kurt D": [
+                "Gabriel Medina",
+                "Samuel Pupo",
+                "Matthew McGillivray",
+                "Carlos Munoz",
+            ],
+            "Charlie P": [
+                "Italo Ferreira",
+                "Miguel Pupo",
+                "Barron Mamiya",
+                "Maxime Huscenot",
+            ],
+            "Alec G": [
+                "Filipe Toledo",
+                "Leonardo Fioravanti",
+                "Ezekiel Lau",
+                "Rio Waida",
+            ],
+            "Rocky F": [
+                "Kelly Slater",
+                "KIolohe Andino",
+                "Frederico Morais",
+                "Michael Rodrigues",
+            ],
+            "Mike P": [
+                "Jack Robinson",
+                "Ethan Ewing",
+                "Seth Moniz",
+                "Ian Gentil",
+            ],
+            "Nick S": [
+                "Joao Chianca",
+                "Yago Dora",
+                "Nat Young",
+                "Joan Duru",
+            ],
+            "RJ D": [
+                "Caio Ibelli",
+                "Kanoa Igarashi",
+                "Jake Marshall",
+                "Liam O'Brien",
+            ],
+            "Alex B": [
+                "Jordy Smith",
+                "Griffin Colapinto",
+                "Callum Robson",
+                "Jackson Baker",
+            ],
+        },
     },
 }
 
@@ -1026,6 +1082,17 @@ year_long_picks = {
             "Kurt D": "Gabriel Medina",
             "Alec G": "John John Florence",
             "Dusty D": "John John Florence",
+        },
+        "meo-rip-curl-pro-portugal": {
+            "Nick S": "Italo Ferreira",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Filipe Toledo",
+            "Alex B": "Jack Robinson",
+            "RJ D": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Caio Ibelli",
+            "Alec G": "Italo Ferreira",
+            "Dusty D": "Gabriel Medina",
         },
     },
 }

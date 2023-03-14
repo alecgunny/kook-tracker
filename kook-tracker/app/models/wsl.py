@@ -16,10 +16,8 @@ class HeatResult(db.Model):
     index = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Numeric(4, 2), default=None)
 
-    heat = db.relationship("Heat", backref=db.backref("heats", lazy=True))
-    athlete = db.relationship(
-        "Athlete", backref=db.backref("athletes", lazy=True)
-    )
+    heat = db.relationship("Heat", back_populates="athletes")
+    athlete = db.relationship("Athlete", back_populates="heats")
 
 
 def _is_placeholder_athlete_name(athlete_name):
@@ -35,12 +33,18 @@ def _is_placeholder_athlete_name(athlete_name):
     return False
 
 
+class Athlete(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128))
+    heats = db.relationship("HeatResult", back_populates="athlete")
+
+
 class Heat(mixins.Updatable, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     completed = db.Column(db.Boolean, default=False)
     status = db.Column(db.Integer, default=0)
     round_id = db.Column(db.Integer, db.ForeignKey("round.id"))
-    athletes = db.relationship("HeatResult", backref="result_heat")
+    athletes = db.relationship("HeatResult", back_populates="heat")
 
     @classmethod
     def create(cls, **kwargs):
@@ -103,7 +107,6 @@ class Heat(mixins.Updatable, db.Model):
             if athlete is None:
                 athlete = Athlete(name=athlete_name)
                 app.logger.debug(f"Adding athlete {athlete_name} to database")
-                db.session.add(athlete)
 
             # index heat result by the heat and their order in the heat
             # this way when rounds update from some TBD placeholder to
@@ -121,7 +124,6 @@ class Heat(mixins.Updatable, db.Model):
                     heat=self, index=index, athlete=athlete
                 )
                 self.athletes.append(heat_result)
-                db.session.add(heat_result)
             else:
                 # second case: the heat has been created but the athlete
                 # being used to instantiate is being updated
@@ -165,11 +167,11 @@ class Round(mixins.Updatable, db.Model):
 
     @classmethod
     def create(cls, **kwargs):
-        obj = cls(completed=False, **kwargs)
+        obj = cls(**kwargs)
         heat_ids = parsers.get_heat_ids(obj.url)
         for id in heat_ids:
             app.logger.debug(f"Creating heat {id}")
-            db.session.add(Heat.create(id=id, round=obj))
+            Heat.create(id=id, round=obj)
         obj.completed = all([heat.completed for heat in obj.heats])
         return obj
 
@@ -202,6 +204,7 @@ class Round(mixins.Updatable, db.Model):
 
 class Event(mixins.Updatable, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    stat_id = db.Column(db.Integer)
     name = db.Column(db.String(128))
     completed = db.Column(db.Boolean, default=False)
     year = db.Column(db.Integer, db.ForeignKey("season.year"))
@@ -216,14 +219,12 @@ class Event(mixins.Updatable, db.Model):
         return sorted(self.rounds, key=lambda r: r.number)
 
     @classmethod
-    def create(cls, **kwargs):
-        obj = cls(**kwargs)
+    def create(cls, id: int, stat_id: int, name: str, year: int, **kwargs):
+        obj = cls(id=id, stat_id=stat_id, name=name, year=year)
 
         # first verify that status is ok and that we're close enough to the
         # event to warrant building it
-        status, start_date = parsers.get_event_data_from_event_homepage(
-            obj.url
-        )
+        status, start_date = parsers.get_event_data_from_event_homepage(obj)
         if status in ("canceled", "postponed"):
             raise parsers.EventNotReady(
                 "Status for event {} is currently {}".format(obj.name, status)
@@ -242,45 +243,36 @@ class Event(mixins.Updatable, db.Model):
         # double check that event is ready to be scraped by
         # making sure that all the rounds have valid links
         try:
-            round_ids = parsers.get_round_ids(obj.url + "/results")
+            round_ids = parsers.get_round_ids(obj)
         except parsers.EventNotReady:
             raise parsers.EventNotReady(
                 "No valid round links for event {}".format(obj.name)
             )
 
         # initialize all the internal rounds and heats
-        with db.session.no_autoflush:
-            for n, round_id in enumerate(round_ids):
-                app.logger.debug(f"Creating round {round_id}")
-                if n < 2:
-                    round_ = Round.create(id=round_id, number=n, event=obj)
-                    db.session.add(round_)
-                    continue
-                else:
-                    round_ = Round(
-                        id=round_id, number=n, event=obj, completed=False
-                    )
-                    break
+        kwargs = {"event": obj, "completed": False}
+        for n, round_id in enumerate(round_ids):
+            app.logger.debug(f"Creating round {round_id}")
+            if n < 2:
+                round_ = Round.create(id=round_id, number=n, **kwargs)
+                continue
+            else:
+                round_ = Round(id=round_id, number=n, **kwargs)
+                break
 
-            rounds = parsers.parse_bracket(round_.url)
-            for i in range(len(rounds)):
-                heats = rounds[round_.id]
-                for id in sorted(heats.keys()):
-                    heat = Heat(id=id, completed=False, round=round_)
-                    status, scores = heats[id]
-                    heat.update_with_status_and_scores(status, scores)
-                    db.session.add(heat)
+        rounds = parsers.parse_bracket(round_.url)
+        for i in range(1, len(rounds) + 1):
+            heats = rounds[round_.id]
+            for id in sorted(heats.keys()):
+                heat = Heat(id=id, completed=False, round=round_)
+                status, scores = heats[id]
+                heat.update_with_status_and_scores(status, scores)
 
-                round_.completed = all([i.completed for i in round_.heats])
-                db.session.add(round_)
+            round_.completed = all([i.completed for i in round_.heats])
 
-                if i < (len(rounds) - 1):
-                    round_ = Round(
-                        id=round_id + i + 1,
-                        number=2 + i + 1,
-                        event=obj,
-                        completed=False,
-                    )
+            if i < len(rounds):
+                app.logger.debug(f"Creating round {round_id + i}")
+                round_ = Round(id=round_id + i, number=2 + i, **kwargs)
 
         # if this is an event from the past, we can set it completed up front
         obj.completed = all([round_.completed for round_ in obj.rounds])
@@ -365,37 +357,40 @@ class Season(db.Model):
 
         # instantiate the season then add all the events we can to it
         obj = cls(year=year, **kwargs)
-        for event_name, event_id in parsers.get_event_ids(obj.url).items():
+        db.session.add(obj)
+        for name, id in parsers.get_event_ids(obj.url).items():
             # skipping freshwater pro by default since
             # its format is so different
-            if event_name == "freshwater-pro":
+            if name == "freshwater-pro":
                 continue
 
             # don't need to create events that have already been created
             # not quite sure why or when this might occur but hey why not
-            event = Event.query.filter_by(
-                name=event_name, id=event_id, season=obj
-            ).first()
+            event = Event.query.filter_by(name=name, id=id, season=obj).first()
             if event is not None:
                 continue
 
-            # if event isn't ready, remove it from the session.
-            # Otherwise add it
             try:
-                event = Event.create(name=event_name, id=event_id, season=obj)
+                stat_id = parsers.get_event_stat_id(id, year, name)
+            except ValueError:
+                app.logger.info(
+                    f"Skipping creation of event {name} {year} "
+                    "because no stat ID was available"
+                )
+                continue
+
+            # ignore this event if it's not ready yet
+            try:
+                event = Event.create(
+                    name=name, id=id, stat_id=stat_id, year=year
+                )
             except parsers.EventNotReady:
-                idx = len(list(obj.events))
-                obj.events.remove(obj.events[idx - 1])
+                continue
             else:
+                obj.events.append(event)
                 db.session.add(event)
                 db.session.commit()
         return obj
-
-
-class Athlete(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
-    heats = db.relationship("HeatResult", backref="result_athlete")
 
 
 def delete_season(year):

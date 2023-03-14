@@ -58,7 +58,8 @@ def season(year: int) -> str:
                 }
             )
 
-            athlete = wsl.Athlete.query.filter_by(name=athlete_name).first()
+            initials = _initialize(athlete_name)
+            athlete = wsl.Athlete.query.filter_by(name=initials).first()
             score, _, __ = _compute_athlete_event_score(
                 athlete, event_id, num_rounds
             )
@@ -490,9 +491,12 @@ def _build_kook_rows(event, kooks):
 @app.route("/seasons/<year>/event/<name>")
 def event(year, name):
     app.logger.debug(f"Getting data for {year} event {name}")
-    event_name = name
-    event = wsl.Event.query.filter_by(year=year, name=event_name).first()
+    event = wsl.Event.query.filter_by(year=year, name=name).first()
     app.logger.debug(f"Found {year} event {name} in database")
+
+    app.logger.debug(f"Updating event {name} {year}")
+    completed = event.update()
+    app.logger.debug(f"Event update returned status completed={completed}")
 
     rows = _build_athlete_rows(event, kooks)
     app.logger.debug(f"Retrieved {len(rows)} of athlete data")
@@ -500,10 +504,10 @@ def event(year, name):
     kook_rows = _build_kook_rows(event, kooks)
     app.logger.debug(f"Retrieved {len(kook_rows)} of kook data")
 
-    event_name = event_name.replace("-", " ").title()
-    event_name = "{} {}".format(event_name, year)
+    name = name.replace("-", " ").title()
+    name = "{} {}".format(name, year)
     return render_template(
-        "event.html", event_name=event_name, rows=rows, kook_rows=kook_rows
+        "event.html", event_name=name, rows=rows, kook_rows=kook_rows
     )
 
 
@@ -516,28 +520,21 @@ def make_csv_response(csv_string):
 
 @app.route("/event-results")
 def get_event_results():
-    event_name = request.args.get("event-name")
-    event_year = int(request.args.get("event-year"))
+    name = request.args.get("name")
+    year = int(request.args.get("year"))
 
     # try to query event first to avoid having to query
     # season if we don't need to
-    event = wsl.Event.query.filter_by(name=event_name, year=event_year).first()
+    event = wsl.Event.query.filter_by(name=name, year=year).first()
     if event is None:
         # try to get the season in order to create the event
-        season = wsl.Season.query.filter_by(year=event_year).first()
+        season = wsl.Season.query.filter_by(year=year).first()
 
-        # if it doesn't exist, then create it and try to get the
-        # event again
-        # TODO: this won't work for a real request, which won't
-        # want to sit there while the event, let alone the season,
-        # gets created
+        # if it doesn't exist, then create it
+        # and try to get the event again
         if season is None:
-            season = wsl.Season.create(year=event_year)
-            db.session.add(season)
-            db.session.commit()
-            event = wsl.Event.query.filter_by(
-                name=event_name, year=event_year
-            ).first()
+            season = wsl.Season.create(year=year)
+            event = wsl.Event.query.filter_by(name=name, year=year).first()
 
             # event will have just been created and so will have the
             # most up-to-date results
@@ -548,10 +545,10 @@ def get_event_results():
     # to make it not None. At the very least we'll get a more
     # informative error as to what's invalid about it
     if event is None:
-        event_id = parsers.get_event_ids(season.url, event_names=event_name)[
-            event_name
-        ]
-        event = wsl.Event.create(name=event_name, id=event_id, season=season)
+        id = parsers.get_event_ids(season.url, event_names=name)[name]
+        stat_id = parsers.get_event_stat_id(id, year, name)
+        event = wsl.Event.create(name=name, id=id, stat_id=stat_id, year=year)
+        season.events.append(event)
         db.session.add(event)
 
     # update the event if we didn't need to create it
