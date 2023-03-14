@@ -107,6 +107,8 @@ class Heat(mixins.Updatable, db.Model):
             if athlete is None:
                 athlete = Athlete(name=athlete_name)
                 app.logger.debug(f"Adding athlete {athlete_name} to database")
+                db.session.add(athlete)
+                db.session.commit()
 
             # index heat result by the heat and their order in the heat
             # this way when rounds update from some TBD placeholder to
