@@ -991,7 +991,7 @@ rosters = {
                 "Caio Ibelli",
                 "Griffin Colapinto",
                 "Seth Moniz",
-                "Samuel Pupo",
+                "Morgan Cibilic",
             ],
             "Dusty D": [
                 "Xavier Huxtable",
