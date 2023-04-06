@@ -991,11 +991,11 @@ rosters = {
                 "Caio Ibelli",
                 "Griffin Colapinto",
                 "Seth Moniz",
-                "Morgan Cibilic",
+                "Samuel Pupo",
             ],
             "Dusty D": [
                 "Xavier Huxtable",
-                "Miguel Pupo",
+                "Morgan Cibilic",
                 "Dylan Moffat",
                 "Matthew McGillivray",
             ],
