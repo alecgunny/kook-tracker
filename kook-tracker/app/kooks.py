@@ -944,6 +944,62 @@ rosters = {
                 "Jackson Baker",
             ],
         },
+        "rip-curl-pro-bells-beach": {
+            "Kurt D": [
+                "Filipe Toledo",
+                "Leonardo Fioravanti",
+                "Callum Robson",
+                "Owen Wright",
+            ],
+            "Charlie P": [
+                "Jack Robinson",
+                "Yago Dora",
+                "Ryan Callinan",
+                "Carlos Munoz",
+            ],
+            "Alec G": [
+                "Italo Ferreira",
+                "Kanoa Igarashi",
+                "Kolohe Andino",
+                "Ezekiel Lau",
+            ],
+            "Rocky F": [
+                "Kelly Slater",
+                "Ian Gentil",
+                "Connor O'Leary",
+                "Maxime Huscenot",
+            ],
+            "Mike P": [
+                "John John Florence",
+                "Jordy Smith",
+                "Nat Young",
+                "Michael Rodrigues",
+            ],
+            "Nick S": [
+                "Gabriel Medina",
+                "Rio Waida",
+                "Jake Marshall",
+                "Jackson Baker",
+            ],
+            "RJ D": [
+                "Joao Chianca",
+                "Ethan Ewing",
+                "Liam O'Brien",
+                "Barron Mamiya",
+            ],
+            "Alex B": [
+                "Caio Ibelli",
+                "Griffin Colapinto",
+                "Seth Moniz",
+                "Samuel Pupo",
+            ],
+            "Dusty D": [
+                "Xavier Huxtable",
+                "Miguel Pupo",
+                "Dylan Moffat",
+                "Matthew McGillivray",
+            ],
+        },
     },
 }
 
@@ -1093,6 +1149,17 @@ year_long_picks = {
             "Kurt D": "Caio Ibelli",
             "Alec G": "Italo Ferreira",
             "Dusty D": "Gabriel Medina",
+        },
+        "rip-curl-pro-bells-beach": {
+            "Nick S": "Filipe Toledo",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "Jack Robinson",
+            "RJD": "Gabriel Medina",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Caio Ibelli",
+            "Alec G": "Jack Robinson",
+            "Dusty D": "John John Florence",
         },
     },
 }
