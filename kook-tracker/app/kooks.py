@@ -1155,7 +1155,7 @@ year_long_picks = {
             "Mike P": "Filipe Toledo",
             "Charlie P": "Jack Robinson",
             "Alex B": "Jack Robinson",
-            "RJD": "Gabriel Medina",
+            "RJ D": "Gabriel Medina",
             "Rocky F": "John John Florence",
             "Kurt D": "Caio Ibelli",
             "Alec G": "Jack Robinson",
