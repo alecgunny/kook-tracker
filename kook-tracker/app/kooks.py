@@ -1222,7 +1222,7 @@ year_long_picks = {
             "Mike P": "John John Florence",
             "Charlie P": "John John Florence",
             "Alex B": "Ethan Ewing",
-            "RJD": "Filipe Toledo",
+            "RJ D": "Filipe Toledo",
             "Rocky F": "John John Florence",
             "Kurt D": "Filipe Toledo",
             "Alec G": "Griffin Colapinto",
