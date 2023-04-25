@@ -1000,7 +1000,7 @@ rosters = {
                 "Matthew McGillivray",
             ],
         },
-        "margaret-river-pro": {
+        "western-australia-margaret-river-pro": {
             "Charlie P": [
                 "John John Florence",
                 "Kelly Slater",
@@ -1217,7 +1217,7 @@ year_long_picks = {
             "Alec G": "Jack Robinson",
             "Dusty D": "John John Florence",
         },
-        "margaret-river-pro": {
+        "western-australia-margaret-river-pro": {
             "Nick S": "John John Florence",
             "Mike P": "John John Florence",
             "Charlie P": "John John Florence",
