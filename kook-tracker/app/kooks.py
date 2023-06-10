@@ -1056,6 +1056,44 @@ rosters = {
                 "Reef Heazlewood",
             ],
         },
+        "surf-city-el-salvador-pro": {
+            "Rocky F": [
+                "John John Florence",
+                "Connor O'Leary",
+            ],
+            "Mike P": [
+                "Filipe Toledo",
+                "Kelly Slater",
+            ],
+            "Nick S": [
+                "Gabriel Medina",
+                "Caio Ibelli",
+            ],
+            "RJ D": [
+                "Jack Robinson",
+                "Matthew McGillivray",
+            ],
+            "Alex B": [
+                "Griffin Colapinto",
+                "Leonardo Fioravanti",
+            ],
+            "Dusty D": [
+                "Kanoa Igarashi",
+                "Ryan Callinan",
+            ],
+            "Kurt D": [
+                "Ian Gentil",
+                "Jordy Smith",
+            ],
+            "Charlie P": [
+                "Ethan Ewing",
+                "Yago Dora",
+            ],
+            "Alec G": [
+                "Italo Ferreira",
+                "Joao Chianca",
+            ],
+        },
     },
 }
 
@@ -1226,6 +1264,17 @@ year_long_picks = {
             "Rocky F": "John John Florence",
             "Kurt D": "Filipe Toledo",
             "Alec G": "Griffin Colapinto",
+            "Dusty D": "John John Florence",
+        },
+        "surf-city-el-salvador-pro": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Ethan Ewing",
+            "Alex B": "Griffin Colapinto",
+            "RJD": "Filipe Toledo",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Joao Chianca",
             "Dusty D": "John John Florence",
         },
     },
