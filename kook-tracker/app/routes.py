@@ -79,7 +79,7 @@ def season(year: int) -> str:
         )
 
     try:
-        ranch = ranch_scores[year]
+        ranch = ranch_scores[int(year)]
     except KeyError:
         app.logger.warning(f"No ranch scores for year {year}")
     else:
