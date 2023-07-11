@@ -1094,7 +1094,7 @@ rosters = {
                 "Joao Chianca",
             ],
         },
-        "oi-rio-pro": {
+        "vivo-rio-pro": {
             "Mike P": [
                 "Filipe Toledo",
                 "Ian Gentil",
@@ -1353,7 +1353,7 @@ year_long_picks = {
             "Alec G": "Joao Chianca",
             "Dusty D": "John John Florence",
         },
-        "oi-rio-pro": {
+        "vivo-rio-pro": {
             "Nick S": "Gabriel Medina",
             "Mike P": "Filipe Toledo",
             "Charlie P": "Jack Robinson",
@@ -1376,6 +1376,20 @@ year_long_picks = {
             "Dusty D": "John John Florence",
         },
     },
+}
+
+ranch_scores = {
+    2023: {
+        "Nick S": 4745,
+        "Mike P": 4745,
+        "Charlie P": 10000,
+        "Alex B": 1330,
+        "RJ D": 4745,
+        "Rocky F": 3320,
+        "Kurt D": 6085,
+        "Alec G": 7800,
+        "Dusty D": 3320,
+    }
 }
 
 palette = [

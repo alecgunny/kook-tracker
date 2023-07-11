@@ -5,7 +5,7 @@ from colorutils import Color
 from flask import make_response, render_template, request
 
 from app import app, db, parsers
-from app.kooks import kooks
+from app.kooks import kooks, ranch_scores
 from app.models import wsl
 
 if typing.TYPE_CHECKING:
@@ -77,6 +77,23 @@ def season(year: int) -> str:
         return render_template(
             "season.html", event_year=year, events=event_dicts
         )
+
+    try:
+        ranch = ranch_scores[year]
+    except KeyError:
+        pass
+    else:
+        for kook in kooks:
+            try:
+                score = ranch[kook.name]
+            except KeyError:
+                app.logger.warning(
+                    "No ranch score for kook {} in year {}".format(
+                        kook.name, year
+                    )
+                )
+            else:
+                totals[kook.name] += score
 
     totals = list(totals.values())
     sort_totals = sorted(zip(totals, range(len(totals))), reverse=True)
