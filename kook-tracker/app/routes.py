@@ -81,7 +81,7 @@ def season(year: int) -> str:
     try:
         ranch = ranch_scores[year]
     except KeyError:
-        pass
+        app.logger.warning(f"No ranch scores for year {year}")
     else:
         for kook in kooks:
             try:
