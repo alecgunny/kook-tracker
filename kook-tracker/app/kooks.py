@@ -1094,6 +1094,82 @@ rosters = {
                 "Joao Chianca",
             ],
         },
+        "oi-rio-pro": {
+            "Mike P": [
+                "Filipe Toledo",
+                "Ian Gentil",
+            ],
+            "Nick S": [
+                "Gabriel Medina",
+                "Rio Waida",
+            ],
+            "RJ D": [
+                "Italo Ferreira",
+                "Jordy Smith",
+            ],
+            "Alex B": [
+                "Ethan Ewing",
+                "Connor O'Leary",
+            ],
+            "Dusty D": [
+                "John John Florence",
+                "Ryan Callinan",
+            ],
+            "Kurt D": [
+                "Griffin Colapinto",
+                "Leonardo Fioravanti",
+            ],
+            "Charlie P": [
+                "Jack Robinson",
+                "Yago Dora",
+            ],
+            "Alec G": [
+                "Joao Chianca",
+                "Caio Ibelli",
+            ],
+            "Rocky F": [
+                "Kelly Slater",
+                "Kanoa Igarashi",
+            ],
+        },
+        "corona-open-j-bay": {
+            "Nick S": [
+                "Gabriel Medina",
+                "Rio Waida",
+            ],
+            "RJ D": [
+                "Ethan Ewing",
+                "Matthew McGillivray",
+            ],
+            "Alex B": [
+                "Filipe Toledo",
+                "Ryan Callinan",
+            ],
+            "Dusty D": [
+                "John John Florence",
+                "Barron Mamiya",
+            ],
+            "Kurt D": [
+                "Griffin Colapinto",
+                "Caio Ibelli",
+            ],
+            "Charlie P": [
+                "Jack Robinson",
+                "Leonardo Fioravanti",
+            ],
+            "Alec G": [
+                "Italo Ferreira",
+                "Joao Chianca",
+            ],
+            "Rocky F": [
+                "Kelly Slater",
+                "Kanoa Igarashi",
+            ],
+            "Mike P": [
+                "Jordy Smith",
+                "Yago Dora",
+            ],
+        },
     },
 }
 
@@ -1275,6 +1351,28 @@ year_long_picks = {
             "Rocky F": "Italo Ferreira",
             "Kurt D": "Filipe Toledo",
             "Alec G": "Joao Chianca",
+            "Dusty D": "John John Florence",
+        },
+        "oi-rio-pro": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "Griffin Colapinto",
+            "RJD": "Gabriel Medina",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Yago Dora",
+            "Alec G": "Gabriel Medina",
+            "Dusty D": "Italo Ferreira",
+        },
+        "corona-open-j-bay": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jordy Smith",
+            "Alex B": "Griffin Colapinto",
+            "RJD": "John John Florence",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Jack Robinson",
+            "Alec G": "Ethan Ewing",
             "Dusty D": "John John Florence",
         },
     },
