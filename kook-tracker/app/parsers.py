@@ -266,7 +266,7 @@ def get_round_ids(event):
             metadata = metadata[0]
         except KeyError:
             pass
-        round_id = int(metadata["round-ids"])
+        round_id = int(metadata["round_ids"])
         round_ids.append(round_id)
 
     if len(round_ids) == 0:
@@ -354,8 +354,8 @@ def parse_bracket(round_url):
         for heat in heats:
             status = get_heat_status(heat)
             data = json.loads(heat.attrs["data-pickem-gtm"])
-            heat_id = int(data["heat-ids"])
-            round_id = int(data["round-ids"])
+            heat_id = int(data["heat_ids"])
+            round_id = int(data["round_ids"])
 
             results = []
             names = heat.find_all("div", class_="hot-heat-athlete__name")
