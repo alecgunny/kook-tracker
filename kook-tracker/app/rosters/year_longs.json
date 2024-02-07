@@ -1,0 +1,217 @@
+{
+    "2022": {
+        "billabong-pro-pipeline": {
+            "Nick S": "John John Florence",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Italo Ferreira",
+            "Alex B": "John John Florence",
+            "Andrew H": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "John John Florence",
+            "Alec G": "John John Florence",
+            "Dusty D": "John John Florence"
+        },
+        "hurley-pro-sunset-beach": {
+            "Nick S": "John John Florence",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "John John Florence",
+            "Alex B": "Miguel Pupo",
+            "Andrew H": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "John John Florence",
+            "Alec G": "Kolohe Andino",
+            "Dusty D": "John John Florence"
+        },
+        "meo-portugal-pro": {
+            "Nick S": "Italo Ferreira",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "John John Florence",
+            "Alex B": "Miguel Pupo",
+            "Andrew H": "Kanoa Igarashi",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Filipe Toledo",
+            "Dusty D": "John John Florence"
+        },
+        "rip-curl-pro-bells-beach": {
+            "Nick S": "Griffin Colapinto",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "John John Florence",
+            "Andrew H": "Kanoa Igarashi",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Filipe Toledo",
+            "Dusty D": "John John Florence"
+        },
+        "margaret-river-pro": {
+            "Nick S": "John John Florence",
+            "Mike P": "John John Florence",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "John John Florence",
+            "Andrew H": "Kelly Slater",
+            "Rocky F": "John John Florence",
+            "Kurt D": "John John Florence",
+            "Alec G": "John John Florence",
+            "Dusty D": "John John Florence"
+        },
+        "quiksilverroxy-pro-g-land": {
+            "Nick S": "John John Florence",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Gabriel Medina",
+            "Alex B": "Jack Robinson",
+            "Andrew H": "Kelly Slater",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Italo Ferreira",
+            "Alec G": "Italo Ferreira",
+            "Dusty D": "John John Florence"
+        },
+        "surf-city-el-salvador-pro": {
+            "Nick S": "Filipe Toledo",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Filipe Toledo",
+            "Alex B": "Jack Robinson",
+            "Andrew H": "Kelly Slater",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Italo Ferreira",
+            "Alec G": "Gabriel Medina",
+            "Dusty D": "Jack Robinson"
+        },
+        "oi-rio-pro": {
+            "Nick S": "Filipe Toledo",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Gabriel Medina",
+            "Alex B": "Gabriel Medina",
+            "Andrew H": "Filipe Toledo",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Filipe Toledo",
+            "Dusty D": "Kanoa Igarashi"
+        },
+        "corona-open-j-bay": {
+            "Nick S": "Jack Robinson",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "Gabriel Medina",
+            "Alex B": "Connor O'Leary",
+            "Andrew H": "Filipe Toledo",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Jack Robinson",
+            "Dusty D": "Kanoa Igarashi"
+        },
+        "outerknown-tahiti-pro": {
+            "Nick S": "Jack Robinson",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Kelly Slater",
+            "Alex B": "Filipe Toledo",
+            "Andrew H": "Filipe Toledo",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Seth Moniz",
+            "Alec G": "Jack Robinson",
+            "Dusty D": "Kelly Slater"
+        }
+    },
+    "2023": {
+        "billabong-pro-pipeline": {
+            "Nick S": "John John Florence",
+            "Mike P": "Jack Robinson",
+            "Charlie P": "John John Florence",
+            "Alex B": "Jack Robinson",
+            "RJ D": "Gabriel Medina",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Gabriel Medina",
+            "Alec G": "Griffin Colapinto",
+            "Dusty D": "Jack Robinson"
+        },
+        "hurley-pro-sunset-beach": {
+            "Nick S": "Jack Robinson",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "John John Florence",
+            "Alex B": "Jack Robinson",
+            "RJ D": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Gabriel Medina",
+            "Alec G": "John John Florence",
+            "Dusty D": "John John Florence"
+        },
+        "meo-rip-curl-pro-portugal": {
+            "Nick S": "Italo Ferreira",
+            "Mike P": "Italo Ferreira",
+            "Charlie P": "Filipe Toledo",
+            "Alex B": "Jack Robinson",
+            "RJ D": "John John Florence",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Caio Ibelli",
+            "Alec G": "Italo Ferreira",
+            "Dusty D": "Gabriel Medina"
+        },
+        "rip-curl-pro-bells-beach": {
+            "Nick S": "Filipe Toledo",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "Jack Robinson",
+            "RJ D": "Gabriel Medina",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Caio Ibelli",
+            "Alec G": "Jack Robinson",
+            "Dusty D": "John John Florence"
+        },
+        "western-australia-margaret-river-pro": {
+            "Nick S": "John John Florence",
+            "Mike P": "John John Florence",
+            "Charlie P": "John John Florence",
+            "Alex B": "Ethan Ewing",
+            "RJ D": "Filipe Toledo",
+            "Rocky F": "John John Florence",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Griffin Colapinto",
+            "Dusty D": "John John Florence"
+        },
+        "surf-city-el-salvador-pro": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Ethan Ewing",
+            "Alex B": "Griffin Colapinto",
+            "RJ D": "Filipe Toledo",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Filipe Toledo",
+            "Alec G": "Joao Chianca",
+            "Dusty D": "John John Florence"
+        },
+        "vivo-rio-pro": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jack Robinson",
+            "Alex B": "Griffin Colapinto",
+            "RJ D": "Gabriel Medina",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Yago Dora",
+            "Alec G": "Gabriel Medina",
+            "Dusty D": "Italo Ferreira"
+        },
+        "corona-open-j-bay": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Filipe Toledo",
+            "Charlie P": "Jordy Smith",
+            "Alex B": "Griffin Colapinto",
+            "RJ D": "John John Florence",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "Jack Robinson",
+            "Alec G": "Ethan Ewing",
+            "Dusty D": "John John Florence"
+        }
+    },
+    "2024": {
+        "lexus-pipe-pro": {
+            "Nick S": "Gabriel Medina",
+            "Mike P": "Gabriel Medina",
+            "Charlie P": "John John Florence",
+            "Alex B": "Griffin Colapinto",
+            "RJ D": "John John Florence",
+            "Rocky F": "Italo Ferreira",
+            "Kurt D": "John John Florence",
+            "Alec G": "Jack Robinson",
+            "Dusty D": "John John Florence"
+        }
+    }
+}

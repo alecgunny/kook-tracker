@@ -1,5 +1,6 @@
 app.db
 app.log
+.env
 kook-tracker/.env
 .ebextensions/rds.config
 **/__pycache__/
