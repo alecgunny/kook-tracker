@@ -66,7 +66,6 @@ kook_names = [
 ]
 
 kooks = [Kook(name, color) for name, color in zip(kook_names, palette)]
-
 for year, events in rosters.items():
     for event, rstrs in events.items():
         for kook in kooks:

@@ -41,7 +41,7 @@ def season(year: int) -> str:
 
         for kook in kooks:
             try:
-                athlete_name = kook.year_longs[int(year)][event_name]
+                athlete_name = kook.year_longs[year][event_name]
             except KeyError:
                 app.logger.warning(
                     "No year long pick for kook {} in event {} {}".format(
@@ -150,7 +150,7 @@ def _find_color_for_athlete(
     # on their roster for this event
     for kook in kooks:
         try:
-            roster = kook.rosters[event.year][event.name]
+            roster = kook.rosters[str(event.year)][event.name]
         except KeyError:
             # this kook doesn't have a roster for
             # this event, move on
@@ -410,7 +410,7 @@ def _build_kook_rows(event, kooks):
         # if this kook doesn't have a roster for this
         # competition, then we'll just move on
         try:
-            roster = kook.rosters[event.year][event.name]
+            roster = kook.rosters[str(event.year)][event.name]
         except KeyError:
             continue
 

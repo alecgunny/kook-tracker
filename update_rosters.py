@@ -59,7 +59,7 @@ def update_json(filename: str, event_name: str, year: int, update: dict):
             this_year[event_name] = update
 
 
-def update_team_rosters(year: str, event_name: str, sheet_id: str) -> None:
+def update_team_rosters(year: int, event_name: str, sheet_id: str) -> None:
     """
     Read the draft orders from Google sheets then execute
     a snake draft to build rosters for the given event.
@@ -106,7 +106,7 @@ def update_team_rosters(year: str, event_name: str, sheet_id: str) -> None:
 
 
 def update_year_long(
-    year: str, event_name: str, nickname: str, sheet_id: str
+    year: int, event_name: str, nickname: str, sheet_id: str
 ) -> None:
     # read the year long picks from the Google sheet
     # and parse out the kook names from the top row
@@ -131,7 +131,7 @@ def main(
     nickname: str,
     sheet_id: str,
 ) -> None:
-    year = str(datetime.now().year)
+    year = datetime.now().year
     update_team_rosters(year, event_name, sheet_id)
     update_year_long(year, event_name, nickname, sheet_id)
 
