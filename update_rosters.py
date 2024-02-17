@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from apiclient import discovery
+from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
 
 
@@ -137,11 +138,7 @@ def main(
 
 
 if __name__ == "__main__":
-    with open(".env", "r") as f:
-        for line in f.readlines():
-            key, value = line.rstrip().split("=")
-            os.environ[key] = value
-
+    load_dotenv()
     parser = argparse.ArgumentParser()
     parser.add_argument("event_name", type=str)
     parser.add_argument("--nickname", type=str)
