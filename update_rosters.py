@@ -111,19 +111,19 @@ def update_year_long(
 ) -> None:
     # read the year long picks from the Google sheet
     # and parse out the kook names from the top row
-    rows = read_sheet(sheet_id, "Year Long", "A7:S19")
-    kooks = [i for i in rows.pop(0) if i]
+    rows = read_sheet(sheet_id, "Year Long", "B3:J4")
+    # kooks = [i for i in rows.pop(0) if i]
 
-    # find the row corresponding to this event by
-    # using its nickname in the index column, then
-    # parse out all the athletes for each kook in that row
-    row_idx = [i[0] for i in rows].index(nickname)
-    athletes = rows[row_idx][1::2]
+    # # find the row corresponding to this event by
+    # # using its nickname in the index column, then
+    # # parse out all the athletes for each kook in that row
+    # row_idx = [i[0] for i in rows].index(nickname)
+    # athletes = rows[row_idx][1::2]
 
     # zip these into a dictionary and add it on
     # to our year long picks tracking json
     fname = "kook-tracker/app/rosters/year_longs.json"
-    year_long_picks = dict(zip(kooks, athletes))
+    year_long_picks = dict(zip(*rows))
     update_json(fname, event_name, year, year_long_picks)
 
 
