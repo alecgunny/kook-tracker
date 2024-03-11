@@ -117,6 +117,7 @@ def get_event_ids(season_url, event_names=None):
     if isinstance(event_names, str):
         event_names = [event_names]
 
+    base = "/".join(season_url.split("/")[:3])
     event_data = get_event_data_from_season_homepage(season_url)
     event_ids = {}
     for data in event_data:
@@ -131,8 +132,10 @@ def get_event_ids(season_url, event_names=None):
                 if "invalid literal" in str(exc) and i == 0:
                     soup = client(data["link"])
                     header = soup.find("h1", class_="event-information__title")
-                    link = header.find("a")
-                    data["link"] = link.attrs["href"]
+                    link = header.find("a").attrs["href"]
+                    if not link.startswith("http"):
+                        link = base + link
+                    data["link"] = link
                 else:
                     raise
             else:
