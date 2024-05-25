@@ -60,6 +60,14 @@ def update_json(filename: str, event_name: str, year: int, update: dict):
             this_year[event_name] = update
 
 
+def _is_valid_draft_row(row: str):
+    return bool(row.strip()) and row != "#N/A"
+
+
+def _scrub_draft_column(column: list[str]) -> list[str]:
+    return list(filter(_is_valid_draft_row, column))
+
+
 def update_team_rosters(year: int, event_name: str, sheet_id: str) -> None:
     """
     Read the draft orders from Google sheets then execute
@@ -73,9 +81,7 @@ def update_team_rosters(year: int, event_name: str, sheet_id: str) -> None:
     # Cut out any invalid values
     kooks = rows.pop(0)
     draft_orders = dict(zip(kooks, map(list, zip(*rows))))
-    draft_orders = {
-        k: [i for i in v if i != "#N/A"] for k, v in draft_orders.items()
-    }
+    draft_orders = {k: _scrub_draft_column(v) for k, v in draft_orders.items()}
 
     # initialize some empty rosters and fill them
     # out until the all the draft orders are empty
@@ -96,6 +102,12 @@ def update_team_rosters(year: int, event_name: str, sheet_id: str) -> None:
                     # if a kook filled their draft out incorrectly
                     # and are missing this athlete, skip them
                     continue
+
+        num_remaining = max([len(i) for i in draft_orders.values()])
+        if num_remaining < len(kooks):
+            # if there aren't enough athletes left to ensure
+            # all kooks have the same roster length, we're done
+            break
 
         # once we've gone through all the kooks,
         # reverse their order to snake the draft
