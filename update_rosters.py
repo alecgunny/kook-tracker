@@ -80,6 +80,7 @@ def update_team_rosters(year: int, event_name: str, sheet_id: str) -> None:
     # these with their columns to build draft orders.
     # Cut out any invalid values
     kooks = rows.pop(0)
+    rows = [i + ["#N/A"] * (9 - len(i)) for i in rows]
     draft_orders = dict(zip(kooks, map(list, zip(*rows))))
     draft_orders = {k: _scrub_draft_column(v) for k, v in draft_orders.items()}
 
@@ -146,7 +147,7 @@ def main(
 ) -> None:
     year = datetime.now().year
     update_team_rosters(year, event_name, sheet_id)
-    update_year_long(year, event_name, nickname, sheet_id)
+    # update_year_long(year, event_name, nickname, sheet_id)
 
 
 if __name__ == "__main__":
