@@ -124,7 +124,8 @@ def update_year_long(
 ) -> None:
     # read the year long picks from the Google sheet
     # and parse out the kook names from the top row
-    rows = read_sheet(sheet_id, "Year Long", "B3:J4")
+    rows = read_sheet(sheet_id, "Year Long", "B3:S4")
+    rows = [[i for i in j if i] for j in rows]
     # kooks = [i for i in rows.pop(0) if i]
 
     # # find the row corresponding to this event by
@@ -147,7 +148,7 @@ def main(
 ) -> None:
     year = datetime.now().year
     update_team_rosters(year, event_name, sheet_id)
-    # update_year_long(year, event_name, nickname, sheet_id)
+    update_year_long(year, event_name, nickname, sheet_id)
 
 
 if __name__ == "__main__":
