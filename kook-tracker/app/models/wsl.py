@@ -49,6 +49,7 @@ class Heat(mixins.Updatable, db.Model):
     @classmethod
     def create(cls, **kwargs):
         obj = cls(completed=False, **kwargs)
+        app.logger.info(f"Creating heat ID {obj.id}")
         obj.update()
         return obj
 

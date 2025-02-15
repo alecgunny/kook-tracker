@@ -30,6 +30,11 @@ class EventNotReady(Exception):
     pass
 
 
+class ParserError(Exception):
+    def __init__(self, url: str, message: str) -> None:
+        super().__init__(f"Request to page {url} failed: {message}")
+
+
 def _get_date(year, month, day):
     return datetime.datetime.strptime(
         "{}-{}-{}".format(year, month, day), "%Y-%m-%d"
@@ -284,9 +289,19 @@ def get_round_ids(event):
 
 def find_heat_divs(round_url, heat_id=None):
     attrs = {"data-heat-id": heat_id} if heat_id is not None else heat_id
-    divs = client(round_url).find_all(
-        "div", class_="post-event-watch-heat-grid__heat", attrs=attrs
-    )
+
+    classes = ["heat", "wave-pool-hybrid"]
+    classes = [f"post-event-watch-{i}__heat" for i in classes]
+
+    divs = client(round_url).find_all("div", class_=classes, attrs=attrs)
+    if not divs:
+        raise ParserError(
+            round_url,
+            "No heat divs of classes {} with attribute 'data-heat-id'".format(
+                ", ".join([f"'{i}'" for i in classes])
+            ),
+        )
+
     if heat_id is None:
         return divs
     return divs[0]
@@ -294,7 +309,20 @@ def find_heat_divs(round_url, heat_id=None):
 
 def get_heat_ids(round_url):
     heat_divs = find_heat_divs(round_url)
-    return [int(div.attrs["data-heat-id"]) for div in heat_divs]
+    heat_ids = []
+    for div in heat_divs:
+        try:
+            heat_id = div.attrs["data-heat-id"]
+        except KeyError:
+            raise ParserError(
+                round_url,
+                "Heat div missing attr 'data-heat-id'. "
+                "Available attrs are {}".format(
+                    json.dumps(div.attrs, indent=4)
+                ),
+            )
+        heat_ids.append(int(heat_id))
+    return heat_ids
 
 
 def get_heat_status(heat_div):
