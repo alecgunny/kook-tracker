@@ -291,7 +291,7 @@ def find_heat_divs(round_url, heat_id=None):
     attrs = {"data-heat-id": heat_id} if heat_id is not None else heat_id
 
     classes = ["heat", "wave-pool-hybrid"]
-    classes = [f"post-event-watch-{i}__heat" for i in classes]
+    classes = [f"post-event-watch-{i}-grid__heat" for i in classes]
 
     divs = client(round_url).find_all("div", class_=classes, attrs=attrs)
     if not divs:
