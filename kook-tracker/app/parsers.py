@@ -314,6 +314,8 @@ def get_heat_ids(round_url):
         try:
             heat_id = div.attrs["data-heat-id"]
         except KeyError:
+            print(div)
+            continue
             raise ParserError(
                 round_url,
                 "Heat div missing attr 'data-heat-id'. "
