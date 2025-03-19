@@ -362,9 +362,8 @@ class Season(db.Model):
         obj = cls(year=year, **kwargs)
         db.session.add(obj)
         for name, id in parsers.get_event_ids(obj.url).items():
-            # skipping freshwater pro by default since
-            # its format is so different
-            if name == "freshwater-pro":
+            # skipping wavepool events because of their different structure
+            if name in ("freshwater-pro", "surf-abu-dhabi-pro"):
                 continue
 
             # don't need to create events that have already been created
