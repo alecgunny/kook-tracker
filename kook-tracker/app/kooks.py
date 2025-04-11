@@ -32,7 +32,18 @@ ranch_scores = {
         "Kurt D": 6085,
         "Alec G": 7800,
         "Dusty D": 3320,
-    }
+    },
+    2025: {
+        "Nick S": 4745,
+        "Mike P": 4745,
+        "Charlie P": 4745,
+        "Alex B": 6085,
+        "RJ D": 3320,
+        "Rocky F": 4745,
+        "Kurt D": 3320,
+        "Alec G": 6085,
+        "Dusty D": 10000,
+    },
 }
 
 palette = [
