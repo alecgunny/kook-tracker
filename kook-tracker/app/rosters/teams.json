@@ -1975,6 +1975,120 @@
                 "Jack Robinson",
                 "Marco Mignot"
             ]
+        },
+        "vivo-rio-pro": {
+            "RJ D": [
+                "Filipe Toledo",
+                "Alejo Muniz"
+            ],
+            "Alec G": [
+                "Yago Dora",
+                "Leonardo Fioravanti"
+            ],
+            "Mike P": [
+                "Italo Ferreira",
+                "Peterson Crisanto"
+            ],
+            "Dusty D": [
+                "Griffin Colapinto",
+                "Miguel Pupo"
+            ],
+            "Nick S": [
+                "Jordy Smith",
+                "Joao Chianca"
+            ],
+            "Alex B": [
+                "Ethan Ewing",
+                "Jake Marshall"
+            ],
+            "Rocky F": [
+                "Kanoa Igarashi",
+                "Barron Mamiya"
+            ],
+            "Kurt D": [
+                "Jack Robinson",
+                "Connor O'Leary"
+            ],
+            "Charlie P": [
+                "Crosby Colapinto",
+                "Cole Houshmand"
+            ]
+        },
+        "corona-cero-open-j-bay": {
+            "Alec G": [
+                "Seth Moniz",
+                "Matthew McGillivray"
+            ],
+            "Mike P": [
+                "Filipe Toledo",
+                "Joao Chianca"
+            ],
+            "Dusty D": [
+                "Jordy Smith",
+                "Crosby Colapinto"
+            ],
+            "Nick S": [
+                "Yago Dora",
+                "Alan Cleland"
+            ],
+            "Alex B": [
+                "Kanoa Igarashi",
+                "Miguel Pupo"
+            ],
+            "Rocky F": [
+                "Griffin Colapinto",
+                "Barron Mamiya"
+            ],
+            "Kurt D": [
+                "Ethan Ewing",
+                "Leonardo Fioravanti"
+            ],
+            "Charlie P": [
+                "Jack Robinson",
+                "Cole Houshmand"
+            ],
+            "RJ D": [
+                "Italo Ferreira",
+                "Jake Marshall"
+            ]
+        },
+        "lexus-tahiti-pro": {
+            "Mike P": [
+                "Yago Dora",
+                "Leonardo Fioravanti"
+            ],
+            "Dusty D": [
+                "Kauli Vaast",
+                "Miguel Pupo"
+            ],
+            "Nick S": [
+                "Barron Mamiya",
+                "Marco Mignot"
+            ],
+            "Alex B": [
+                "Filipe Toledo",
+                "Seth Moniz"
+            ],
+            "Rocky F": [
+                "Italo Ferreira",
+                "Kanoa Igarashi"
+            ],
+            "Kurt D": [
+                "Mihimana Braye",
+                "Connor O'Leary"
+            ],
+            "Charlie P": [
+                "Jordy Smith",
+                "Joao Chianca"
+            ],
+            "RJ D": [
+                "Jack Robinson",
+                "Cole Houshmand"
+            ],
+            "Alec G": [
+                "Griffin Colapinto",
+                "Ethan Ewing"
+            ]
         }
     }
 }
