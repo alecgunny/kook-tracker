@@ -2092,6 +2092,62 @@
         }
     },
     "2026": {
+        "rip-curl-pro-bells-beach": {
+            "Mike P": [
+                "J. Robinson",
+                "R. Waida",
+                "C. Robson",
+                "X. Huxtable"
+            ],
+            "Nick S": [
+                "E. Ewing",
+                "J. Chianca",
+                "A. Cleland",
+                "O. Berry"
+            ],
+            "RJ D": [
+                "G. Medina",
+                "C. Houshmand",
+                "M. Cibilic",
+                "A. Muniz"
+            ],
+            "Kurt D": [
+                "F. Toledo",
+                "J. Marshall",
+                "B. Mamiya",
+                "M. Herdy"
+            ],
+            "Alex B": [
+                "I. Ferreira",
+                "S. Moniz",
+                "M. Pupo",
+                "D. Henry"
+            ],
+            "Rocky F": [
+                "K. Igarashi",
+                "C. Colapinto",
+                "S. Pupo",
+                "K. Vaast"
+            ],
+            "Charlie P": [
+                "G. Colapinto",
+                "L. O'Brien",
+                "E. Hanneman",
+                "L. Thompson"
+            ],
+            "Dusty D": [
+                "L. Fioravanti",
+                "C. O'Leary",
+                "R. Boukhiam",
+                "G. Pittar"
+            ],
+            "Alec G": [
+                "Y. Dora",
+                "J. Smith",
+                "M. Mignot",
+                "J. Vaughan"
+            ]
+        },
         "western-australia-margaret-river-pro": {
             "Nick S": [
                 "J. Smith",
@@ -2106,10 +2162,10 @@
                 "L. Thompson"
             ],
             "Kurt D": [
-                "E. Ewing",
-                "J. Marshall",
+                "G. Colapinto",
                 "B. Mamiya",
-                "R. Boukhiam"
+                "S. Pupo",
+                "M. Herdy"
             ],
             "Alex B": [
                 "J. Robinson",
@@ -2124,16 +2180,16 @@
                 "A. Muniz"
             ],
             "Charlie P": [
-                "G. Colapinto",
+                "E. Ewing",
                 "J. Willcox",
                 "L. O'Brien",
-                "M. Herdy"
+                "G. Pittar"
             ],
             "Dusty D": [
                 "F. Toledo",
                 "L. Fioravanti",
-                "C. Robson",
-                "S. Pupo"
+                "J. Marshall",
+                "R. Boukhiam"
             ],
             "Alec G": [
                 "Y. Dora",
@@ -2144,8 +2200,8 @@
             "Mike P": [
                 "C. Houshmand",
                 "K. Igarashi",
-                "K. Vaast",
-                "G. Pittar"
+                "C. Robson",
+                "K. Vaast"
             ]
         }
     }
