@@ -324,7 +324,7 @@ def _compute_athlete_event_score(
 
     # find the result corresponding to this athletes
     # farthest round so far in the competition
-    max_round_number, max_result = 0, None
+    max_round_number, max_result = -1, None
     for result in results:
         if result.heat.round.number > max_round_number:
             max_result = result
@@ -348,9 +348,14 @@ def _compute_athlete_event_score(
     # from wherever their last round was
     max_round_number += 1 if winner else 0
 
-    # if we only have six rounds, this is after the
-    # cut and so the minimum score isn't given to anyone
-    score_idx = max(max_round_number - 1, 0) + offset
+    # 2026+: rounds are 0-indexed (0=Opening Round, 5=Final), so
+    # max_round_number maps directly into score_breakdown after the
+    # winner bonus above. Pre-2026: rounds are also 0-indexed but the
+    # -1 adjustment + offset together shift into the correct tier.
+    if int(year) >= 2026:
+        score_idx = max_round_number
+    else:
+        score_idx = max(max_round_number - 1, 0) + offset
     score = score_breakdown[score_idx]
     return score, max_result.heat, winner
 
@@ -491,9 +496,10 @@ def _build_kook_rows(event, kooks):
             total_score += score
 
             # now do some gross logic to keep track of the points possible
+            min_done_round = 0 if int(event.year) >= 2026 else 1
             if (
                 last_heat is not None
-                and last_heat.round.number >= 1
+                and last_heat.round.number >= min_done_round
                 and last_heat.completed
                 and not winner
             ):
@@ -515,6 +521,7 @@ def _build_kook_rows(event, kooks):
                 # we don't know where they'll end up. For points possible
                 # then, we'll be optimistic and just assign this athlete
                 # the best possible score once all the known spots are taken
+                print("YO!", athlete, last_heat.round.number, min_done_round)
                 leftover_spots += 1
 
             athletes.append({"name": athlete_name, "score": score})
