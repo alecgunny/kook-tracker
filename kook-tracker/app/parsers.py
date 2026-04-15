@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 from collections import defaultdict
+from itertools import product
 
 from config import Config
 
@@ -288,10 +289,12 @@ def get_round_ids(event):
 
 
 def find_heat_divs(round_url, heat_id=None):
-    attrs = {"data-heat-id": heat_id} if heat_id is not None else heat_id
+    attrs = {"data-heat-id": heat_id} if heat_id is not None else None
 
-    classes = ["heat", "wave-pool-hybrid"]
-    classes = [f"post-event-watch-{i}-grid__heat" for i in classes]
+    heat_types = ["heat", "wave-pool-hybrid"]
+    bracket_types = ["grid", "bracket-stage"]
+    it = product(heat_types, bracket_types)
+    classes = [f"post-event-watch-{i}-{j}__heat" for i, j in it]
 
     divs = client(round_url).find_all("div", class_=classes, attrs=attrs)
     if not divs:
@@ -377,28 +380,49 @@ def get_heat_data(round_url, heat_id):
 
 
 def parse_bracket(round_url):
+    import re as _re
+
+    base_round_id = int(_re.search(r"roundId=(\d+)", round_url).group(1))
+
     soup = client(round_url)
     rounds = defaultdict(dict)
     columns = soup.find_all("div", class_="bracket-stage-round")
-    for column in columns:
-        heats = column.find_all(
+
+    # data-pickem-gtm is no longer populated; use data-heat-id
+    # / data-round-number instead. The minimum data-round-number
+    # in the bracket corresponds to the round whose ID is encoded
+    # in the URL (base_round_id); subsequent numbers increment the
+    # round ID by 1.
+    all_heats = [
+        h
+        for col in columns
+        for h in col.find_all(
             "div", class_="post-event-watch-heat-bracket-stage__heat"
         )
-        for heat in heats:
-            status = get_heat_status(heat)
-            data = json.loads(heat.attrs["data-pickem-gtm"])
-            heat_id = int(data["heat_ids"])
-            round_id = int(data["round_ids"])
+    ]
+    round_numbers = [int(h.get("data-round-number", 0)) for h in all_heats]
+    min_round_number = min(round_numbers) if round_numbers else 0
 
-            results = []
-            names = heat.find_all("div", class_="hot-heat-athlete__name")
-            scores = heat.find_all("div", class_="hot-heat-athlete__score")
-            for name, score in zip(names, scores):
-                try:
-                    score = float(score.text)
-                except ValueError:
-                    score = None if not status else 0
-                results.append((name.text, score))
-            rounds[round_id][heat_id] = (status, results)
+    seen = set()
+    for heat in all_heats:
+        heat_id = int(heat.get("data-heat-id"))
+        if heat_id in seen:
+            continue
+        seen.add(heat_id)
+
+        rnum = int(heat.get("data-round-number", min_round_number))
+        round_id = base_round_id + (rnum - min_round_number)
+        status = get_heat_status(heat)
+
+        results = []
+        names = heat.find_all("div", class_="hot-heat-athlete__name")
+        scores = heat.find_all("div", class_="hot-heat-athlete__score")
+        for name, score in zip(names, scores):
+            try:
+                score = float(score.text)
+            except ValueError:
+                score = None if not status else 0
+            results.append((name.text, score))
+        rounds[round_id][heat_id] = (status, results)
 
     return rounds

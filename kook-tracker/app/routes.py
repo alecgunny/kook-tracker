@@ -13,6 +13,23 @@ if typing.TYPE_CHECKING:
 
 
 _SCORE_BREAKDOWN = [265, 1330, 3320, 4745, 6085, 7800, 10000]
+# 2026+ format: bottom 8 seeds compete in an opening elimination round,
+# then winners advance directly into a 32-person bracket stage.
+_SCORE_BREAKDOWN_2026 = [500, 1000, 3320, 4745, 6085, 7800, 10000]
+_ROUND_LABELS_2026 = [
+    "Opening Round",
+    "Round of 32",
+    "Round of 16",
+    "Quarterfinal",
+    "Semifinal",
+    "Final",
+]
+
+
+def _get_score_breakdown(year: int) -> typing.List[int]:
+    if int(year) >= 2026:
+        return _SCORE_BREAKDOWN_2026
+    return _SCORE_BREAKDOWN
 
 
 @app.route("/")
@@ -61,7 +78,7 @@ def season(year: int) -> str:
             initials = _initialize(athlete_name)
             athlete = wsl.Athlete.query.filter_by(name=initials).first()
             score, _, __ = _compute_athlete_event_score(
-                athlete, event_id, num_rounds
+                athlete, event_id, num_rounds, year
             )
             event["picks"].append((athlete_name, score))
 
@@ -198,7 +215,11 @@ def _build_athlete_rows(
     rounds = event.sorted_rounds
     first_row = []
     for n in range(len(rounds)):
-        cell = {"table": False, "title": "Round {}".format(n + 1)}
+        if int(event.year) >= 2026:
+            title = _ROUND_LABELS_2026[n]
+        else:
+            title = "Round {}".format(n + 1)
+        cell = {"table": False, "title": title}
         first_row.append(cell)
     rows = [first_row]
 
@@ -283,10 +304,16 @@ def _build_athlete_rows(
 
 
 def _compute_athlete_event_score(
-    athlete: wsl.Athlete, event_id: int, num_rounds: int
+    athlete: wsl.Athlete, event_id: int, num_rounds: int, year: int
 ) -> float:
-    # elimination_heat = None
-    offset = int(num_rounds == 6)
+    score_breakdown = _get_score_breakdown(year)
+    # Pre-2026: 6-round events are post-cut (opening elim already occurred),
+    # so offset by 1 to skip the lowest score tier.
+    # 2026+: all 6 rounds are present (opening elim through final), no offset.
+    if int(year) >= 2026:
+        offset = 0
+    else:
+        offset = int(num_rounds == 6)
     results = (
         wsl.HeatResult.query.filter_by(athlete=athlete)
         .join(wsl.Heat, wsl.HeatResult.heat_id == wsl.Heat.id)
@@ -304,7 +331,7 @@ def _compute_athlete_event_score(
             max_round_number = max_result.heat.round.number
 
     if max_result is None:
-        return _SCORE_BREAKDOWN[offset], max_result, False
+        return score_breakdown[offset], max_result, False
 
     # decide if the athlete "won" this heat
     # based on whether it has completed and
@@ -324,7 +351,7 @@ def _compute_athlete_event_score(
     # if we only have six rounds, this is after the
     # cut and so the minimum score isn't given to anyone
     score_idx = max(max_round_number - 1, 0) + offset
-    score = _SCORE_BREAKDOWN[score_idx]
+    score = score_breakdown[score_idx]
     return score, max_result.heat, winner
 
 
@@ -406,6 +433,14 @@ def _build_kook_rows(event, kooks):
     rounds = [r.sorted_heats for r in event.sorted_rounds]
     num_rounds = len(rounds)
 
+    # 2026+: the full breakdown applies (opening round is included in the 6).
+    # Pre-2026: 6-round events are post-cut, so slice off the lowest tier.
+    _breakdown = _get_score_breakdown(event.year)
+    if int(event.year) >= 2026:
+        _breakdown_for_possible = _breakdown
+    else:
+        _breakdown_for_possible = _breakdown[-num_rounds:]
+
     for kook in kooks:
         # if this kook doesn't have a roster for this
         # competition, then we'll just move on
@@ -449,7 +484,7 @@ def _build_kook_rows(event, kooks):
             # last heat they competed in and whether they were
             # able to advance through it
             score, last_heat, winner = _compute_athlete_event_score(
-                athlete, event.id, num_rounds
+                athlete, event.id, num_rounds, event.year
             )
 
             # add the score to the ongoing total score tally
@@ -488,7 +523,7 @@ def _build_kook_rows(event, kooks):
         # leftover spots to finish the points possible
         # calculation for this kook
         possible_score += _compute_points_possible(
-            heat_idx, leftover_spots, _SCORE_BREAKDOWN[-num_rounds:]
+            heat_idx, leftover_spots, _breakdown_for_possible
         )
 
         kook_dict["score"] = total_score

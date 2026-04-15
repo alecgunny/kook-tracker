@@ -252,11 +252,15 @@ class Event(mixins.Updatable, db.Model):
                 "No valid round links for event {}".format(obj.name)
             )
 
+        # 2026+: only round 0 (opening elimination) is a non-bracket
+        # grid round. Pre-2026: rounds 0 and 1 are non-bracket grid rounds.
+        pre_bracket = 1 if int(year) >= 2026 else 2
+
         # initialize all the internal rounds and heats
         kwargs = {"event": obj, "completed": False}
         for n, round_id in enumerate(round_ids):
             app.logger.debug(f"Creating round {round_id}")
-            if n < 2:
+            if n < pre_bracket:
                 round_ = Round.create(id=round_id, number=n, **kwargs)
                 continue
             else:
@@ -275,7 +279,9 @@ class Event(mixins.Updatable, db.Model):
 
             if i < len(rounds):
                 app.logger.debug(f"Creating round {round_id + i}")
-                round_ = Round(id=round_id + i, number=2 + i, **kwargs)
+                round_ = Round(
+                    id=round_id + i, number=pre_bracket + i, **kwargs
+                )
 
         # if this is an event from the past, we can set it completed up front
         obj.completed = all([round_.completed for round_ in obj.rounds])
@@ -296,17 +302,20 @@ class Event(mixins.Updatable, db.Model):
     def _do_update(self):
         sorted_rounds = sorted(self.rounds, key=lambda round: round.id)
 
-        # do first two rounds normally
-        for round_ in sorted_rounds[:2]:
+        # 2026+: only round 0 is a non-bracket grid round.
+        # Pre-2026: rounds 0 and 1 are non-bracket grid rounds.
+        pre_bracket = 1 if int(self.year) >= 2026 else 2
+
+        for round_ in sorted_rounds[:pre_bracket]:
             if not round_.update():
                 break
         else:
-            # if both the first two rounds are completed,
+            # if the pre-bracket rounds are completed,
             # start iterating through the bracket rounds
-            rounds = parsers.parse_bracket(sorted_rounds[2].url)
+            rounds = parsers.parse_bracket(sorted_rounds[pre_bracket].url)
             all_rounds_complete = True
 
-            for round_ in sorted_rounds[2:]:
+            for round_ in sorted_rounds[pre_bracket:]:
                 if round_.completed:
                     continue
 
