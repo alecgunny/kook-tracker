@@ -1,6 +1,5 @@
 *.db
 .flake8
-pyproject.toml
 README.md
 LICENSE
 .pre-commit-config.yaml
@@ -9,3 +8,4 @@ LICENSE
 .elasticbeanstalk
 .github
 .git
+.venv

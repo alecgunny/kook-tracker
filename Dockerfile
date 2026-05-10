@@ -1,27 +1,24 @@
-FROM python:3.8-slim-buster
+FROM python:3.12-slim-bookworm
 ENV DEBIAN_FRONTEND="noninteractive"
 
-# do environment set up
-COPY requirements.txt /tmp/
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
 RUN set -ex \
-        \
-        && sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list \
-        \
         && apt-get update \
-        \
         && apt-get install -y --no-install-recommends \
-            postgresql \
-            python-psycopg2 \
             libpq-dev \
             gcc \
-        \
-        && pip install wheel && pip install -r /tmp/requirements.txt \
-        \
-        && rm -rf /tmp/requirements.txt /var/lib/apt/lists/*
+        && rm -rf /var/lib/apt/lists/*
 
-# set up the app specific settings
-COPY kook-tracker /app
 WORKDIR /app
+
+# install deps in their own layer for better caching
+COPY pyproject.toml uv.lock /app/
+RUN uv sync --frozen --no-install-project --no-dev
+
+COPY kook-tracker /app/kook-tracker
+ENV PATH="/app/.venv/bin:$PATH"
+WORKDIR /app/kook-tracker
 EXPOSE 5000
 
 ENTRYPOINT flask db upgrade && flask run

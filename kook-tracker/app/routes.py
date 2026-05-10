@@ -381,7 +381,7 @@ def _compute_points_possible(
     positions = []
     for n, i in enumerate(score_breakdown):
         exponent = max(num_rounds - n - 1, 0)
-        positions.append([i] * 2 ** exponent)
+        positions.append([i] * 2**exponent)
 
     # simulate the Event heats for all elimination
     # rounds to see when two rostered athletes might

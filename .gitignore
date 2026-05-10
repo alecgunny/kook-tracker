@@ -6,6 +6,7 @@ kook-tracker/.env
 **/__pycache__/
 *.py[cod]
 *.zip
+.venv/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

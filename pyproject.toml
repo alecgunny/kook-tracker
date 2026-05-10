@@ -1,3 +1,31 @@
+[project]
+name = "kook-tracker"
+version = "0.1.0"
+description = "Fantasy WSL tracker"
+requires-python = ">=3.12"
+dependencies = [
+    "attrs",
+    "flask",
+    "flask-sqlalchemy",
+    "flask-migrate",
+    "python-dotenv",
+    "psycopg2-binary",
+    "beautifulsoup4",
+    "lxml",
+    "colorutils",
+    "requests",
+    "google-api-python-client",
+    "google-auth",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "isort",
+    "flake8",
+    "pre-commit",
+]
+
 [tool.black]
 line-length = 79
 include = '\.pyi?$'
