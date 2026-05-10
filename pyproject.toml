@@ -23,7 +23,7 @@ dev = [
     "black",
     "isort",
     "flake8",
-    "pre-commit",
+    "prek",
 ]
 
 [tool.black]
