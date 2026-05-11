@@ -16,6 +16,7 @@ dependencies = [
     "requests",
     "google-api-python-client",
     "google-auth",
+    "gunicorn>=26.0.0",
 ]
 
 [dependency-groups]

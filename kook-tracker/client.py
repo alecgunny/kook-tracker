@@ -1,5 +1,5 @@
 import time
-import urllib
+import urllib.request
 from functools import lru_cache
 
 from bs4 import BeautifulSoup as bs

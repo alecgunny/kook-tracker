@@ -2,18 +2,13 @@ import os
 
 
 def get_database_url():
-    try:
-        return "postgresql://{}:{}/{}?user={}&password={}".format(
-            os.environ["RDS_HOSTNAME"],
-            os.environ["RDS_PORT"],
-            os.environ["RDS_DB_NAME"],
-            os.environ["RDS_USERNAME"],
-            os.environ["RDS_PASSWORD"],
-        )
-    except KeyError:
-        return "sqlite:///" + os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "app.db"
-        )
+    url = os.environ.get("DATABASE_URL")
+    if url:
+        # SQLAlchemy wants postgresql:// not postgres://
+        return url.replace("postgres://", "postgresql://", 1)
+    return "sqlite:///" + os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), "app.db"
+    )
 
 
 class Config:
