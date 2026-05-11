@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: kook
+      POSTGRES_PASSWORD: kook
+      POSTGRES_DB: kook
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kook"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://kook:kook@postgres:5432/kook
+      PORT: "5000"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
