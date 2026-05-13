@@ -1,0 +1,76 @@
+{
+    "2026": [
+        {
+            "name": "rip-curl-pro-bells-beach",
+            "nickname": "Bells",
+            "start_date": "2026-04-01",
+            "tz": "Australia/Melbourne"
+        },
+        {
+            "name": "western-australia-margaret-river-pro",
+            "nickname": "Margies",
+            "start_date": "2026-04-16",
+            "tz": "Australia/Perth"
+        },
+        {
+            "name": "bonsoy-gold-coast-pro",
+            "nickname": "Gold Coast",
+            "start_date": "2026-05-01",
+            "tz": "Australia/Brisbane"
+        },
+        {
+            "name": "corona-cero-new-zealand-pro",
+            "nickname": "New Zealand",
+            "start_date": "2026-05-15",
+            "tz": "Pacific/Auckland"
+        },
+        {
+            "name": "surf-city-el-salvador-pro",
+            "nickname": "El Sal",
+            "start_date": "2026-06-05",
+            "tz": "America/El_Salvador"
+        },
+        {
+            "name": "vivo-rio-pro",
+            "nickname": "Rio Pro",
+            "start_date": "2026-06-19",
+            "tz": "America/Sao_Paulo"
+        },
+        {
+            "name": "tahiti-pro",
+            "nickname": "Tahiti",
+            "start_date": "2026-08-08",
+            "tz": "Pacific/Tahiti"
+        },
+        {
+            "name": "fiji-pro",
+            "nickname": "Fiji",
+            "start_date": "2026-08-25",
+            "tz": "Pacific/Fiji"
+        },
+        {
+            "name": "lexus-trestles-pro",
+            "nickname": "Trestles",
+            "start_date": "2026-09-11",
+            "tz": "America/Los_Angeles"
+        },
+        {
+            "name": "surf-abu-dhabi",
+            "nickname": "Abu Dhabi",
+            "start_date": "2026-10-14",
+            "tz": "Asia/Dubai"
+        },
+        {
+            "name": "meo-rip-curl-pro-portugal",
+            "nickname": "Portugal",
+            "start_date": "2026-10-22",
+            "tz": "Europe/Lisbon"
+        },
+        {
+            "name": "lexus-pipe-masters",
+            "nickname": "Pipe Masters",
+            "start_date": "2026-12-08",
+            "tz": "Pacific/Honolulu"
+        }
+    ]
+}
