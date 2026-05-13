@@ -1,12 +1,15 @@
 import argparse
 import json
 import os
+import re
 from contextlib import contextmanager
 from datetime import datetime
 
 from apiclient import discovery
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
+
+IMPORTRANGE_RE = re.compile(r'IMPORTRANGE\(\s*"([^"]+)"', re.IGNORECASE)
 
 
 def read_sheet(
@@ -26,6 +29,60 @@ def read_sheet(
         return result["values"]
     except KeyError:
         raise ValueError("No values retrieved!")
+
+
+def get_draft_validity(sheet_id: str) -> dict[str, bool]:
+    """For each kook in the master Draft tab, return True iff their draft
+    order has at least one real athlete entry and no #N/A values.
+
+    Empty trailing rows are fine (a kook with 30 entries is valid even
+    though the column has 36 slots). #N/A anywhere is a broken IMPORTRANGE
+    or missing source data, and gets flagged.
+    """
+    rows = read_sheet(sheet_id, "Draft", "B2:J38")
+    names = rows[0]
+    n_cols = len(names)
+    data_rows = [r + [""] * (n_cols - len(r)) for r in rows[1:]]
+
+    validity: dict[str, bool] = {}
+    for col_idx, name in enumerate(names):
+        column = [r[col_idx].strip() for r in data_rows]
+        has_real_entry = any(c and c != "#N/A" for c in column)
+        has_na = any(c == "#N/A" for c in column)
+        validity[name] = has_real_entry and not has_na
+    return validity
+
+
+def get_per_kook_sheet_urls(sheet_id: str) -> dict[str, str]:
+    """Map each kook name to the URL of their personal draft sheet.
+
+    Reads rows 2 and 3 of the master Draft tab with formulas rendered:
+    row 2 holds the kook names, row 3 holds the IMPORTRANGE formula
+    pointing at that kook's personal draft sheet.
+    """
+    cred_file = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    creds = Credentials.from_service_account_file(cred_file)
+    service = discovery.build("sheets", "v4", credentials=creds)
+    result = (
+        service.spreadsheets()
+        .values()
+        .get(
+            spreadsheetId=sheet_id,
+            range="Draft!B2:J3",
+            valueRenderOption="FORMULA",
+        )
+        .execute()
+    )
+    rows = result.get("values", [])
+    names = rows[0] if rows else []
+    formulas = rows[1] if len(rows) > 1 else []
+
+    mapping: dict[str, str] = {}
+    for name, formula in zip(names, formulas):
+        match = IMPORTRANGE_RE.search(formula or "")
+        if match:
+            mapping[name] = match.group(1)
+    return mapping
 
 
 @contextmanager

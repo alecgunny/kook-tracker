@@ -20,12 +20,24 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
+from jinja2 import Environment, FileSystemLoader
 
-from ops.update_rosters import update_team_rosters, update_year_long
+from ops.update_rosters import (
+    get_draft_validity,
+    get_per_kook_sheet_urls,
+    update_team_rosters,
+    update_year_long,
+)
 
 SCHEDULE_FILE = Path(__file__).parent / "event_schedule.json"
 REMINDERS_SENT_FILE = Path(__file__).parent / "reminders_sent.json"
 TEAMS_FILE = Path("kook-tracker/app/rosters/teams.json")
+TEMPLATES_DIR = Path(__file__).parent / "messages"
+
+template_env = Environment(
+    loader=FileSystemLoader(TEMPLATES_DIR),
+    keep_trailing_newline=True,
+)
 
 # Coarsest to finest. On any given tick, the finest unsent reminder whose
 # threshold has been crossed is the one we send.
@@ -82,34 +94,55 @@ def hours_until(event: dict, now: datetime) -> float:
 
 def send_reminder(
     league: dict[str, str],
+    per_kook_urls: dict[str, str],
+    draft_validity: dict[str, bool],
     event: dict,
     tag: str,
     hours_left: float,
-    sheet_id: str,
     gmail_user: str,
     gmail_password: str,
-) -> None:
+) -> list[str]:
+    """Send an individual reminder email to each league member, reusing one
+    SMTP session. Kooks with a valid draft order get reminder.j2; kooks
+    whose draft has #N/A or no entries get warn.j2 with a louder subject.
+    Returns the names of recipients who were emailed."""
     nickname = event.get("nickname") or event["name"]
-    subject = f"{nickname} draft in {REMINDER_DISPLAY[tag]}"
-    body = (
-        f"The {nickname} draft will run after midnight local time on "
-        f"{event['start_date']} ({event['tz']}).\n\n"
-        f"That's approximately {hours_left:.1f} hours from now!\n\n"
-        f"Update your draft order before then:\n"
-        f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit\n"
-    )
+    reminder_template = template_env.get_template("reminder.j2")
+    warn_template = template_env.get_template("warn.j2")
 
-    msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = gmail_user
-    msg["To"] = ", ".join(
-        f"{name} <{email}>" for name, email in league.items()
-    )
-    msg.set_content(body)
-
+    sent_to: list[str] = []
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(gmail_user, gmail_password)
-        smtp.send_message(msg)
+        for name, email in league.items():
+            url = per_kook_urls.get(name)
+            if not url:
+                print(f"  skipping {name}: no personal sheet in master")
+                continue
+            ctx = {
+                "name": name,
+                "nickname": nickname,
+                "start_date": event["start_date"],
+                "tz": event["tz"],
+                "hours_left": hours_left,
+                "url": url,
+            }
+            if draft_validity.get(name, False):
+                subject = f"{nickname} draft in {REMINDER_DISPLAY[tag]}"
+                body = reminder_template.render(**ctx)
+            else:
+                subject = (
+                    f"Action needed: your {nickname} "
+                    f"draft order is incomplete"
+                )
+                body = warn_template.render(**ctx)
+            msg = EmailMessage()
+            msg["Subject"] = subject
+            msg["From"] = gmail_user
+            msg["To"] = f"{name} <{email}>"
+            msg.set_content(body)
+            smtp.send_message(msg)
+            sent_to.append(name)
+    return sent_to
 
 
 def parse_now(s: str) -> datetime:
@@ -140,6 +173,8 @@ def main(dry_run: bool, today: datetime | None) -> int:
     year = now.year
 
     reminders_sent = load_reminders_sent()
+    per_kook_urls: dict[str, str] | None = None  # lazy-loaded on first send
+    draft_validity: dict[str, bool] | None = None
     drafted: list[str] = []
     reminded: list[tuple[str, str]] = []
 
@@ -179,12 +214,16 @@ def main(dry_run: bool, today: datetime | None) -> int:
             f"({hrs:.1f}h until start)"
         )
         if not dry_run:
+            if per_kook_urls is None:
+                per_kook_urls = get_per_kook_sheet_urls(sheet_id)
+                draft_validity = get_draft_validity(sheet_id)
             send_reminder(
                 league,
+                per_kook_urls,
+                draft_validity,
                 event,
                 tag_to_send,
                 hrs,
-                sheet_id,
                 gmail_user,
                 gmail_password,
             )
