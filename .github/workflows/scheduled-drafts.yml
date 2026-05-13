@@ -11,6 +11,11 @@ on:
   schedule:
     - cron: "0 * * * *"
   workflow_dispatch:
+    inputs:
+      today:
+        description: 'Override "now" (YYYY-MM-DD or YYYY-MM-DDTHH:MM, UTC). Leave blank for real time.'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -41,7 +46,12 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           LEAGUE_EMAILS: ${{ secrets.LEAGUE_EMAILS }}
-        run: uv run python -m ops.run_scheduled_drafts
+        run: |
+          if [[ -n "${{ inputs.today }}" ]]; then
+            uv run python -m ops.run_scheduled_drafts --today "${{ inputs.today }}"
+          else
+            uv run python -m ops.run_scheduled_drafts
+          fi
 
       - name: Commit roster and reminder updates
         run: |

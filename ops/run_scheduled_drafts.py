@@ -32,6 +32,7 @@ from ops.update_rosters import (
 SCHEDULE_FILE = Path(__file__).parent / "event_schedule.json"
 REMINDERS_SENT_FILE = Path(__file__).parent / "reminders_sent.json"
 TEAMS_FILE = Path("kook-tracker/app/rosters/teams.json")
+YEAR_LONGS_FILE = Path("kook-tracker/app/rosters/year_longs.json")
 TEMPLATES_DIR = Path(__file__).parent / "messages"
 
 template_env = Environment(
@@ -90,6 +91,55 @@ def event_start_utc(event: dict) -> datetime:
 
 def hours_until(event: dict, now: datetime) -> float:
     return (event_start_utc(event) - now).total_seconds() / 3600
+
+
+def build_roster_rows(rosters: dict[str, list[str]]) -> list[list[str]]:
+    """Transpose {kook: [athletes...]} into rows indexed by pick number."""
+    if not rosters:
+        return []
+    max_picks = max(len(picks) for picks in rosters.values())
+    return [
+        [rosters[k][i] if i < len(rosters[k]) else "" for k in rosters]
+        for i in range(max_picks)
+    ]
+
+
+def send_summary(
+    league: dict[str, str],
+    event: dict,
+    year: int,
+    gmail_user: str,
+    gmail_password: str,
+) -> None:
+    """Send one HTML email to the whole league with the freshly-drafted
+    rosters + year-long picks for this event."""
+    nickname = event.get("nickname") or event["name"]
+    name = event["name"]
+
+    teams = json.loads(TEAMS_FILE.read_text())
+    rosters = teams[str(year)][name]
+    if YEAR_LONGS_FILE.exists():
+        year_longs = json.loads(YEAR_LONGS_FILE.read_text())
+        year_long_picks = year_longs.get(str(year), {}).get(name, {})
+    else:
+        year_long_picks = {}
+
+    body = template_env.get_template("summary.j2").render(
+        nickname=nickname,
+        kooks=list(rosters.keys()),
+        roster_rows=build_roster_rows(rosters),
+        year_long_picks=year_long_picks,
+    )
+
+    msg = EmailMessage()
+    msg["Subject"] = f"{nickname} draft results"
+    msg["From"] = gmail_user
+    msg["To"] = ", ".join(f"{n} <{e}>" for n, e in league.items())
+    msg.set_content(body, subtype="html")
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(gmail_user, gmail_password)
+        smtp.send_message(msg)
 
 
 def send_reminder(
@@ -190,6 +240,9 @@ def main(dry_run: bool, today: datetime | None) -> int:
                     update_team_rosters(year, name, sheet_id)
                     update_year_long(
                         year, name, event.get("nickname"), sheet_id
+                    )
+                    send_summary(
+                        league, event, year, gmail_user, gmail_password
                     )
                 drafted.append(name)
             continue
