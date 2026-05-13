@@ -1,0 +1,56 @@
+name: Scheduled drafts
+
+# Required repo secrets:
+#   GCP_SA_KEY          — JSON service-account key (the whole file contents)
+#   SHEET_ID            — Google Sheets ID containing the draft orders
+#   GMAIL_USER          — gmail address used as SMTP sender
+#   GMAIL_APP_PASSWORD  — 16-char app password (Google Account → Security → App passwords)
+#   LEAGUE_EMAILS       — JSON dict of {name: email} for reminder recipients
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - run: uv sync --frozen --no-dev
+
+      - name: Write GCP credentials
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          printf '%s' "$GCP_SA_KEY" > /tmp/gcp.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp.json" >> "$GITHUB_ENV"
+
+      - name: Run scheduled draft check
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          LEAGUE_EMAILS: ${{ secrets.LEAGUE_EMAILS }}
+        run: uv run python -m ops.run_scheduled_drafts
+
+      - name: Commit roster and reminder updates
+        run: |
+          if [[ -z "$(git status --porcelain kook-tracker/app/rosters/ ops/reminders_sent.json)" ]]; then
+            echo "No changes — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "kook-tracker-bot"
+          git config user.email "kook-tracker-bot@users.noreply.github.com"
+          git add kook-tracker/app/rosters/ ops/reminders_sent.json
+          git commit -m "ops: auto-draft and/or send reminders"
+          git push

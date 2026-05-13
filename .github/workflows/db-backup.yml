@@ -1,0 +1,33 @@
+name: Weekly DB backup
+
+# Requires repo secret DATABASE_PUBLIC_URL — Railway → Postgres service →
+# Variables tab → DATABASE_PUBLIC_URL (the externally reachable URL, not the
+# private one).
+
+on:
+  schedule:
+    # Mondays at 06:00 UTC — after weekend competitions wrap.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Dump database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_PUBLIC_URL }}
+        run: |
+          # Bump tag to match the Railway Postgres server major version.
+          docker run --rm -e DATABASE_URL postgres:17 \
+            pg_dump --format=plain --no-owner --no-privileges "$DATABASE_URL" \
+            | gzip > backup.sql.gz
+          ls -lh backup.sql.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kook-tracker-db-${{ github.run_id }}-${{ github.run_attempt }}
+          path: backup.sql.gz
+          retention-days: 90
