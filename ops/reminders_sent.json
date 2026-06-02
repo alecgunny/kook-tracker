@@ -6,7 +6,9 @@
             "12h",
             "1h"
         ],
-        "surf-city-el-salvador-pro": [],
+        "surf-city-el-salvador-pro": [
+            "3d"
+        ],
         "vivo-rio-pro": [],
         "tahiti-pro": [],
         "fiji-pro": [],
