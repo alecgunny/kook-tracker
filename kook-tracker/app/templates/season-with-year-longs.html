@@ -1,35 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ event_year }} Season</h1>
-    <table style="font-size:10pt;border: 1px solid black;border-collapse: collapse;">
-        <tr>
-            <th></th>
-            {% for kook in kooks %}
-                <th class="heat-cell" style="font-size:10pt;border: 1px solid black;border-collapse: collapse;background-color: {{kook.color}};color: {{kook.text}}">{{ kook.name }}</th>
-            {% endfor %}
-        {% for a_event in events %}
-            <tr>
-                <td style="font-size:10pt;border: 1px solid black;border-collapse: collapse">
-                    <a href="{{ url_for('event', year=event_year, name=a_event.name) }}">{{ a_event.title }}</a>
-                </td>
-            {% for pick in a_event.picks %}
-                <td style="font-size:10pt;border: 1px solid black;border-collapse: collapse;padding: 10px">
-                    <table>
-                        <tr>
-                            <td style="font-size:10pt;width:70%">{{ pick[0] }}</td>
-                            <td style="font-size:10pt;background-color:#444444;color:#ffffff;width:30%">{{ pick[1] }}</td>
-                        </tr>
-                    </table>
-                </td>
-            {% endfor %}
-            </tr>
-        {% endfor %}
-        <tr>
-            <td style="font-size:12pt;border-top: 3px solid black">Total</td>
-            {% for total in totals %}
-                <td style="text-align:right;font-size:12pt;border: 1px solid black;border-top: 3px solid black;border-collapse: collapse">{{ total }}</td>
-            {% endfor %}
-        </tr>
-    </table>
+<div class="page">
+
+    <header class="season-header">
+        <a class="back-link" href="{{ url_for('index') }}">← all seasons</a>
+        <h1 class="season-title">{{ event_year }} Season</h1>
+    </header>
+
+    <div class="matrix-wrap">
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th class="corner">Event</th>
+                    {% for comp in competitors %}
+                        <th class="comp-head">
+                            <span class="comp-chip"
+                                  style="--team: {{ comp.color }}; --team-text: {{ comp.text }}">
+                                {{ comp.name }}
+                            </span>
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <th class="event-head">
+                            <a href="{{ url_for('event', year=event_year, name=event.name) }}">{{ event.title }}</a>
+                        </th>
+                        {% for pick in event.picks %}
+                            <td class="cell">
+                                {% if pick.medal %}
+                                    <span class="medal medal--{{ pick.medal }}"
+                                          title="{{ pick.medal|replace('-half', ' (tie)')|capitalize }}">{{ '1' if 'gold' in pick.medal else '2' }}</span>
+                                {% endif %}
+                                <span class="cell-name">{{ pick.name }}</span>
+                                <span class="cell-score">{{ pick.score }}</span>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+            <tfoot>
+                <tr class="totals-row">
+                    <th>Total</th>
+                    {% for total in totals %}
+                        <td class="total-cell">{{ total }}</td>
+                    {% endfor %}
+                </tr>
+                <tr class="medals-row">
+                    <th>Medals</th>
+                    {% for comp in competitors %}
+                        <td class="medal-tally">
+                            <div class="tally">
+                                <span class="mcount"><span class="medal medal--gold"></span>{{ comp.gold }}</span>
+                                <span class="mcount"><span class="medal medal--silver"></span>{{ comp.silver }}</span>
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+</div>
 {% endblock %}

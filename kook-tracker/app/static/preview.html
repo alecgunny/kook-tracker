@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kook Tracker — event page preview</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&family=Didact+Gothic&display=swap" rel="stylesheet">
+    <!-- links the REAL stylesheet, so this preview stays in sync with the app -->
+    <link rel="stylesheet" type="text/css" href="styles/event.css">
+</head>
+<body>
+<div class="page">
+
+    <header class="event-header">
+        <div class="header-left">
+            <a class="back-link" href="#">← 2026 season</a>
+            <h1 class="event-title">Pipeline 2026</h1>
+        </div>
+        <div class="scoreboard" aria-label="At-a-glance scores">
+        <div class="sb-cell" style="--team:#9d4edd">
+            <span class="sb-name">Alex B</span>
+            <span class="sb-pts"><b>21320</b> / 24500</span>
+        </div>
+        <div class="sb-cell" style="--team:#277da1">
+            <span class="sb-name">Alec G</span>
+            <span class="sb-pts"><b>18430</b> / 24500</span>
+        </div>
+        <div class="sb-cell" style="--team:#43aa8b">
+            <span class="sb-name">Nick S</span>
+            <span class="sb-pts"><b>12190</b> / 22900</span>
+        </div>
+        <div class="sb-cell" style="--team:#2b2d42">
+            <span class="sb-name">Dusty D</span>
+            <span class="sb-pts"><b>9230</b> / 21700</span>
+        </div>
+        <div class="sb-cell" style="--team:#f4b942">
+            <span class="sb-name">Mike P</span>
+            <span class="sb-pts"><b>8460</b> / 21700</span>
+        </div>
+        <div class="sb-cell" style="--team:#e63946">
+            <span class="sb-name">Rocky F</span>
+            <span class="sb-pts"><b>5980</b> / 20100</span>
+        </div>
+        <div class="sb-cell" style="--team:#b5179e">
+            <span class="sb-name">Charlie P</span>
+            <span class="sb-pts"><b>5210</b> / 19500</span>
+        </div>
+        <div class="sb-cell" style="--team:#90be6d">
+            <span class="sb-name">Kurt D</span>
+            <span class="sb-pts"><b>4015</b> / 18900</span>
+        </div>
+        <div class="sb-cell" style="--team:#006d77">
+            <span class="sb-name">RJ D</span>
+            <span class="sb-pts"><b>3320</b> / 18300</span>
+        </div>
+        </div>
+    </header>
+
+    <!-- ===== bracket (static mock, full 32-surfer draw) ===== -->
+    <section class="bracket" aria-label="Event bracket">
+        <div class="round">
+            <h2 class="round-title">Round of 32</h2>
+            <div class="round-heats">
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 1</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#277da1; --team-text:#000"><span class="surfer-name">J. Florence</span><span class="surfer-team">AG</span><span class="surfer-score">5.00</span></div>
+                    <div class="surfer surfer--win" style="--team:#e63946; --team-text:#000"><span class="surfer-name">G. Medina</span><span class="surfer-team">RF</span><span class="surfer-score">7.90</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 2</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">I. Ferreira</span><span class="surfer-team">DD</span><span class="surfer-score">7.60</span></div>
+                    <div class="surfer" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">F. Toledo</span><span class="surfer-team">MP</span><span class="surfer-score">5.00</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 3</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">E. Ewing</span><span class="surfer-team">NS</span><span class="surfer-score">10.20</span></div>
+                    <div class="surfer" style="--team:#b5179e; --team-text:#000"><span class="surfer-name">G. Colapinto</span><span class="surfer-team">CP</span><span class="surfer-score">7.60</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 4</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#90be6d; --team-text:#000"><span class="surfer-name">C. Mendes</span><span class="surfer-team">KD</span><span class="surfer-score">7.30</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">J. Robinson</span><span class="surfer-team">AB</span><span class="surfer-score">10.20</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 5</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">K. Igarashi</span><span class="surfer-team">AG</span><span class="surfer-score">9.90</span></div>
+                    <div class="surfer" style="--team:#e63946; --team-text:#000"><span class="surfer-name">Y. Dora</span><span class="surfer-team">RF</span><span class="surfer-score">7.30</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 6</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">M. Pupo</span><span class="surfer-team">DD</span><span class="surfer-score">7.00</span></div>
+                    <div class="surfer surfer--win" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">J. Smith</span><span class="surfer-team">MP</span><span class="surfer-score">9.90</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 7</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">C. Coffin</span><span class="surfer-team">NS</span><span class="surfer-score">9.60</span></div>
+                    <div class="surfer" style="--team:#b5179e; --team-text:#000"><span class="surfer-name">D. Silva</span><span class="surfer-team">CP</span><span class="surfer-score">7.00</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 8</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#90be6d; --team-text:#000"><span class="surfer-name">K. Andino</span><span class="surfer-team">KD</span><span class="surfer-score">6.70</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">R. Callinan</span><span class="surfer-team">AB</span><span class="surfer-score">9.60</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 9</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">W. Carmichael</span><span class="surfer-team">AG</span><span class="surfer-score">9.30</span></div>
+                    <div class="surfer" style="--team:#e63946; --team-text:#000"><span class="surfer-name">A. de Souza</span><span class="surfer-team">RF</span><span class="surfer-score">6.70</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 10</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">C. Ibelli</span><span class="surfer-team">DD</span><span class="surfer-score">6.40</span></div>
+                    <div class="surfer surfer--win" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">A. Ribeiro</span><span class="surfer-team">MP</span><span class="surfer-score">9.30</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 11</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">J. Wilson</span><span class="surfer-team">NS</span><span class="surfer-score">9.00</span></div>
+                    <div class="surfer" style="--team:#b5179e; --team-text:#000"><span class="surfer-name">F. Morais</span><span class="surfer-team">CP</span><span class="surfer-score">6.40</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 12</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#90be6d; --team-text:#000"><span class="surfer-name">M. McGillivray</span><span class="surfer-team">KD</span><span class="surfer-score">6.10</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">S. Marks</span><span class="surfer-team">AB</span><span class="surfer-score">9.00</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 13</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">L. Mesinas</span><span class="surfer-team">AG</span><span class="surfer-score">8.70</span></div>
+                    <div class="surfer" style="--team:#e63946; --team-text:#000"><span class="surfer-name">R. Christie</span><span class="surfer-team">RF</span><span class="surfer-score">6.10</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 14</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">N. Fanner</span><span class="surfer-team">DD</span><span class="surfer-score">5.80</span></div>
+                    <div class="surfer surfer--win" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">B. Pollard</span><span class="surfer-team">MP</span><span class="surfer-score">8.70</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 15</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">J. Duru</span><span class="surfer-team">NS</span><span class="surfer-score">8.40</span></div>
+                    <div class="surfer" style="--team:#b5179e; --team-text:#000"><span class="surfer-name">R. Vaast</span><span class="surfer-team">CP</span><span class="surfer-score">5.80</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 16</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#90be6d; --team-text:#000"><span class="surfer-name">K. Slater</span><span class="surfer-team">KD</span><span class="surfer-score">5.50</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">P. Gudauskas</span><span class="surfer-team">AB</span><span class="surfer-score">8.40</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="round">
+            <h2 class="round-title">Round of 16</h2>
+            <div class="round-heats">
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 1</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#e63946; --team-text:#000"><span class="surfer-name">G. Medina</span><span class="surfer-team">RF</span><span class="surfer-score">5.00</span></div>
+                    <div class="surfer surfer--win" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">I. Ferreira</span><span class="surfer-team">DD</span><span class="surfer-score">7.90</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 2</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">E. Ewing</span><span class="surfer-team">NS</span><span class="surfer-score">7.60</span></div>
+                    <div class="surfer" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">J. Robinson</span><span class="surfer-team">AB</span><span class="surfer-score">5.00</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 3</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">K. Igarashi</span><span class="surfer-team">AG</span><span class="surfer-score">10.20</span></div>
+                    <div class="surfer" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">J. Smith</span><span class="surfer-team">MP</span><span class="surfer-score">7.60</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 4</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">C. Coffin</span><span class="surfer-team">NS</span><span class="surfer-score">7.30</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">R. Callinan</span><span class="surfer-team">AB</span><span class="surfer-score">10.20</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 5</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">W. Carmichael</span><span class="surfer-team">AG</span><span class="surfer-score">9.90</span></div>
+                    <div class="surfer" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">A. Ribeiro</span><span class="surfer-team">MP</span><span class="surfer-score">7.30</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 6</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">J. Wilson</span><span class="surfer-team">NS</span><span class="surfer-score">7.00</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">S. Marks</span><span class="surfer-team">AB</span><span class="surfer-score">9.90</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 7</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">L. Mesinas</span><span class="surfer-team">AG</span><span class="surfer-score">9.60</span></div>
+                    <div class="surfer" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">B. Pollard</span><span class="surfer-team">MP</span><span class="surfer-score">7.00</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 8</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">J. Duru</span><span class="surfer-team">NS</span><span class="surfer-score">6.70</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">P. Gudauskas</span><span class="surfer-team">AB</span><span class="surfer-score">9.60</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="round">
+            <h2 class="round-title">Quarterfinal</h2>
+            <div class="round-heats">
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 1</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">I. Ferreira</span><span class="surfer-team">DD</span><span class="surfer-score">5.00</span></div>
+                    <div class="surfer surfer--win" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">E. Ewing</span><span class="surfer-team">NS</span><span class="surfer-score">7.90</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 2</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">K. Igarashi</span><span class="surfer-team">AG</span><span class="surfer-score">7.60</span></div>
+                    <div class="surfer" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">R. Callinan</span><span class="surfer-team">AB</span><span class="surfer-score">5.00</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 3</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer surfer--win" style="--team:#277da1; --team-text:#000"><span class="surfer-name">W. Carmichael</span><span class="surfer-team">AG</span><span class="surfer-score">10.20</span></div>
+                    <div class="surfer" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">S. Marks</span><span class="surfer-team">AB</span><span class="surfer-score">7.60</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 4</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#277da1; --team-text:#000"><span class="surfer-name">L. Mesinas</span><span class="surfer-team">AG</span><span class="surfer-score">7.30</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">P. Gudauskas</span><span class="surfer-team">AB</span><span class="surfer-score">10.20</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="round">
+            <h2 class="round-title">Semifinal</h2>
+            <div class="round-heats">
+                <div class="heat heat--live">
+                    <div class="heat-label"><span>Heat 1</span><span class="heat-status">LIVE</span></div>
+                    <div class="surfer" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">E. Ewing</span><span class="surfer-team">NS</span><span class="surfer-score">5.30</span></div>
+                    <div class="surfer" style="--team:#277da1; --team-text:#000"><span class="surfer-name">K. Igarashi</span><span class="surfer-team">AG</span><span class="surfer-score">8.20</span></div>
+                </div>
+                <div class="heat heat--live">
+                    <div class="heat-label"><span>Heat 2</span><span class="heat-status">LIVE</span></div>
+                    <div class="surfer" style="--team:#277da1; --team-text:#000"><span class="surfer-name">W. Carmichael</span><span class="surfer-team">AG</span><span class="surfer-score">7.90</span></div>
+                    <div class="surfer" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">P. Gudauskas</span><span class="surfer-team">AB</span><span class="surfer-score">5.30</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="round">
+            <h2 class="round-title">Final</h2>
+            <div class="round-heats">
+                <div class="heat heat--upcoming">
+                    <div class="heat-label"><span>Heat 1</span><span class="heat-status">UPCOMING</span></div>
+                    <div class="surfer" style="--team:#cbd5e1; --team-text:#fff"><span class="surfer-name">TBD</span><span></span><span class="surfer-score">–</span></div>
+                    <div class="surfer" style="--team:#cbd5e1; --team-text:#fff"><span class="surfer-name">TBD</span><span></span><span class="surfer-score">–</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== elimination / opening round ===== -->
+    <h2 class="section-title">Elimination Round</h2>
+    <section class="bracket bracket--elim" aria-label="Elimination round">
+        <div class="round">
+            <h2 class="round-title">Opening Round</h2>
+            <div class="round-heats">
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 1</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#277da1; --team-text:#000"><span class="surfer-name">L. Mesinas</span><span class="surfer-team">AG</span><span class="surfer-score">3.50</span></div>
+                    <div class="surfer surfer--win" style="--team:#e63946; --team-text:#000"><span class="surfer-name">R. Christie</span><span class="surfer-team">RF</span><span class="surfer-score">5.20</span></div>
+                    <div class="surfer surfer--win" style="--team:#2b2d42; --team-text:#fff"><span class="surfer-name">N. Fanner</span><span class="surfer-team">DD</span><span class="surfer-score">6.90</span></div>
+                    <div class="surfer" style="--team:#f4b942; --team-text:#000"><span class="surfer-name">B. Pollard</span><span class="surfer-team">MP</span><span class="surfer-score">3.60</span></div>
+                </div>
+                <div class="heat heat--done">
+                    <div class="heat-label"><span>Heat 2</span><span class="heat-status">FINAL</span></div>
+                    <div class="surfer" style="--team:#43aa8b; --team-text:#000"><span class="surfer-name">J. Duru</span><span class="surfer-team">NS</span><span class="surfer-score">5.30</span></div>
+                    <div class="surfer surfer--win" style="--team:#b5179e; --team-text:#000"><span class="surfer-name">R. Vaast</span><span class="surfer-team">CP</span><span class="surfer-score">7.00</span></div>
+                    <div class="surfer" style="--team:#90be6d; --team-text:#000"><span class="surfer-name">K. Slater</span><span class="surfer-team">KD</span><span class="surfer-score">3.70</span></div>
+                    <div class="surfer surfer--win" style="--team:#9d4edd; --team-text:#000"><span class="surfer-name">P. Gudauskas</span><span class="surfer-team">AB</span><span class="surfer-score">5.40</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== standings ===== -->
+    <h2 class="section-title">Standings</h2>
+    <section class="team-grid" aria-label="Team standings">
+        <div class="team-card" style="--team:#9d4edd">
+            <div class="team-head"><span class="team-rank">1</span><span class="team-name">Alex B</span><span class="team-pts">21320</span></div>
+            <ul class="roster">
+                <li><span class="r-name">P. Gudauskas</span><span class="r-score">7800</span></li>
+                <li><span class="r-name">R. Callinan</span><span class="r-score">4745</span></li>
+                <li><span class="r-name">S. Marks</span><span class="r-score">4745</span></li>
+                <li><span class="r-name">J. Robinson</span><span class="r-score">3320</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:87%"></span></div>
+                <div class="foot-nums"><span>scored 21320</span><span>possible 24500</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#277da1">
+            <div class="team-head"><span class="team-rank">2</span><span class="team-name">Alec G</span><span class="team-pts">18430</span></div>
+            <ul class="roster">
+                <li><span class="r-name">W. Carmichael</span><span class="r-score">6085</span></li>
+                <li><span class="r-name">K. Igarashi</span><span class="r-score">6085</span></li>
+                <li><span class="r-name">L. Mesinas</span><span class="r-score">4745</span></li>
+                <li><span class="r-name">J. Florence</span><span class="r-score">1515</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:75%"></span></div>
+                <div class="foot-nums"><span>scored 18430</span><span>possible 24500</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#43aa8b">
+            <div class="team-head"><span class="team-rank">3</span><span class="team-name">Nick S</span><span class="team-pts">12190</span></div>
+            <ul class="roster">
+                <li><span class="r-name">E. Ewing</span><span class="r-score">6085</span></li>
+                <li><span class="r-name">C. Coffin</span><span class="r-score">3320</span></li>
+                <li><span class="r-name">J. Wilson</span><span class="r-score">2470</span></li>
+                <li><span class="r-name">J. Duru</span><span class="r-score">315</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:53%"></span></div>
+                <div class="foot-nums"><span>scored 12190</span><span>possible 22900</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#2b2d42">
+            <div class="team-head"><span class="team-rank">4</span><span class="team-name">Dusty D</span><span class="team-pts">9230</span></div>
+            <ul class="roster">
+                <li><span class="r-name">I. Ferreira</span><span class="r-score">4745</span></li>
+                <li><span class="r-name">N. Fanner</span><span class="r-score">3320</span></li>
+                <li><span class="r-name">M. Pupo</span><span class="r-score">850</span></li>
+                <li><span class="r-name">C. Ibelli</span><span class="r-score">315</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:43%"></span></div>
+                <div class="foot-nums"><span>scored 9230</span><span>possible 21700</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#f4b942">
+            <div class="team-head"><span class="team-rank">5</span><span class="team-name">Mike P</span><span class="team-pts">8460</span></div>
+            <ul class="roster">
+                <li><span class="r-name">J. Smith</span><span class="r-score">3320</span></li>
+                <li><span class="r-name">A. Ribeiro</span><span class="r-score">3320</span></li>
+                <li><span class="r-name">B. Pollard</span><span class="r-score">1505</span></li>
+                <li><span class="r-name">F. Toledo</span><span class="r-score">315</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:39%"></span></div>
+                <div class="foot-nums"><span>scored 8460</span><span>possible 21700</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#e63946">
+            <div class="team-head"><span class="team-rank">6</span><span class="team-name">Rocky F</span><span class="team-pts">5980</span></div>
+            <ul class="roster">
+                <li><span class="r-name">G. Medina</span><span class="r-score">3320</span></li>
+                <li><span class="r-name">R. Christie</span><span class="r-score">1330</span></li>
+                <li><span class="r-name">Y. Dora</span><span class="r-score">915</span></li>
+                <li><span class="r-name">A. de Souza</span><span class="r-score">415</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:30%"></span></div>
+                <div class="foot-nums"><span>scored 5980</span><span>possible 20100</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#b5179e">
+            <div class="team-head"><span class="team-rank">7</span><span class="team-name">Charlie P</span><span class="team-pts">5210</span></div>
+            <ul class="roster">
+                <li><span class="r-name">G. Colapinto</span><span class="r-score">3320</span></li>
+                <li><span class="r-name">D. Silva</span><span class="r-score">1015</span></li>
+                <li><span class="r-name">F. Morais</span><span class="r-score">560</span></li>
+                <li><span class="r-name">R. Vaast</span><span class="r-score">315</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:27%"></span></div>
+                <div class="foot-nums"><span>scored 5210</span><span>possible 19500</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#90be6d">
+            <div class="team-head"><span class="team-rank">8</span><span class="team-name">Kurt D</span><span class="team-pts">4015</span></div>
+            <ul class="roster">
+                <li><span class="r-name">C. Mendes</span><span class="r-score">1330</span></li>
+                <li><span class="r-name">K. Andino</span><span class="r-score">1330</span></li>
+                <li><span class="r-name">M. McGillivray</span><span class="r-score">1040</span></li>
+                <li><span class="r-name">K. Slater</span><span class="r-score">315</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:21%"></span></div>
+                <div class="foot-nums"><span>scored 4015</span><span>possible 18900</span></div></div>
+        </div>
+        <div class="team-card" style="--team:#006d77">
+            <div class="team-head"><span class="team-rank">9</span><span class="team-name">RJ D</span><span class="team-pts">3320</span></div>
+            <ul class="roster">
+                <li><span class="r-name">J. Wilson</span><span class="r-score">1330</span></li>
+                <li><span class="r-name">S. Marks</span><span class="r-score">915</span></li>
+                <li><span class="r-name">Y. Dora</span><span class="r-score">760</span></li>
+                <li><span class="r-name">N. Fanner</span><span class="r-score">315</span></li>
+            </ul>
+            <div class="team-foot"><div class="bar"><span style="width:18%"></span></div>
+                <div class="foot-nums"><span>scored 3320</span><span>possible 18300</span></div></div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

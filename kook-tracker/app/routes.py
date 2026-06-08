@@ -1,5 +1,6 @@
 import typing
 from collections import OrderedDict
+from itertools import groupby
 
 from colorutils import Color
 from flask import make_response, render_template, request
@@ -42,19 +43,35 @@ def index():
 @app.route("/seasons/<year>")
 def season(year: int) -> str:
     """
-    Returns an HTML page with a list of links
-    to the given Season's Events
+    Returns an HTML page summarizing the year-long picks for the
+    given season: a matrix of each competitor's pick per event,
+    season point totals, and gold/silver medals awarded to the
+    competitors whose drafted *teams* placed 1st/2nd in each event.
     """
     events = wsl.Event.query.filter_by(year=year)
-    event_dicts, colors, totals = [], [], OrderedDict()
+    event_dicts = []
+    totals = OrderedDict()
+    golds, silvers = {}, {}
+    # competitor display info, keyed by name; insertion order preserved
+    competitors = OrderedDict()
+
     for event in events:
         num_rounds = len([i for i in event.rounds])
         event_id = event.id
         event_name = event.name
 
-        event = {"name": event_name}
-        event["title"] = event_name.replace("-", " ").title()
-        event["picks"] = []
+        # award medals from the event-team standings: the competitor
+        # whose drafted roster scored highest gets gold, second silver
+        medal_for = _event_medals(event, kooks, num_rounds, year)
+
+        # picks keyed by competitor name so we can emit them in a
+        # consistent (sorted) column order later, regardless of which
+        # competitors happen to have a pick for this event
+        ev = {
+            "name": event_name,
+            "title": event_name.replace("-", " ").title(),
+            "picks": {},
+        }
 
         for kook in kooks:
             try:
@@ -67,28 +84,37 @@ def season(year: int) -> str:
                 )
                 continue
 
-            colors.append(
+            competitors.setdefault(
+                kook.name,
                 {
                     "name": kook.name,
                     "color": kook.color,
                     "text": _get_text_color(kook.color),
-                }
+                },
             )
 
-            initials = _initialize(athlete_name)
-            athlete = wsl.Athlete.query.filter_by(name=initials).first()
+            athlete = wsl.Athlete.query.filter_by(
+                name=_initialize(athlete_name)
+            ).first()
             score, _, __ = _compute_athlete_event_score(
                 athlete, event_id, num_rounds, year
             )
-            event["picks"].append((athlete_name, score))
 
-            try:
-                totals[kook.name] += score
-            except KeyError:
-                totals[kook.name] = score
+            medal = medal_for.get(kook.name)
+            ev["picks"][kook.name] = {
+                "name": athlete_name,
+                "score": score,
+                "medal": medal,
+            }
+            if medal in ("gold", "gold-half"):
+                golds[kook.name] = golds.get(kook.name, 0) + 1
+            elif medal in ("silver", "silver-half"):
+                silvers[kook.name] = silvers.get(kook.name, 0) + 1
 
-        if len(event["picks"]) > 0:
-            event_dicts.append(event)
+            totals[kook.name] = totals.get(kook.name, 0) + score
+
+        if ev["picks"]:
+            event_dicts.append(ev)
 
     if len(totals) == 0:
         return render_template(
@@ -101,31 +127,38 @@ def season(year: int) -> str:
         app.logger.warning(f"No ranch scores for year {year}")
     else:
         for kook in kooks:
+            if kook.name not in totals:
+                continue
             try:
-                score = ranch[kook.name]
+                totals[kook.name] += ranch[kook.name]
             except KeyError:
                 app.logger.warning(
                     "No ranch score for kook {} in year {}".format(
                         kook.name, year
                     )
                 )
-            else:
-                totals[kook.name] += score
 
-    totals = list(totals.values())
-    sort_totals = sorted(zip(totals, range(len(totals))), reverse=True)
-    totals, idx = zip(*sort_totals)
+    # order competitors (columns) by season total, highest first
+    competitors = list(competitors.values())
+    competitors.sort(key=lambda c: totals[c["name"]], reverse=True)
+    for comp in competitors:
+        comp["gold"] = golds.get(comp["name"], 0)
+        comp["silver"] = silvers.get(comp["name"], 0)
 
-    colors = [colors[i] for i in idx]
-    for event in event_dicts:
-        event["picks"] = [event["picks"][i] for i in idx]
+    total_list = [totals[c["name"]] for c in competitors]
+
+    # flatten each event's picks into the same column order, filling a
+    # blank for any competitor who lacks a pick for that event
+    blank = {"name": "—", "score": 0, "medal": None}
+    for ev in event_dicts:
+        ev["picks"] = [ev["picks"].get(c["name"], blank) for c in competitors]
 
     return render_template(
         "season-with-year-longs.html",
         event_year=year,
         events=event_dicts,
-        kooks=colors,
-        totals=totals,
+        competitors=competitors,
+        totals=total_list,
     )
 
 
@@ -134,18 +167,23 @@ def _initialize(name):
     return names[0][0] + ". " + names[-1]
 
 
-def _find_color_for_athlete(
+def _initials(name: str) -> str:
+    """Short team tag for a kook, e.g. 'Alec G' -> 'AG'."""
+    return "".join(part[0] for part in name.split() if part).upper()
+
+
+def _find_kook_for_athlete(
     athlete_name: str, event: wsl.Event, kooks: typing.List["Kook"]
-) -> str:
+) -> typing.Optional["Kook"]:
     """
-    quick utility function for finding the color
-    to assign to an athlete's box based on the
-    kook that drafted them
+    Find the kook (fantasy team) that drafted the given athlete
+    for this event, or None if the slot is a placeholder or the
+    athlete isn't on anyone's roster.
 
     Paramters
     ---------
-    :param athlete_name: Name of the athlete to which
-        to assign a color for their Event page cells
+    :param athlete_name: Name of the athlete whose drafting
+        kook we're looking for
     :parm event: The Event page for which this athlete's
         cells are being rendered
     :param kooks: List of kooks whose rosters to check
@@ -153,14 +191,12 @@ def _find_color_for_athlete(
 
     Returns
     -------
-    :return color: The color to associate with this
-        athlete's cells on the event page
+    :return kook: The Kook that rostered this athlete, or None
     """
     if wsl._is_placeholder_athlete_name(athlete_name):
-        # for placeholders before an athlete
-        # has been put into a slot, use a
-        # generic grey color
-        return "#bbbbbb"
+        # placeholder before an athlete has been
+        # put into a slot -- no owning kook
+        return None
 
     # otherwise look through all available kooks
     # to find the one that has the given athlete
@@ -175,14 +211,10 @@ def _find_color_for_athlete(
 
         roster = list(map(_initialize, roster))
         if athlete_name in roster:
-            # return the kook's color if the athlete
-            # is on their roster
-            return kook.color
-    else:
-        # we looped through all the kooks and none of
-        # them has rostered this athlete. Don't raise
-        # an error, leave that to the calling process
-        return None
+            return kook
+
+    # nobody has rostered this athlete
+    return None
 
 
 def _get_text_color(background_color: str) -> str:
@@ -203,25 +235,16 @@ def _get_text_color(background_color: str) -> str:
 
 def _build_athlete_rows(
     event: wsl.Event, kooks: typing.List["Kook"]
-) -> typing.Tuple[typing.Dict, typing.List[float], typing.List[float]]:
+) -> typing.List[typing.Dict]:
     """
-    top section of event page will be a large table displaying
-    the heat-by-heat results from an event.
-    attributes of cells in this table with be either `table`,
-    if there's a table to display, or `title`, a special
-    attribute reserved for the first row so that we know
-    how many round columns to create
+    Build the data for the heat-by-heat bracket section of the
+    event page. Returns one entry per round, each with a title
+    and a list of heats. Every heat carries its label, status,
+    and the surfers competing in it -- annotated with the color
+    and initials of the team that drafted them, and whether they
+    advanced. Styling itself lives in event.css.
     """
     rounds = event.sorted_rounds
-    first_row = []
-    for n in range(len(rounds)):
-        if int(event.year) >= 2026:
-            title = _ROUND_LABELS_2026[n]
-        else:
-            title = "Round {}".format(n + 1)
-        cell = {"table": False, "title": title}
-        first_row.append(cell)
-    rows = [first_row]
 
     last_round_complete, do_break = True, False
     for round in rounds:
@@ -244,63 +267,69 @@ def _build_athlete_rows(
                 do_break = True
             last_round_complete = this_round_complete
 
-    num_rows = max([len(round.heats.all()) for round in rounds])
-    for i in range(num_rows):
-        row = []
-        for round in rounds:
-            # try to get the heat for this row. If there aren't enough,
-            # then we'll just leave it blank
-            heats = round.sorted_heats
-            try:
-                heat = heats[i]
-            except IndexError:
-                row.append({"table": False, "title": False})
-                continue
+    is_2026 = int(event.year) >= 2026
 
-            # now build this table for this table *element*
-            # record the winning score so that we can circle the
-            # corresponding box
-            table = []
+    rounds_data = []
+    for n, round in enumerate(rounds):
+        if is_2026:
+            title = _ROUND_LABELS_2026[n]
+            # the opening round is a seeding/elimination round that
+            # feeds into the bracket proper
+            is_elimination = round.number == 0
+        else:
+            title = "Round {}".format(n + 1)
+            # pre-2026 events with more than 6 rounds open with seeding
+            # rounds (you advance by *not* finishing last)
+            is_elimination = round.number < 2 and len(rounds) > 6
+
+        heats_data = []
+        for h, heat in enumerate(round.sorted_heats):
             scores = [result.score or 0 for result in heat.athletes]
+            surfers = []
             for result in heat.athletes:
                 name = result.athlete.name
 
-                # find the background color this athlete's cell
-                # should have based on the kook that drafted them
-                # add an alpha value based on the status of the heat
-                background = _find_color_for_athlete(name, event, kooks)
+                # find the team (and therefore color/initials) that
+                # drafted this surfer for this event
+                kook = _find_kook_for_athlete(name, event, kooks)
 
+                # decide whether this surfer advanced out of the heat
                 winner = heat.completed
                 if round.number < 2 and len(rounds) > 6:
                     winner &= result.score != min(scores)
                 else:
                     winner &= result.score == max(scores)
 
-                if winner:
-                    border_color = "#000000"
-                    border_width = 5
-                elif background is None:
-                    border_color = "#000000"
-                    border_width = 1
-                else:
-                    border_color = "#ffffff"
-                    border_width = 1
-                background = background or "#ffffff"
-
-                background += ["55", "bb", "ff"][heat.status]
-                border = f"{border_width}px solid {border_color}"
-                table.append(
+                surfers.append(
                     {
                         "name": name,
-                        "background": background,
                         "score": result.score,
-                        "text": _get_text_color(background),
-                        "border": border,
+                        "color": kook.color if kook is not None else None,
+                        "text": (
+                            _get_text_color(kook.color) if kook else "#ffffff"
+                        ),
+                        "team": _initials(kook.name) if kook else "",
+                        "winner": bool(winner),
                     }
                 )
-            row.append({"table": table, "title": False})
-        rows.append(row)
-    return rows
+
+            heats_data.append(
+                {
+                    "label": "Heat {}".format(h + 1),
+                    "status": heat.status,
+                    "results": surfers,
+                }
+            )
+
+        rounds_data.append(
+            {
+                "title": title,
+                "heats": heats_data,
+                "elimination": is_elimination,
+            }
+        )
+
+    return rounds_data
 
 
 def _compute_athlete_event_score(
@@ -432,9 +461,77 @@ def _compute_points_possible(
     return points_possible
 
 
+def _event_team_scores(event, kooks, num_rounds, year):
+    """
+    Compute each competitor's total drafted-roster score for an event,
+    used to rank teams and award medals on the season page. Returns a
+    list of (kook_name, total_score) for kooks with a roster.
+    """
+    team_scores = []
+    for kook in kooks:
+        try:
+            roster = kook.rosters[str(year)][event.name]
+        except KeyError:
+            continue
+
+        total = 0
+        for athlete_name in roster:
+            athlete = wsl.Athlete.query.filter_by(
+                name=_initialize(athlete_name)
+            ).first()
+            if athlete is None:
+                continue
+            score, _, __ = _compute_athlete_event_score(
+                athlete, event.id, num_rounds, year
+            )
+            total += score
+        team_scores.append((kook.name, total))
+    return team_scores
+
+
+def _event_medals(event, kooks, num_rounds, year):
+    """
+    Rank the event-team standings and award medals: the competitor
+    whose drafted roster scored highest gets gold, second gets silver.
+
+    Ties share a place: if N competitors tie for a medal position, they
+    each get the "half" variant of that medal (e.g. two-way tie for first
+    -> two "gold-half") and the shared place(s) are consumed, so a tie
+    for first leaves no silver. Returns a dict mapping kook name to one
+    of "gold", "silver", "gold-half", "silver-half".
+    """
+    team_scores = _event_team_scores(event, kooks, num_rounds, year)
+    team_scores.sort(key=lambda kv: kv[1], reverse=True)
+
+    medal_for = {}
+    if not team_scores or team_scores[0][1] <= 0:
+        # nothing scored yet -- no medals to award
+        return medal_for
+
+    # group competitors by identical score, highest first
+    groups = [
+        [name for name, _ in members]
+        for _, members in groupby(team_scores, key=lambda kv: kv[1])
+    ]
+
+    first = groups[0]
+    if len(first) > 1:
+        # tie for first: split gold among them, no silver
+        for name in first:
+            medal_for[name] = "gold-half"
+        return medal_for
+
+    medal_for[first[0]] = "gold"
+    if len(groups) >= 2:
+        second = groups[1]
+        suffix = "-half" if len(second) > 1 else ""
+        for name in second:
+            medal_for[name] = "silver" + suffix
+    return medal_for
+
+
 def _build_kook_rows(event, kooks):
-    kook_rows = []
-    idx, row = 0, []
+    teams = []
     rounds = [r.sorted_heats for r in event.sorted_rounds]
     num_rounds = len(rounds)
 
@@ -460,8 +557,9 @@ def _build_kook_rows(event, kooks):
         # competition, as well as the total points the roster
         # has scored and _can possibly_ score in the competition
         kook_dict = {
-            "background": kook.color,
+            "color": kook.color,
             "text": _get_text_color(kook.color),
+            "initials": _initials(kook.name),
             "name": kook.name,
         }
 
@@ -537,14 +635,11 @@ def _build_kook_rows(event, kooks):
         kook_dict["athletes"] = athletes
         kook_dict["possible"] = possible_score
 
-        # reset row after every 3. TODO: something more robust here
-        # for configurable competitor sizes and displays
-        row.append(kook_dict)
-        idx += 1
-        if idx == 3:
-            kook_rows.append(row)
-            idx, row = 0, []
-    return kook_rows
+        teams.append(kook_dict)
+
+    # present the standings as a leaderboard, highest score first
+    teams.sort(key=lambda team: team["score"], reverse=True)
+    return teams
 
 
 @app.route("/seasons/<year>/event/<name>")
@@ -557,16 +652,20 @@ def event(year, name):
     completed = event.update()
     app.logger.debug(f"Event update returned status completed={completed}")
 
-    rows = _build_athlete_rows(event, kooks)
-    app.logger.debug(f"Retrieved {len(rows)} of athlete data")
+    rounds = _build_athlete_rows(event, kooks)
+    app.logger.debug(f"Retrieved {len(rounds)} rounds of athlete data")
 
-    kook_rows = _build_kook_rows(event, kooks)
-    app.logger.debug(f"Retrieved {len(kook_rows)} of kook data")
+    teams = _build_kook_rows(event, kooks)
+    app.logger.debug(f"Retrieved {len(teams)} teams of kook data")
 
     name = name.replace("-", " ").title()
     name = "{} {}".format(name, year)
     return render_template(
-        "event.html", event_name=name, rows=rows, kook_rows=kook_rows
+        "event.html",
+        event_name=name,
+        event_year=year,
+        rounds=rounds,
+        teams=teams,
     )
 
 

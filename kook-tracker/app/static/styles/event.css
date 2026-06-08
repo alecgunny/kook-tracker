@@ -1,16 +1,564 @@
-table.result-cell {
-    width: 100%;
+/* ============================================================
+   Kook Tracker — design system
+   Playful surf, light theme. Reused by the event + season pages.
+   ============================================================ */
+
+:root {
+    /* surface + ink */
+    --sand:      #f6f1e7;   /* page background      */
+    --sand-2:    #efe7d6;   /* subtle bands         */
+    --card:      #fffdf9;   /* card background      */
+    --ink:       #1f2937;   /* primary text         */
+    --ink-soft:  #5b6472;   /* secondary text       */
+    --line:      #e6ddca;   /* hairline borders     */
+
+    /* brand accents (ocean) */
+    --ocean:     #1f7a8c;
+    --ocean-dk:  #155263;
+    --foam:      #bfd7c8;
+    --sun:       #f4b942;
+
+    /* status */
+    --live:      #e5484d;
+
+    /* shape + depth */
+    --r-sm: 4px;
+    --r:    8px;
+    --r-lg: 12px;
+    --shadow:    0 2px 6px rgba(31, 41, 55, .06),
+                 0 8px 22px rgba(31, 41, 55, .07);
+    --shadow-sm: 0 1px 3px rgba(31, 41, 55, .10);
+
+    /* rhythm */
+    --gap:   10px;
+    --gap-lg: 24px;
 }
 
-td.heat-cell {
-    border-radius: 5px;
-    text-align: center;
-}
-
-td.heat-cell.:hover {
-  box-shadow: 0 0 11px rgba(33,33,33,.2); 
-}
+* { box-sizing: border-box; }
 
 body {
-    font-family: 'Didact Gothic', sans-serif;
+    margin: 0;
+    font-family: 'Didact Gothic', system-ui, sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(1200px 400px at 50% -120px, var(--sand-2), transparent 70%),
+        var(--sand);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px clamp(16px, 4vw, 40px) 64px;
+}
+
+/* ---------- display type ---------- */
+.event-title,
+.season-title {
+    font-family: 'Anton', system-ui, sans-serif;
+    font-weight: 400;            /* Anton ships a single heavy weight */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: .9;
+    margin: 0;
+    font-size: clamp(38px, 6.5vw, 66px);
+    color: var(--ink);
+}
+.section-title,
+.round-title {
+    font-family: 'Oswald', system-ui, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0;
+}
+.section-title {
+    font-size: clamp(22px, 3vw, 30px);
+    color: var(--ink);
+    margin: var(--gap-lg) 0 var(--gap);
+    padding-bottom: 6px;
+    border-bottom: 3px solid var(--ocean);
+}
+
+/* ---------- header ---------- */
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: var(--gap-lg);
+}
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.back-link {
+    align-self: flex-start;
+    text-decoration: none;
+    color: var(--ocean);
+    font-size: 15px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    transition: background .15s ease;
+}
+.back-link:hover { background: rgba(31, 122, 140, .10); }
+.event-subtitle {
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin: 0;
+}
+
+/* ============================================================
+   At-a-glance scoreboard (3x3, inline with the header)
+   ============================================================ */
+.scoreboard {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 7px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-sm);
+}
+.sb-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    border-left: 3px solid var(--team, var(--ocean));
+    background: var(--sand);
+}
+.sb-name {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sb-pts {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+.sb-pts b { color: var(--ink); font-weight: 700; }
+
+/* ============================================================
+   Team legend
+   ============================================================ */
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--gap-lg);
+}
+.legend-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 3px 10px 3px 4px;
+    border-radius: 999px;
+    background: var(--sand);
+}
+.legend-chip .swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--c);
+    color: var(--c-text, #fff);
+    font-size: 10px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.legend-chip b { color: var(--ink); font-weight: 600; }
+
+/* ============================================================
+   Bracket / heats
+   ============================================================ */
+.bracket {
+    display: flex;
+    gap: var(--gap);
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scroll-snap-type: x proximity;
+}
+.bracket::-webkit-scrollbar { height: 10px; }
+.bracket::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 999px;
+}
+
+.round {
+    flex: 1 0 180px;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+}
+/* the elimination round stands alone -- don't let its columns
+   stretch to fill the full page width like the funnel does */
+.bracket--elim .round { flex: 0 1 240px; }
+.round-title {
+    font-size: 17px;
+    color: var(--ink);
+    text-align: center;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 2px solid var(--ink);
+}
+.round-heats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;   /* funnels: fewer heats spread out */
+    gap: var(--gap);
+    padding-top: 8px;
+}
+
+/* a single heat card */
+.heat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow .15s ease, transform .15s ease;
+}
+.heat:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+
+.heat-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 3px 8px;
+    background: var(--sand);
+    border-bottom: 1px solid var(--line);
+}
+.heat-status {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    padding: 1px 7px;
+    border-radius: 999px;
+}
+.heat--upcoming .heat-status { background: var(--line);  color: var(--ink-soft); }
+.heat--live     .heat-status { background: var(--live);  color: #fff; }
+.heat--done     .heat-status { background: var(--foam);  color: var(--ocean-dk); }
+
+/* fade heats that haven't run yet */
+.heat--upcoming { opacity: .72; }
+.heat--live { box-shadow: 0 0 0 2px rgba(229, 72, 77, .35), var(--shadow-sm); }
+
+/* one surfer line inside a heat */
+.surfer {
+    display: grid;
+    grid-template-columns: 4px 1fr auto auto;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 10px 4px 0;
+    position: relative;
+    border-top: 1px solid var(--line);
+}
+.surfer:first-of-type { border-top: 0; }
+.surfer::before {                 /* team color accent bar */
+    content: "";
+    grid-column: 1;
+    align-self: stretch;
+    background: var(--team, #cbd5e1);
+    border-radius: 0 3px 3px 0;
+    min-height: 16px;
+}
+.surfer-name {
+    grid-column: 2;
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.surfer-team {
+    grid-column: 3;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    color: var(--team-text, #fff);
+    background: var(--team, #94a3b8);
+    padding: 1px 5px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.10);
+}
+.surfer-score {
+    grid-column: 4;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 12.5px;
+    min-width: 32px;
+    text-align: right;
+    color: var(--ink);
+}
+
+/* the surfer who advanced */
+.surfer--win {
+    background:
+        linear-gradient(90deg, rgba(244,185,66,.20), rgba(244,185,66,0) 60%);
+}
+.surfer--win .surfer-name { font-weight: 700; }
+.surfer--win::after {
+    content: "▸";
+    position: absolute;
+    right: 4px;
+    color: var(--sun);
+    font-size: 12px;
+}
+.surfer--win .surfer-score { padding-right: 12px; }
+
+/* ============================================================
+   Standings
+   ============================================================ */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: var(--gap);
+}
+.team-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--team, var(--ocean));
+    border-radius: var(--r);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.team-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 8px;
+    padding: 12px 14px 10px;
+}
+.team-rank {
+    font-family: 'Anton', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1;
+    color: var(--team, var(--ocean));
+}
+.team-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+.team-pts {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ocean-dk);
+}
+.roster {
+    list-style: none;
+    margin: 0;
+    padding: 0 14px;
+    flex: 1;
+}
+.roster li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13.5px;
+    border-top: 1px solid var(--line);
+}
+.roster li .r-name {
+    color: var(--ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.roster li .r-score {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+}
+.team-foot {
+    padding: 10px 14px 14px;
+}
+.bar {
+    height: 7px;
+    border-radius: 999px;
+    background: var(--sand-2);
+    overflow: hidden;
+}
+.bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--team, var(--ocean));
+}
+.foot-nums {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+}
+
+/* ============================================================
+   Medals (gold / silver)
+   ============================================================ */
+.medal {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.6),
+                inset 0 -1px 2px rgba(0,0,0,.25),
+                0 1px 2px rgba(0,0,0,.25);
+}
+.medal--gold   { background: radial-gradient(circle at 35% 30%, #ffe7a0, #e8a417); color: #6b4e00; }
+.medal--silver { background: radial-gradient(circle at 35% 30%, #ffffff, #aab2bd); color: #4a525c; }
+
+/* shared place (tie): one half carries the medal color, the other is
+   muted -- two tied competitors each show a "half" medal */
+.medal--gold-half {
+    background: linear-gradient(90deg, #e8a417 0 50%, #e7ddc6 50% 100%);
+    color: #6b4e00;
+}
+.medal--silver-half {
+    background: linear-gradient(90deg, #aab2bd 0 50%, #e7ddc6 50% 100%);
+    color: #4a525c;
+}
+
+/* ============================================================
+   Season matrix (year-long page)
+   ============================================================ */
+.season-header { margin-bottom: var(--gap-lg); display: flex; flex-direction: column; gap: 6px; }
+
+.matrix-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-sm);
+    background: var(--card);
+}
+.matrix {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    font-size: 13px;
+}
+.matrix th,
+.matrix td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    white-space: nowrap;
+}
+.matrix tr > *:last-child { border-right: 0; }
+
+/* sticky header row + sticky first column */
+.matrix thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--sand-2);
+}
+.matrix .corner {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    text-align: left;
+    font-family: 'Oswald', system-ui, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+.event-head {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    text-align: left;
+    background: var(--card);
+}
+.event-head a { color: var(--ocean); text-decoration: none; font-weight: 600; }
+.event-head a:hover { text-decoration: underline; }
+
+.comp-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--team);
+    color: var(--team-text);
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.cell { position: relative; }
+.cell .medal { position: absolute; top: 5px; right: 5px; }
+.cell-name { display: block; }
+.cell-score {
+    display: block;
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+}
+
+/* footer: totals + medal tallies */
+.totals-row th,
+.totals-row td {
+    border-top: 3px solid var(--ink);
+    background: var(--sand);
+}
+.totals-row th { font-family: 'Oswald', system-ui, sans-serif; text-transform: uppercase; }
+.total-cell { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+
+.medals-row th { font-family: 'Oswald', system-ui, sans-serif; text-transform: uppercase; }
+.medal-tally .tally {
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+.medal-tally .mcount {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Index / season list (basic links page)
+   ============================================================ */
+.link-list { display: flex; flex-direction: column; gap: 8px; }
+.link-list a {
+    color: var(--ocean);
+    text-decoration: none;
+    font-size: 17px;
+}
+.link-list a:hover { text-decoration: underline; }
+
+@media (max-width: 560px) {
+    .round { flex-basis: 78vw; min-width: 78vw; }
 }

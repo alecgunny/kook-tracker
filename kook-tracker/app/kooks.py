@@ -46,19 +46,22 @@ ranch_scores = {
     },
 }
 
+# 12 distinct team colors. The previous palette repeated #9593d9
+# four times, which made it impossible to tell those teams apart
+# on the event page (where surfers are colored by who drafted them).
 palette = [
-    "#ed1c24",
-    "#ff6600",
-    "#235789",
-    "#f1d302",
-    "#020100",
-    "#71816d",
-    "#0ead69",
-    "#9593d9",
-    "#ae76a6",
-    "#9593d9",
-    "#9593d9",
-    "#9593d9",
+    "#e63946",  # red
+    "#f3722c",  # orange
+    "#277da1",  # ocean blue
+    "#f4b942",  # sand yellow
+    "#2b2d42",  # near-black navy
+    "#43aa8b",  # teal
+    "#90be6d",  # leaf green
+    "#577590",  # slate blue
+    "#b5179e",  # magenta
+    "#9d4edd",  # purple
+    "#006d77",  # deep teal
+    "#bc6c25",  # caramel
 ]
 
 kook_names = [

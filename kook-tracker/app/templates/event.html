@@ -1,55 +1,109 @@
 {% extends "base.html" %}
 
+{# one bracket column: a round and its heats #}
+{% macro round_column(round) %}
+    <div class="round">
+        <h2 class="round-title">{{ round.title }}</h2>
+        <div class="round-heats">
+            {% for heat in round.heats %}
+                {% set state = "done" if heat.status == 2 else ("live" if heat.status == 1 else "upcoming") %}
+                <div class="heat heat--{{ state }}">
+                    <div class="heat-label">
+                        <span>{{ heat.label }}</span>
+                        <span class="heat-status">
+                            {{ "FINAL" if state == "done" else ("LIVE" if state == "live" else "UPCOMING") }}
+                        </span>
+                    </div>
+                    {% for surfer in heat.results %}
+                        <div class="surfer {% if surfer.winner %}surfer--win{% endif %}"
+                             style="--team: {{ surfer.color or '#cbd5e1' }}; --team-text: {{ surfer.text }}">
+                            <span class="surfer-name">{{ surfer.name }}</span>
+                            {% if surfer.team %}
+                                <span class="surfer-team">{{ surfer.team }}</span>
+                            {% else %}
+                                <span></span>
+                            {% endif %}
+                            <span class="surfer-score">
+                                {{ "%.2f"|format(surfer.score) if surfer.score is not none else "–" }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endmacro %}
+
 {% block content %}
-    <h1>{{ event_name }}</h1>
-    <table>
-        {% for row in rows %}
-            <tr>
-                {% for col in row %}
-                    {% if col.title %}
-                        <th>{{ col.title }}</th>
-                    {% elif col.table %}
-                        <td>
-                            <table class="result-cell">
-                                {% for result in col.table %}
-                                    <tr style="background-color:{{ result.background }};color:{{ result.text }}">
-                                        <td class="heat-cell" style="border:{{ result.border }}">{{ result.name }}</td>
-                                        <td class="heat-cell">{{ result.score }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        </td>
-                    {% else %}
-                        <td></td>
-                    {% endif %}
-                {% endfor %}
-            </tr>
+<div class="page">
+
+    <header class="event-header">
+        <div class="header-left">
+            {% if event_year %}
+                <a class="back-link" href="{{ url_for('season', year=event_year) }}">← {{ event_year }} season</a>
+            {% endif %}
+            <h1 class="event-title">{{ event_name }}</h1>
+        </div>
+
+        {# at-a-glance scoreboard: 9 competitors, 3x3 #}
+        <div class="scoreboard" aria-label="At-a-glance scores">
+            {% for team in teams %}
+                <div class="sb-cell" style="--team: {{ team.color }}">
+                    <span class="sb-name">{{ team.name }}</span>
+                    <span class="sb-pts"><b>{{ team.score }}</b> / {{ team.possible }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </header>
+
+    {# ---- bracket (everything except the opening/elimination round) ---- #}
+    <section class="bracket" aria-label="Event bracket">
+        {% for round in rounds if not round.elimination %}
+            {{ round_column(round) }}
         {% endfor %}
-    </table>
-    <table style="border: 0px">
-        {% for kook_row in kook_rows %}
-            <tr>
-                {% for kook in kook_row %}
-                    <td style="border-collapse:separate;border: 0px;padding-left:80px;padding-right:80px;padding-top:10px">
-                        <table style="border-collapse:collapse;border: 4px solid #000000">
-                            <tr><td colspan="2" style="background-color:{{ kook.background }};color:{{ kook.text }};text-align:center">
-                                {{ kook.name }}
-                            </td></tr>
-                            {% for athlete in kook.athletes %}
-                                <tr>
-                                    <td style="padding-right:20px">{{ athlete.name }}</td><td>{{ athlete.score }}</td>
-                                </tr>
-                            {% endfor %}
-                            <tr>
-                                <td>Total</td><td>{{ kook.score }}</td>
-                            </tr>
-                            <tr>
-                                <td>Possible</td><td>{{ kook.possible }}</td>
-                            </tr>
-                        </table>
-                    </td>
-                {% endfor %}
-            </tr>
+    </section>
+
+    {# ---- elimination / opening round, broken out below the bracket ---- #}
+    {% set elim_rounds = rounds | selectattr("elimination") | list %}
+    {% if elim_rounds %}
+        <h2 class="section-title">Elimination Round</h2>
+        <section class="bracket bracket--elim" aria-label="Elimination round">
+            {% for round in elim_rounds %}
+                {{ round_column(round) }}
+            {% endfor %}
+        </section>
+    {% endif %}
+
+    {# ---- standings ---- #}
+    <h2 class="section-title">Standings</h2>
+    <section class="team-grid" aria-label="Team standings">
+        {% for team in teams %}
+            <div class="team-card" style="--team: {{ team.color }}">
+                <div class="team-head">
+                    <span class="team-rank">{{ loop.index }}</span>
+                    <span class="team-name">{{ team.name }}</span>
+                    <span class="team-pts">{{ team.score }}</span>
+                </div>
+                <ul class="roster">
+                    {% for athlete in team.athletes %}
+                        <li>
+                            <span class="r-name">{{ athlete.name }}</span>
+                            <span class="r-score">{{ athlete.score }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="team-foot">
+                    <div class="bar">
+                        <span style="width: {{ (team.score / team.possible * 100) if team.possible else 0 }}%"></span>
+                    </div>
+                    <div class="foot-nums">
+                        <span>scored {{ team.score }}</span>
+                        <span>possible {{ team.possible }}</span>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </table>
+    </section>
+
+</div>
 {% endblock %}

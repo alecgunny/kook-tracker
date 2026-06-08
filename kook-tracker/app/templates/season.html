@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Events in {{ event_year }}</h1>
-    {% for a_event in events %}
-        <div>
+<div class="page">
+    <header class="season-header">
+        <a class="back-link" href="{{ url_for('index') }}">← all seasons</a>
+        <h1 class="season-title">Events in {{ event_year }}</h1>
+    </header>
+    <div class="link-list">
+        {% for a_event in events %}
             <a href="{{ url_for('event', year=event_year, name=a_event.name) }}">{{ a_event.title }}</a>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
