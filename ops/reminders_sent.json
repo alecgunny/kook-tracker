@@ -12,7 +12,9 @@
             "12h",
             "1h"
         ],
-        "vivo-rio-pro": [],
+        "vivo-rio-pro": [
+            "3d"
+        ],
         "tahiti-pro": [],
         "fiji-pro": [],
         "lexus-trestles-pro": [],
