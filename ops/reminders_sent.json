@@ -29,7 +29,9 @@
             "12h",
             "1h"
         ],
-        "lexus-trestles-pro": [],
+        "lexus-trestles-pro": [
+            "3d"
+        ],
         "surf-abu-dhabi": [],
         "meo-rip-curl-pro-portugal": [],
         "lexus-pipe-masters": []
