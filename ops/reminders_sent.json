@@ -35,7 +35,9 @@
             "12h",
             "1h"
         ],
-        "surf-abu-dhabi": [],
+        "surf-abu-dhabi": [
+            "3d"
+        ],
         "meo-rip-curl-pro-portugal": [],
         "lexus-pipe-masters": []
     }
