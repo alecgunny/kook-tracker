@@ -55,16 +55,16 @@
             "tz": "America/Los_Angeles"
         },
         {
-            "name": "surf-abu-dhabi",
-            "nickname": "Abu Dhabi",
-            "start_date": "2026-10-14",
-            "tz": "Asia/Dubai"
-        },
-        {
             "name": "meo-rip-curl-pro-portugal",
             "nickname": "Portugal",
-            "start_date": "2026-10-22",
+            "start_date": "2026-10-16",
             "tz": "Europe/Lisbon"
+        },
+        {
+            "name": "philippines-pro",
+            "nickname": "Philippines",
+            "start_date": "2026-10-31",
+            "tz": "Asia/Manila"
         },
         {
             "name": "lexus-pipe-masters",
