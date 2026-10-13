@@ -35,7 +35,9 @@
             "12h",
             "1h"
         ],
-        "meo-rip-curl-pro-portugal": [],
+        "meo-rip-curl-pro-portugal": [
+            "3d"
+        ],
         "philippines-pro": [],
         "lexus-pipe-masters": []
     }
