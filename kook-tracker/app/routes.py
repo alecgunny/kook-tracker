@@ -25,9 +25,25 @@ _ROUND_LABELS_2026 = [
     "Semifinal",
     "Final",
 ]
+# 2026 late season (post-cut): smaller field, so events have 5 rounds:
+# an opening elimination round feeding a 16-person bracket.
+_SCORE_BREAKDOWN_2026_POST_CUT = [1000, 2500, 4750, 6085, 7800, 10000]
+_ROUND_LABELS_2026_POST_CUT = [
+    "Opening Round",
+    "Round of 16",
+    "Quarterfinal",
+    "Semifinal",
+    "Final",
+]
 
 
-def _get_score_breakdown(year: int) -> typing.List[int]:
+def _is_post_cut(year: int, num_rounds: int) -> bool:
+    return int(year) >= 2026 and num_rounds == 5
+
+
+def _get_score_breakdown(year: int, num_rounds: int) -> typing.List[int]:
+    if _is_post_cut(year, num_rounds):
+        return _SCORE_BREAKDOWN_2026_POST_CUT
     if int(year) >= 2026:
         return _SCORE_BREAKDOWN_2026
     return _SCORE_BREAKDOWN
@@ -272,7 +288,10 @@ def _build_athlete_rows(
     rounds_data = []
     for n, round in enumerate(rounds):
         if is_2026:
-            title = _ROUND_LABELS_2026[n]
+            if _is_post_cut(event.year, len(rounds)):
+                title = _ROUND_LABELS_2026_POST_CUT[n]
+            else:
+                title = _ROUND_LABELS_2026[n]
             # the opening round is a seeding/elimination round that
             # feeds into the bracket proper
             is_elimination = round.number == 0
@@ -335,7 +354,7 @@ def _build_athlete_rows(
 def _compute_athlete_event_score(
     athlete: wsl.Athlete, event_id: int, num_rounds: int, year: int
 ) -> float:
-    score_breakdown = _get_score_breakdown(year)
+    score_breakdown = _get_score_breakdown(year, num_rounds)
     # Pre-2026: 6-round events are post-cut (opening elim already occurred),
     # so offset by 1 to skip the lowest score tier.
     # 2026+: all 6 rounds are present (opening elim through final), no offset.
@@ -360,6 +379,13 @@ def _compute_athlete_event_score(
             max_round_number = max_result.heat.round.number
 
     if max_result is None:
+        # once the opening round is done, every surfer in the event
+        # has a heat, so no result means they aren't competing
+        opening_round = wsl.Round.query.filter_by(
+            event_id=event_id, number=0
+        ).first()
+        if opening_round is not None and opening_round.completed:
+            return 0, max_result, False
         return score_breakdown[offset], max_result, False
 
     # decide if the athlete "won" this heat
@@ -537,7 +563,7 @@ def _build_kook_rows(event, kooks):
 
     # 2026+: the full breakdown applies (opening round is included in the 6).
     # Pre-2026: 6-round events are post-cut, so slice off the lowest tier.
-    _breakdown = _get_score_breakdown(event.year)
+    _breakdown = _get_score_breakdown(event.year, num_rounds)
     if int(event.year) >= 2026:
         _breakdown_for_possible = _breakdown
     else:
@@ -595,7 +621,10 @@ def _build_kook_rows(event, kooks):
 
             # now do some gross logic to keep track of the points possible
             min_done_round = 0 if int(event.year) >= 2026 else 1
-            if (
+            if last_heat is None and score == 0:
+                # not competing in this event, nothing more to score
+                pass
+            elif (
                 last_heat is not None
                 and last_heat.round.number >= min_done_round
                 and last_heat.completed
@@ -619,7 +648,6 @@ def _build_kook_rows(event, kooks):
                 # we don't know where they'll end up. For points possible
                 # then, we'll be optimistic and just assign this athlete
                 # the best possible score once all the known spots are taken
-                print("YO!", athlete, last_heat.round.number, min_done_round)
                 leftover_spots += 1
 
             athletes.append({"name": athlete_name, "score": score})
